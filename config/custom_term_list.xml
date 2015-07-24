@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<term_list>
+  <term_exclusion>
+    <term id="GO:0005515" description="protein binding" />
+    <term id="GO:0005488" description="binding" />
+    <term id="GO:0019899" description="enzyme binding" />
+    <term id="GO:0003674" description="molecular function" />
+    <term id="GO:0008150" description="biological process" />
+    <term id="GO:0005575" description="cellular component" />
+    <term id="GO:0005623" description="cell" />
+    <term id="GO:0009987" description="cellular process" />
+    <term id="GO:0044464" description="cell part" />
+</term_exclusion>
+</term_list>

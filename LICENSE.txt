@@ -1,0 +1,9 @@
+PAINT License Agreement
+Copyright (C) 2009-2007, Berkeley Bioinformatics and Ontologies Project
+Author: Suzanna Lewis (suzi@berkeleybop.org)
+
+PAINT is hereby released to the public under the terms of the BSD License
+contained in this archive in the file BSD_LICENSE. 
+
+PAINT makes use of the org.bbop, org.obo, org.geneontology, and com.sri.panther
+toolkits, which are free to distribute and modify.

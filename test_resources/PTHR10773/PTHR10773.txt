@@ -1,0 +1,37 @@
+Annotation inferences using phylogenetic trees
+The goal of the GO Reference Genome Project, described in PMID 19578431, is to provide accurate, complete and consistent GO annotations for all genes in twelve model organism genomes. To this end, GO curators are annotating evolutionary trees from the PANTHER database with GO terms describing molecular function, biological process and cellular component. GO terms based on experimental data from the scientific literature are used to annotate ancestral genes in the phylogenetic tree by sequence similarity (ISS), and unannotated descendants of these ancestral genes are inferred to have inherited these same GO annotations by descent. The annotations are done using a tool called PAINT (Phylogenetic Annotation and INference Tool).
+
+Background and phylogeny
+This is the family of the RPABC2 subunit (aka Rpb6, Rpo26, Polr2f) of the multisubunit DNA-directed RNA polymerases. It spans true eukaryotes, which have three conserved nuclear multisubunit RNA polymerases as well as two additional ones in at least some plants, and also Archaea which have a single multisubunit RNA polymerase which is more similar to that of eukarya than to that of prokarya. This subunit is not present in prokaryal RNAP.
+
+In those eukaryotes which have only the three standard nuclear RNA polymerases (I, II, and III), this subunit is found in all three of these RNAPs. 
+
+In Arabidopsis thaliana, which has two additional nuclear RNA polymerases, RNAPs IV and V (both of which appear to be derived from RNAP II), there is a duplication of this subunit and the two genes may or not be completely redundant as only one subunit has been shown to be present in RNAPs IV and V, though RNAP II is found to contain either of the two RPB6 homologs (PMID:19110459). However, it is not clear that RNAP IV and V are found universally across the plants. While there are also two copies of this gene in Oryza sativa (rice), the structure of the tree within plants suggests that the duplications in Arabidopsis and rice may have arisen separately.
+
+The kinetoplastids (including Trypanosomes, Leishmania, Giardia, and Trichomonas; root_PTN000080865) also have duplications, but there is no indication in the literature about the role(s) of these subunits individually or collectively, and I have only seen reports of additional RNA polymerase complexes in plants.
+
+MF
+- Propagated "DNA-directed RNA polymerase activity" to the root node, which includes both Eukarya and Archaea. 
+- Propagated the three terms for activity of the specific RNAP complexes I, II, and III up to the top of the eukarya:
+   "RNA polymerase I activity" (GO:0001054)
+   "RNA polymerase II activity" (GO:0001055)
+   "RNA polymerase III activity" (GO:0001056)
+
+CC
+- Propagated the three terms for the specific complexes to the top of the Eukarya (Eukaryota_PTN000080812).
+   "DNA-directed RNA polymerase I complex" (GO:0005736)
+   "DNA-directed RNA polymerase II, core complex" (GO:0005665)
+   "DNA-directed RNA polymerase III complex" (GO:0005666)
+- Propagated "DNA-directed RNA polymerase complex (GO:0000428)" to the top node of the tree, because Archaea have only a single RNAP complex, not any of the specific nuclear complexes (I, II, III, IV, or V) that are found in the Eukaryota.
+- While there are experimental CC annotations for RNA polymerase IV or V activity for A. thaliana, the structure of the tree in the plants, where this subunit appears to have undergone independent duplication in each species, does not allow propagation and only one of the two sequences within A. thaliana has been shown to be present in RNAPs IV and V.
+
+BP
+- Propagated "transcription, DNA-dependent" (GO:0006351) to the root node of the tree, primarily for the benefit of the Archaea.
+- Propagated three terms to top of the Eukarya (Eukaryota_PTN000080812):
+   "transcription from RNA polymerase I promoter" (GO:0006360)
+   "transcription from RNA polymerase II promoter" (GO:0006366)
+   "transcription from RNA polymerase III promoter" (GO:0006383)
+
+
+
+

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0_07" class="java.beans.XMLDecoder">
+ <object class="org.paint.config.Preferences">
+  <void property="bpPaintColor">
+   <object class="java.awt.Color">
+    <int>202</int>
+    <int>212</int>
+    <int>215</int>
+   </object>
+  </void>
+  <void property="ccPaintColor">
+   <object class="java.awt.Color">
+    <int>211</int>
+    <int>211</int>
+    <int>207</int>
+   </object>
+  </void>
+  <void property="curatedPaintColor">
+   <object class="java.awt.Color">
+    <int>255</int>
+    <int>180</int>
+    <int>25</int>
+   </object>
+  </void>
+  <void property="expPaintColor">
+   <object class="java.awt.Color">
+    <int>71</int>
+    <int>119</int>
+    <int>37</int>
+   </object>
+  </void>
+  <void property="inferPaintColor">
+   <object class="java.awt.Color">
+    <int>16</int>
+    <int>91</int>
+    <int>99</int>
+   </object>
+  </void>
+  <void property="mfPaintColor">
+   <object class="java.awt.Color">
+    <int>216</int>
+    <int>218</int>
+    <int>200</int>
+   </object>
+  </void>
+  <void property="msa_colors">
+   <void index="0">
+    <object class="java.awt.Color">
+     <int>173</int>
+     <int>227</int>
+     <int>255</int>
+    </object>
+   </void>
+   <void index="1">
+    <object class="java.awt.Color">
+     <int>178</int>
+     <int>255</int>
+     <int>101</int>
+    </object>
+   </void>
+   <void index="2">
+    <object class="java.awt.Color">
+     <int>255</int>
+     <int>246</int>
+     <int>132</int>
+    </object>
+   </void>
+  </void>
+  <void property="msa_weighted_colors">
+   <array class="java.awt.Color" length="3">
+    <void index="0">
+     <object class="java.awt.Color">
+      <int>50</int>
+      <int>153</int>
+      <int>255</int>
+     </object>
+    </void>
+    <void index="1">
+     <object class="java.awt.Color">
+      <int>153</int>
+      <int>203</int>
+      <int>255</int>
+     </object>
+    </void>
+    <void index="2">
+     <object class="java.awt.Color">
+      <int>204</int>
+      <int>229</int>
+      <int>255</int>
+     </object>
+    </void>
+   </array>
+  </void>
+  <void property="msa_weighted_threshold">
+   <array class="float" length="3">
+    <void index="0">
+     <float>90.0</float>
+    </void>
+    <void index="1">
+     <float>75.0</float>
+    </void>
+    <void index="2">
+     <float>50.0</float>
+    </void>
+   </array>
+  </void>
+ </object>
+</java>
