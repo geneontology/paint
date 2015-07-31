@@ -52,12 +52,12 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	private static final long serialVersionUID = 1L;
 	protected static Logger log = Logger.getLogger(FileMenu.class);
 
-	private JMenuItem openDBItem;
-	private JMenuItem openLocalFileItem;
-	private JMenuItem saveFileLocalItem;
+	private JMenuItem newFamItem;
+	private JMenuItem openFamItem;
+	private JMenuItem saveFamItem;
 
-	private static final String open_db = "New ... ";
-	private static final String open_file = "Open ... ";
+	private static final String new_fam = "New ... ";
+	private static final String open_fam = "Open ... ";
 	private static final String save_annots = "Save ... ";
 
 	private static List<FileMenu> instances = new ArrayList<FileMenu>();
@@ -66,21 +66,21 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 		super("Annotate");
 		this.setMnemonic('f');
 
-		openDBItem = new JMenuItem(open_db);
-		openDBItem.addActionListener(new OpenFromDBActionListener());
-		this.add(openDBItem);
+		newFamItem = new JMenuItem(new_fam);
+		newFamItem.addActionListener(new NewFamilyActionListener());
+		this.add(newFamItem);
 
 		this.addSeparator();
 
-		openLocalFileItem = new JMenuItem(open_file);
-		openLocalFileItem.addActionListener(new OpenFromFileActionListener());
-		this.add(openLocalFileItem);
+		openFamItem = new JMenuItem(open_fam);
+		openFamItem.addActionListener(new OpenFamilyActionListener());
+		this.add(openFamItem);
 
 		this.addSeparator();
 
-		saveFileLocalItem = new JMenuItem(save_annots);
-		saveFileLocalItem.addActionListener(new SaveToFileActionListener());
-		this.add(saveFileLocalItem);
+		saveFamItem = new JMenuItem(save_annots);
+		saveFamItem.addActionListener(new SaveToFileActionListener());
+		this.add(saveFamItem);
 
 		this.addSeparator();
 
@@ -92,10 +92,10 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	}
 
 	public void updateMenu() {
-		openDBItem.setEnabled(InternetChecker.getInstance().isConnectionPresent(true));
+		newFamItem.setEnabled(InternetChecker.getInstance().isConnectionPresent(true));
 
 		boolean family_loaded = DirtyIndicator.inst().familyLoaded();
-		saveFileLocalItem.setEnabled(family_loaded);
+		saveFamItem.setEnabled(family_loaded);
 	}
 
 	private static class SaveToFileActionListener implements ActionListener {
@@ -113,7 +113,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	/** Opens book from database
 	 * 
 	 */
-	private class OpenFromDBActionListener implements ActionListener{
+	private class NewFamilyActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 				protected Void doInBackground() throws Exception {
@@ -154,7 +154,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	 * @author
 	 * @version %I%, %G%
 	 */
-	private class OpenFromFileActionListener implements ActionListener{
+	private class OpenFamilyActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 				protected Void doInBackground() throws Exception {

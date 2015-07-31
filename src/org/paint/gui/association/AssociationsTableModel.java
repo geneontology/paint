@@ -162,7 +162,7 @@ implements PaintTable {
 		if (tag.equals(CODE_COL_NAME)) {
 			return CODE_COL_NAME;
 		} else if (tag.equals(TERM_COL_NAME)) {
-			return OWLutil.inst().getTermLabel(association.getCls());
+			return OWLutil.getTermLabel(association.getCls());
 		} else if (tag.equals(REFERENCE_COL_NAME)) {
 			String xref_text = association.getReferenceIds().toString();
 			return xref_text;

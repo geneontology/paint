@@ -29,6 +29,7 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
+import org.bbop.phylo.tracking.LogAction;
 import org.bbop.swing.DynamicMenu;
 import org.paint.dialog.CurationStatusColorDialog;
 import org.paint.dialog.find.FindDialog;
@@ -38,7 +39,8 @@ import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 import org.paint.main.PaintManager;
-import org.bbop.phylo.tracking.LogAction;
+
+import owltools.gaf.Bioentity;
 
 public class EditMenu extends DynamicMenu
 implements FamilyChangeListener, AnnotationChangeListener  {
@@ -107,13 +109,15 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 	 */
 	private class undoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
-			LogAction.undo();
+			Bioentity node = LogAction.undo(PaintManager.inst().getFamily());
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}
 	}
 
 	private class redoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
-			LogAction.redo();
+			Bioentity node = LogAction.redo(PaintManager.inst().getFamily());
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}
 	}
 

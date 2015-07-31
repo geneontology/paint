@@ -44,8 +44,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.Icon;
@@ -54,16 +52,14 @@ import javax.swing.TransferHandler;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.PaintAction;
-import org.bbop.phylo.model.Family;
 import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.displaymodel.DisplayBioentity;
+import org.paint.gui.event.AnnotationChangeEvent;
+import org.paint.gui.event.EventManager;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class AnnotationTransferHandler extends TransferHandler {
 
@@ -254,6 +250,8 @@ public class AnnotationTransferHandler extends TransferHandler {
 		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, null, 0); 
 
 		clearVisitedNodes(tree);
+		
+		EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 
 		return true;
 	}
@@ -344,7 +342,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 				String term_name;
 				try {
 					String term = (String) t.getTransferData(TERM_FLAVOR);
-					term_name = OWLutil.inst().getTermLabel(term);
+					term_name = OWLutil.getTermLabel(term);
 					int height = fm.getHeight() + 2;
 					int width = fm.stringWidth("    " + term_name);
 					Image img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);

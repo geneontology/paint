@@ -26,7 +26,7 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 	private boolean odd_column = false;
 	private String narrower_term = null;
 	
-	private static final Logger log = Logger.getLogger(PaintManager.class);
+//	private static final Logger log = Logger.getLogger(PaintManager.class);
 
 	public ColumnTermData() {
 		super("");
@@ -72,10 +72,10 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 
 	private void addParentTerms(String term, List<String> column_terms, List<String> term_list) {
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
-		List<String> ancestors = OWLutil.inst().getAncestors(term);
+		List<String> ancestors = OWLutil.getAncestors(term);
 		if (ancestors != null) {
 			for (String ancestor : ancestors) {
-				String label = OWLutil.inst().getTermLabel(ancestor);
+				String label = OWLutil.getTermLabel(ancestor);
 				boolean add_item = !term.equals(ancestor);
 				add_item &= !exclusionTerms.contains(ancestor);
 				add_item &= !label.endsWith(" part");
@@ -83,7 +83,6 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 				add_item &= !term_list.contains(ancestor);
 				if (add_item) {
 					addTermMenuItem(ancestor, term_list);
-					column_terms.add(term);
 				}
 			}
 		}		
@@ -92,9 +91,9 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 	private JRadioButtonMenuItem addTermMenuItem(String term, List<String> term_list) {
 		JRadioButtonMenuItem radio = null;
 		if (!term_list.contains(term)) {
-			radio = new JRadioButtonMenuItem(OWLutil.inst().getTermLabel(term));
+			radio = new JRadioButtonMenuItem(OWLutil.getTermLabel(term));
 			term_buttons.add(radio);
-			radio.setActionCommand(OWLutil.inst().getTermLabel(term));
+			radio.setActionCommand(OWLutil.getTermLabel(term));
 			radio.addActionListener(this);
 			add(radio);
 			term_list.add(term);
@@ -107,7 +106,7 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 		String term = null;
 		for (Iterator<String> iter = term_list.iterator(); iter.hasNext() && term == null; ) {
 			String check = iter.next();
-			if (OWLutil.inst().getTermLabel(check).equals(term_name)) {
+			if (OWLutil.getTermLabel(check).equals(term_name)) {
 				term = check;
 			}
 		}

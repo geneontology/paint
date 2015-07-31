@@ -42,7 +42,7 @@ public class WithCellRenderer extends DefaultTableCellRenderer {
 		setFont(prefs.getFont());
 		setForeground(prefs.getForegroundColor());
 		GeneAnnotation assoc = ((AssociationsTableModel) table.getModel()).getEvidenceForRow(row);
-		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.inst().getAspect(assoc.getCls()));
+		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.getAspect(assoc.getCls()));
 		bg_color = RenderUtil.getAspectColor(aspect_name);
 		setBackground(bg_color);
 

@@ -85,9 +85,9 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 			color = c;
 		}
 		
-		String col_term = OWLutil.inst().getTermLabel(matrix.getTermForColumn(column));
+		String col_term = OWLutil.getTermLabel(matrix.getTermForColumn(column));
 		if (associationData != null && associationData.getAssociation() != null) {
-			String term_name = OWLutil.inst().getTermLabel(associationData.getAssociation().getCls());
+			String term_name = OWLutil.getTermLabel(associationData.getAssociation().getCls());
 			String row_name = node.getSymbol();
 			if (term_name != null && term_name.length() > 0 && !col_term.equals(term_name))
 				col_term += " (" + term_name + ')';

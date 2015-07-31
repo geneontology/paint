@@ -29,8 +29,8 @@ public class TermCountComparator implements Comparator<String> {
 		
 		if (nodes != null) {
 			for (Bioentity node : nodes) {
-				GeneAnnotation assoc_a = OWLutil.inst().isAnnotatedToTerm(node.getAnnotations(), term_a);
-				GeneAnnotation assoc_b = OWLutil.inst().isAnnotatedToTerm(node.getAnnotations(), term_b);
+				GeneAnnotation assoc_a = OWLutil.isAnnotatedToTerm(node.getAnnotations(), term_a);
+				GeneAnnotation assoc_b = OWLutil.isAnnotatedToTerm(node.getAnnotations(), term_b);
 				count_a += assoc_a != null && AnnotationUtil.isExpAnnotation(assoc_a) ? 1 : 0;
 				count_b += assoc_b != null && AnnotationUtil.isExpAnnotation(assoc_b) ? 1 : 0;
 			}

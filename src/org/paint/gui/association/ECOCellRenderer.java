@@ -66,7 +66,7 @@ public class ECOCellRenderer extends JLabel implements TableCellRenderer {
 		} else {
 			setIcon(null);
 		}
-		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.inst().getAspect(assoc.getCls()));
+		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.getAspect(assoc.getCls()));
 		bg_color = RenderUtil.getAspectColor(aspect_name);
 		setBackground(bg_color);
 		return this;

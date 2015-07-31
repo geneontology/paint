@@ -227,10 +227,10 @@ public class OpenNewFamily extends JDialog implements ActionListener {
 		JScrollPane familiesScrollPane = new JScrollPane(familyTable);
 		familyTable.addMouseListener(getMouseListener());
 
-		JLabel lockedBooksLabel = new JLabel("Search Results");
-		lockedBooksLabel.setPreferredSize(lockedBooksLabel.getPreferredSize());
+		JLabel search_results = new JLabel("Search Results");
+		search_results.setPreferredSize(search_results.getPreferredSize());
 
-		bookListPanel.add(lockedBooksLabel);
+		bookListPanel.add(search_results);
 		bookListPanel.add(familiesScrollPane);
 
 		JPanel containerPanel = new JPanel();

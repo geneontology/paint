@@ -80,7 +80,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 	}
 
 	private List<String> possibleTerms() {
-		List<String> temp_list = new ArrayList<String> ();
+		List<String> exp_list = new ArrayList<String> ();
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
 		for (Bioentity node : nodes) {
 			List<GeneAnnotation> assocs = AnnotationUtil.getAspectExpAssociations(node, AspectSelector.inst().getAspectCode(aspect_name));
@@ -88,13 +88,13 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			if (assocs != null) {
 				for (GeneAnnotation assoc : assocs) {
 					String term = assoc.getCls();
-					if (!temp_list.contains(term) && !exclusionTerms.contains(term)) {
-						temp_list.add(term);
+					if (!exp_list.contains(term) && !exclusionTerms.contains(term)) {
+						exp_list.add(term);
 					}
 				}
 			}
 		}
-		return temp_list;
+		return exp_list;
 	}
 
 	protected void initTerms(List<String> exp_list, List<String []> added_term_list) {
@@ -104,6 +104,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 
 		if (nodes != null) {
 			if (!added_term_list.isEmpty()) {
+				// Make a note of any terms that have already been added to a term menu
 				for (String [] added_term : added_term_list) {
 					temp_list.add(added_term[BROADER]);
 				}
@@ -116,7 +117,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		for (String t : term_list) {
 			ColumnTermData td = term2menu.get(t);
 			for (String [] added_term : added_term_list) {
-				if (added_term[BROADER] == t)
+				if (added_term[BROADER].equals(t))
 					td.setNarrowTerm(added_term[NARROWER]);
 			}
 			td.initTermMenu(t, term_list);
@@ -138,7 +139,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		/* Hack alert - hard coded the GO id for cellular process here */
 		String cellular = "GO:0009987";
 		for (String term : temp_list) {
-			if (OWLutil.inst().moreSpecific(term, cellular)) {
+			if (OWLutil.moreSpecific(term, cellular)) {
 				cellular_list.add(term);
 			}
 		}
@@ -175,7 +176,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			term2menu.put(cur_term, td);
 			for (int i = 0; i < orig_termlist.size();) {
 				String other_term = orig_termlist.get(i);
-				if (OWLutil.inst().moreSpecific(other_term, cur_term)) {
+				if (OWLutil.moreSpecific(other_term, cur_term) || OWLutil.moreSpecific(cur_term, other_term)) {
 					orig_termlist.remove(i);
 					term_list.add(other_term);
 					td = new ColumnTermData();
@@ -195,7 +196,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		if (remove) {
 			for (int i = 0; i < added_term_list.size() && !modify; i++) {
 				String [] check = added_term_list.get(i);
-				if (check[BROADER] == added_term[BROADER] && check[NARROWER] == added_term[NARROWER]) {
+				if (check[BROADER].equals(added_term[BROADER]) && check[NARROWER].equals(added_term[NARROWER])) {
 					added_term_list.remove(i);
 					modify = true;
 				}
@@ -204,8 +205,8 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			modify = true;
 			for (int i = 0; i < added_term_list.size() && modify; i++) {
 				String [] check = added_term_list.get(i);
-				modify &= !(check[BROADER] == added_term[BROADER] 
-						&& check[NARROWER] == added_term[NARROWER]);
+				modify &= !(check[BROADER].equals(added_term[BROADER]) 
+						&& check[NARROWER].equals(added_term[NARROWER]));
 			}
 			if (modify) 
 				added_term_list.add(added_term);
@@ -233,7 +234,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			boolean allowable = false;
 			for (int i = 0; i < exp_terms.size() && !allowable; i++) {
 				String exp_term = exp_terms.get(i);
-				if (check[NARROWER] == exp_term 
+				if (check[NARROWER].equals(exp_term)
 						&& !exp_terms.contains(check[BROADER]) 
 						&& !allowable_terms.contains(check)) {
 					allowable_terms.add(check);
@@ -263,7 +264,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int columnIndex) {
-		String name = OWLutil.inst().getTermLabel(term_list.get(columnIndex));
+		String name = OWLutil.getTermLabel(term_list.get(columnIndex));
 		return name;
 	}
 
@@ -386,7 +387,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			/*
 			 * Is term4column a parent term of annotated2term?
 			 */
-			else if (OWLutil.inst().moreSpecific(assoc_term, term)) {
+			else if (OWLutil.moreSpecific(assoc_term, term)) {
 				if (experimentalOnly) {
 					if (AnnotationUtil.isExpAnnotation(assoc)) {
 						narrower_terms.add(assoc);
@@ -399,7 +400,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			/*
 			 * Conversely is term4column a child term of annotated2term
 			 */
-			else if (OWLutil.inst().moreSpecific(term, assoc_term)) {
+			else if (OWLutil.moreSpecific(term, assoc_term)) {
 				if (experimentalOnly) {
 					if (AnnotationUtil.isExpAnnotation(assoc)) {
 						broader_terms.add(assoc);
@@ -466,7 +467,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 					term = term.length() > 1 ? term.substring(0, term.length() - 1) : "";
 					Pattern p = Pattern.compile(".*" + term + ".*");
 					for (String check : term_list) {
-						String s = OWLutil.inst().getTermLabel(check);
+						String s = OWLutil.getTermLabel(check);
 						if (p.matcher(s).matches()) {
 							matches.add(check);
 						}

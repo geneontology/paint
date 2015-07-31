@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Tree;
+import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
@@ -255,6 +256,7 @@ public class DisplayTree extends Tree implements Serializable {
 		if (change) {
 			nodesReordered();
 		}
+		EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		return change;
 	}
 

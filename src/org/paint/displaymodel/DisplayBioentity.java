@@ -196,6 +196,9 @@ public class DisplayBioentity extends Bioentity {
 		Preferences user_settings = Preferences.inst();
 		Color       fillColor = dropColor != null ? dropColor :
 			RenderUtil.annotationStatusColor(this, user_settings.getBackgroundColor(), true);
+		if (isSelected()) {
+			fillColor = fillColor.brighter();
+		}
 		Color       drawColor = user_settings.getForegroundColor();
 
 		connectToParent(root, g);

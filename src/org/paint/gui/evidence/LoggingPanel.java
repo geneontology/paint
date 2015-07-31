@@ -32,11 +32,13 @@ import org.bbop.phylo.touchup.Constant;
 import org.bbop.phylo.tracking.LogAction;
 import org.paint.config.Preferences;
 import org.paint.gui.AspectSelector.Aspect;
+import org.paint.gui.event.AnnotationChangeEvent;
+import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 
-public class LoggingPanel extends JPanel implements FamilyChangeListener {
+public class LoggingPanel extends JPanel implements FamilyChangeListener, AnnotationChangeListener {
 	/**
 	 * 
 	 */
@@ -79,6 +81,7 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener {
 		add(annotation_log);
 		setLogText();
 		EventManager.inst().registerFamilyListener(this);
+		EventManager.inst().registerGeneAnnotationChangeListener(this);
 	}
 
 	private void setLogText() {
@@ -111,6 +114,11 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener {
 
 	@Override
 	public void newFamilyData(FamilyChangeEvent e) {
+		setLogText();
+	}
+
+	@Override
+	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
 		setLogText();
 	}
 }

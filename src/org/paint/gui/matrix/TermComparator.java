@@ -12,8 +12,8 @@ public class TermComparator implements Comparator<String> {
 	public static final int EQUAL_TO = 0;
 
 	public int compare(String term_a, String term_b) {
-		String aspect_a = OWLutil.inst().getAspect(term_a);
-		String aspect_b = OWLutil.inst().getAspect(term_b);
+		String aspect_a = OWLutil.getAspect(term_a);
+		String aspect_b = OWLutil.getAspect(term_b);
 
 		/* 
 		 * Want the ordering to be MF, CC, BP, so reverse the sign by
@@ -30,7 +30,7 @@ public class TermComparator implements Comparator<String> {
 					comparison = isParent(term_b, term_a) * -1;
 				}
 				if (comparison == EQUAL_TO) {
-					comparison = compareStrings(OWLutil.inst().getTermLabel(term_a), OWLutil.inst().getTermLabel(term_b));
+					comparison = compareStrings(OWLutil.getTermLabel(term_a), OWLutil.getTermLabel(term_b));
 				}
 		}
 		return comparison;
@@ -54,7 +54,7 @@ public class TermComparator implements Comparator<String> {
 	 */
 	protected static int isParent(String c, String p) {
 		int comparison = EQUAL_TO;
-		if (OWLutil.inst().moreSpecific(p, c)) {
+		if (OWLutil.moreSpecific(p, c)) {
 			comparison = LESS_THAN;
 		}
 		return comparison;

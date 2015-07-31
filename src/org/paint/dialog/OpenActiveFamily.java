@@ -31,7 +31,7 @@ public class OpenActiveFamily {
 
 	private static String extension;
 	private static final String USER_DIR = "user.dir";
-	private static final String DATA_DIR = "data";
+	private static final String DATA_DIR = "test_resources";
 
 	private JFileChooser chooser;
 	private Frame frame;

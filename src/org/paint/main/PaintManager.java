@@ -161,7 +161,7 @@ public class PaintManager {
 				msa_pane.setModel(msa);
 			}
 			try {
-				fireProgressChange("Fetching experimental annotations", 0, ProgressEvent.Status.START);
+				fireProgressChange("Fetching experimental annotations from GOLR", 0, ProgressEvent.Status.START);
 				AnnotationUtil.collectExpAnnotationsBatched(family);
 				/*
 				 * The file may be null, in which case the following two methods
@@ -175,7 +175,6 @@ public class PaintManager {
 			} catch (Exception e) {
 				success = false;
 			}
-
 
 			// Keep a copy of the latest subfamily to sequence information
 			// loaded from database.

@@ -49,8 +49,11 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.model.Family;
 import org.bbop.phylo.touchup.Constant;
+import org.bbop.phylo.tracking.LogAction;
+import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
@@ -199,10 +202,13 @@ AspectChangeListener
 		if (row >= 0 && row <= assoc_model.getRowCount()) {
 			int column = columnAtPoint(point);
 			if (HyperlinkLabel.class == getModel().getColumnClass(column)) {
-				GeneAnnotation evi = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
-//				DBXref xref = evi.getDbxref();
-//				String text = HTMLUtil.getURL(xref.getDb_name(), xref.getAccession(), false);
-//				HTMLUtil.bringUpInBrowser(text);
+				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
+				List<String> evi = assoc.getReferenceIds();
+				if (evi.size() == 1) {
+					String [] xref = evi.get(0).split(":");
+					String text = HTMLUtil.getURL(xref[0], xref[1], false);
+					HTMLUtil.bringUpInBrowser(text);
+				}
 			}
 			else if (String.class == getModel().getColumnClass(column)) {
 				// this event is handled on mouse press, not click (so menu will disappear)
@@ -216,7 +222,7 @@ AspectChangeListener
 				 * so check first before deleting a term
 				 */
 				if (deletable && assoc.isMRC()) {
-//					PaintAction.inst().removeAssociation(GO_Util.inst().getGeneNode(assoc.getGene_product()), assoc.getTerm());
+					LogAction.undo(PaintManager.inst().getFamily(), assoc);
 					String deleted_term = assoc.getCls();
 					assoc_model.fireTableDataChanged();
 					/**
@@ -231,8 +237,8 @@ AspectChangeListener
 					// Notify listeners that the gene data has changed too
 					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 				} else if (deletable && assoc.isDirectNot()) {
-//					PaintAction.inst().unNot (evi, node, true);
-//					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+					LogAction.undo(PaintManager.inst().getFamily(), assoc);
+					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 				}
 			} else if (GeneAnnotation.class == getModel().getColumnClass(column)) {
 				GeneAnnotation assoc = (GeneAnnotation) getModel().getValueAt(row, column);
@@ -240,13 +246,13 @@ AspectChangeListener
 				String text = HTMLUtil.getURL("AMIGO", term, true);
 				HTMLUtil.bringUpInBrowser(text);
 			} else if (HashSet.class == getModel().getColumnClass(column)) {
-				GeneAnnotation evi = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
-//				Set<DBXref> withs = evi.getWiths();
-//				if (withs != null && withs.size() == 1) {
-//					DBXref xref = withs.iterator().next();
-//					String text = HTMLUtil.getURL(xref.getDb_name(), xref.getAccession(), true);
-//					HTMLUtil.bringUpInBrowser(text);
-//				}
+				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
+				Collection<String> withs = assoc.getWithInfos();
+				if (withs != null && withs.size() == 1) {
+					String [] xref = withs.iterator().next().split(":");
+					String text = HTMLUtil.getURL(xref[0], xref[1], true);
+					HTMLUtil.bringUpInBrowser(text);
+				}
 			}
 		}
 	}
@@ -323,7 +329,7 @@ AspectChangeListener
 						}
 						else if (!leafAssoc.isNegated()) {
 							if (leafAssoc.getCls().equals(assoc.getCls()) ||
-									OWLutil.inst().moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
+									OWLutil.moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
 								validNot = false;
 								break;
 							}
@@ -353,12 +359,12 @@ AspectChangeListener
 
 	public class notActionListener implements ActionListener {
 
-		private GeneAnnotation evidence;
+		private GeneAnnotation assoc;
 		int row;
 		String [] menu_str;
 
 		public notActionListener(GeneAnnotation evidence, int row, String [] menu_str) {
-			this.evidence = evidence;
+			this.assoc = evidence;
 			this.row = row;
 			this.menu_str = menu_str;
 		}
@@ -367,7 +373,7 @@ AspectChangeListener
 			JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
 			String s = item.getText();
 			String ev_code = Constant.NOT_QUALIFIERS_TO_EVIDENCE_CODES.get(s);
-//			PaintAction.inst().setNot(evidence, node, ev_code, true);
+			PaintAction.inst().setNot(PaintManager.inst().getFamily(), node, assoc, ev_code, true);
 			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}
 	}
@@ -389,10 +395,8 @@ AspectChangeListener
 
 	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
 		if (node != null && event.getSource() != null) {
-			if (node.equals(event.getSource())) {
-				assoc_model.setNode(node);
-				assoc_model.fireTableDataChanged();		
-			}
+			assoc_model.setNode(node);
+			assoc_model.fireTableDataChanged();		
 		}
 	}
 
