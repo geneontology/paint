@@ -64,6 +64,7 @@ import javax.swing.plaf.ColorUIResource;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.tracking.LogAction;
 import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.displaymodel.DisplayTree;
@@ -138,7 +139,7 @@ AnnotationDragListener {
 
 	private DisplayTree tree;
 
-	private static Logger log = Logger.getLogger(TreePanel.class);
+//	private static Logger log = Logger.getLogger(TreePanel.class);
 
 	/**
 	 * Constructor declaration
@@ -903,9 +904,10 @@ AnnotationDragListener {
 			if (node.isPruned()) {
 				PaintAction.inst().pruneBranch(node, true);
 			} else {
-				PaintAction.inst().graftBranch(node, null, true);
+				LogAction.logGrafting(PaintManager.inst().getFamily(), node);
 			}
-			tree.handlePruning(node);
+			handlePruning(node);
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}
 	}
 

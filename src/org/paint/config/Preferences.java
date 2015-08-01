@@ -46,7 +46,6 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
-import org.bbop.phylo.touchup.Constant;
 import org.paint.util.SVGIcon;
 import org.paint.util.VersionNumber;
 
@@ -58,7 +57,7 @@ public class Preferences {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5472475387423113108L;
+//	private static final long serialVersionUID = -5472475387423113108L;
 
 	protected static Logger log = Logger.getLogger("org.panther.paint.config.Preferences");
 

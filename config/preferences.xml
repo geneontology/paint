@@ -24,9 +24,9 @@
   </void>
   <void property="expPaintColor">
    <object class="java.awt.Color">
-    <int>71</int>
-    <int>119</int>
-    <int>37</int>
+    <int>41</int>
+    <int>153</int>
+    <int>9</int>
    </object>
   </void>
   <void property="inferPaintColor">

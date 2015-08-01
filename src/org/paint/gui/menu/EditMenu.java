@@ -29,7 +29,9 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
+import org.bbop.phylo.model.Family;
 import org.bbop.phylo.tracking.LogAction;
+import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.swing.DynamicMenu;
 import org.paint.dialog.CurationStatusColorDialog;
 import org.paint.dialog.find.FindDialog;
@@ -38,9 +40,8 @@ import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
+import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
 
 public class EditMenu extends DynamicMenu
 implements FamilyChangeListener, AnnotationChangeListener  {
@@ -57,7 +58,7 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 	private static final String undo = "Undo";
 	private static final String redo = "Redo";
 	private static final String find = "Find...";
-	private static final String curation_status_color = "Curation status colors...";
+	private static final String curation_status_color = "Color selection...";
 
 	public EditMenu() {
 		super("Edit");
@@ -109,15 +110,27 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 	 */
 	private class undoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
-			Bioentity node = LogAction.undo(PaintManager.inst().getFamily());
-			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+			Family family = PaintManager.inst().getFamily();
+			LogEntry entry = LogAction.undo(family);
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(entry.getNode()));
+			if (entry.getAction() == LogEntry.LOG_ENTRY_TYPE.PRUNE) {
+				NodeReorderEvent event = new NodeReorderEvent(this);
+				event.setNodes(family.getTree().getTerminusNodes());
+				EventManager.inst().fireNodeReorderEvent(event);
+			}
 		}
 	}
 
 	private class redoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
-			Bioentity node = LogAction.redo(PaintManager.inst().getFamily());
-			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+			Family family = PaintManager.inst().getFamily();
+			LogEntry entry = LogAction.redo(family);
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(entry.getNode()));
+			if (entry.getAction() == LogEntry.LOG_ENTRY_TYPE.PRUNE) {
+				NodeReorderEvent event = new NodeReorderEvent(this);
+				event.setNodes(family.getTree().getTerminusNodes());
+				EventManager.inst().fireNodeReorderEvent(event);
+			}
 		}
 	}
 

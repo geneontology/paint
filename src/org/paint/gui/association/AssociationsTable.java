@@ -50,7 +50,6 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.annotate.PaintAction;
-import org.bbop.phylo.model.Family;
 import org.bbop.phylo.touchup.Constant;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.util.OWLutil;

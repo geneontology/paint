@@ -256,7 +256,6 @@ public class DisplayTree extends Tree implements Serializable {
 		if (change) {
 			nodesReordered();
 		}
-		EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		return change;
 	}
 

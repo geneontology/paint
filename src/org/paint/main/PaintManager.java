@@ -53,7 +53,7 @@ public class PaintManager {
 	 */
 	private static PaintManager INSTANCE = null;
 
-	private static final long serialVersionUID = 1L;
+//	private static final long serialVersionUID = 1L;
 
 	private TreePanel tree_pane;
 	private GeneTable genes_pane;
@@ -67,7 +67,7 @@ public class PaintManager {
 
 	private static Family family;
 
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
+//    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
 	
 	private PaintManager() {
 		// Exists only to defeat instantiation.
