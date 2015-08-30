@@ -19,7 +19,6 @@
  */
 package org.paint.main;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,8 @@ import org.bbop.phylo.panther.IDmap;
 import org.bbop.phylo.panther.PantherAdapter;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogAlert;
+import org.bbop.phylo.tracking.Logger;
+import org.bbop.phylo.util.DirectoryUtil;
 import org.paint.displaymodel.DisplayTree;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.event.EventManager;
@@ -61,9 +62,6 @@ public class PaintManager {
 	private AnnotMatrix annot_matrix;
 
 //	private static Hashtable<String, Vector<DisplayBioentity>> origTreeTable; // Subfamily
-
-	// Set when user chooses file from local file system
-	private static File currentDirectory; 
 
 	private static Family family;
 
@@ -135,7 +133,7 @@ public class PaintManager {
 	 * 
 	 * @see
 	 */
-	public void openNewFamily(String family_id, String path) {
+	public void openNewFamily(String family_id) {
 
 		fireProgressChange("Fetching protein family", 0, ProgressEvent.Status.START);
 
@@ -167,7 +165,7 @@ public class PaintManager {
 				 * The file may be null, in which case the following two methods
 				 * simply return
 				 */
-				org.bbop.phylo.tracking.Logger.importPrior(family.getFamily_name());
+				Logger.importPrior(DirectoryUtil.inst().getGafDir(), family.getFamily_name());
 
 				fireProgressChange("Fetching PAINT annotations", 0, ProgressEvent.Status.START);
 				GafPropagator.importAnnotations(family);
@@ -237,14 +235,6 @@ public class PaintManager {
 			title = "";
 		}
 		GUIManager.getManager().getFrame().setTitle(title);
-	}
-
-	public File getCurrentDirectory() {
-		return currentDirectory;
-	}
-
-	public void setCurrentDirectory(File currentDir) {
-		currentDirectory = currentDir;
 	}
 
 	public TreePanel getTree() {

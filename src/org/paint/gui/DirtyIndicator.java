@@ -10,8 +10,10 @@ import org.bbop.framework.GUIManager;
 import org.bbop.framework.VetoableShutdownListener;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.touchup.Constant;
 import org.paint.dialog.OpenActiveFamily;
 import org.paint.gui.tree.TreePanel;
+import org.paint.main.PAINT;
 import org.paint.main.PaintManager;
 
 /**
@@ -83,19 +85,11 @@ public class DirtyIndicator implements VetoableShutdownListener {
 						JOptionPane.WARNING_MESSAGE, null, options, "Save");
 			if (options[result] == save) {
 				OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
-				File f = dlg.getSelectedFile(true, "gaf");
+				File f = dlg.getSelectedFile(true, Constant.GAF_SUFFIX);
 				if (null != f){
 					Family family = PaintManager.inst().getFamily();
 					String familyID = family.getFamily_name();
-					try {
-						String path = f.getCanonicalPath();
-						family.save();
-//						GafAdapter.exportAnnotations(path);
-//						EvidenceAdapter.exportEvidence(path);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						log().error("Unable to save " + familyID);
-					}
+					family.save(familyID + " using " + PAINT.getAppName());
 				}	
 			}
 			return (options[result] != cancel);

@@ -51,7 +51,7 @@ public class HyperlinkCellRenderer extends DefaultTableCellRenderer {
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 		}
 		GeneAnnotation assoc = ((AssociationsTableModel) table.getModel()).getEvidenceForRow(row);
-		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.getAspect(assoc.getCls()));
+		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.inst().getAspect(assoc.getCls()));
 		bg_color = RenderUtil.getAspectColor(aspect_name);
 		return this;
 	}

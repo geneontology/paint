@@ -19,8 +19,8 @@ public class EvidenceComparator implements Comparator<GeneAnnotation> {
 		String term_a = fa.getCls();
 		String term_b = fb.getCls();
 
-		String aspect_a = OWLutil.getAspect(term_a);
-		String aspect_b = OWLutil.getAspect(term_b);
+		String aspect_a = OWLutil.inst().getAspect(term_a);
+		String aspect_b = OWLutil.inst().getAspect(term_b);
 
 		/* 
 		 * Want the ordering to be MF, CC, BP, so reverse the sign by
@@ -32,12 +32,12 @@ public class EvidenceComparator implements Comparator<GeneAnnotation> {
 			/*
 			 * Within a single aspect we want the more general terms first
 			 */
-			comparison = OWLutil.moreSpecific(term_a, term_b) ? LESS_THAN : EQUAL_TO;
+			comparison = OWLutil.inst().moreSpecific(term_a, term_b) ? LESS_THAN : EQUAL_TO;
 			if (comparison == EQUAL_TO) {
-				comparison = OWLutil.moreSpecific(term_b, term_a) ? GREATER_THAN : EQUAL_TO;
+				comparison = OWLutil.inst().moreSpecific(term_b, term_a) ? GREATER_THAN : EQUAL_TO;
 			}
 			if (comparison == EQUAL_TO) {
-				comparison = compareStrings(OWLutil.getTermLabel(term_a), OWLutil.getTermLabel(term_b));
+				comparison = compareStrings(OWLutil.inst().getTermLabel(term_a), OWLutil.inst().getTermLabel(term_b));
 			}
 
 		}

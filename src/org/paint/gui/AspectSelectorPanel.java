@@ -133,7 +133,7 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		List<String> terms = e.getTermSelection();
 		if (terms != null && !terms.isEmpty()) {
 			String term = terms.get(0);
-			String aspect_str = OWLutil.getAspect(term);
+			String aspect_str = OWLutil.inst().getAspect(term);
 			if (aspect_str.equals(Aspect.BIOLOGICAL_PROCESS.toString()) && !bpButton.isSelected()) {
 				bpButton.setSelected(true);
 				switchAspect(bpButton);

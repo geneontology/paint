@@ -51,10 +51,13 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import org.apache.log4j.Logger;
+import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.annotate.WithEvidence;
 import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.OWLutil;
+import org.paint.dialog.QualifierDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.EventManager;
@@ -247,7 +250,13 @@ public class AnnotationTransferHandler extends TransferHandler {
 		Point p = support.getDropLocation().getDropPoint();
 		DisplayBioentity node = tree.getClickedInNodeArea(p);
 
-		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, null, 0); 
+		WithEvidence withs = new WithEvidence(tree.getTreeModel(), node, term);
+		int qualifiers = withs.getWithQualifiers();
+		if (qualifiers > 0) {
+			QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
+			qualifiers = qual_dialog.getQualifiers();
+		}
+		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers); 
 
 		clearVisitedNodes(tree);
 		
@@ -342,7 +351,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 				String term_name;
 				try {
 					String term = (String) t.getTransferData(TERM_FLAVOR);
-					term_name = OWLutil.getTermLabel(term);
+					term_name = OWLutil.inst().getTermLabel(term);
 					int height = fm.getHeight() + 2;
 					int width = fm.stringWidth("    " + term_name);
 					Image img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);

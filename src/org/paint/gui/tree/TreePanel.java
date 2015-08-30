@@ -65,6 +65,7 @@ import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
 import org.bbop.phylo.tracking.LogAction;
+import org.bbop.phylo.util.DirectoryUtil;
 import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.displaymodel.DisplayTree;
@@ -928,8 +929,9 @@ AnnotationDragListener {
 
 		// Prompt user for file name
 		JFileChooser dlg = new JFileChooser();
-		if (null != PaintManager.inst().getCurrentDirectory()) {
-			dlg.setCurrentDirectory(PaintManager.inst().getCurrentDirectory());
+		if (null != DirectoryUtil.inst().getGafDir()) {
+			File gaf_dir = new File(DirectoryUtil.inst().getGafDir());
+			dlg.setCurrentDirectory(gaf_dir);
 		}
 		int rtrnVal = dlg.showSaveDialog(GUIManager.getManager().getFrame());
 

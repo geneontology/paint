@@ -209,7 +209,7 @@ public class DisplayTree extends Tree implements Serializable {
 							Bioentity sib = ordered_by_distance.get(index+1);
 							if (sib.getDistanceFromParent() == child.getDistanceFromParent()) {
 								color_index = DuplicationColor.inst().getNextIndex();
-								log.info(child + " and " + sib + " are equally distance from parent");
+								log.info(child.getId() + " and " + sib.getId() + " are equally distant from parent");
 							}
 						}
 						setDupColorIndex((DisplayBioentity)child, color_index);

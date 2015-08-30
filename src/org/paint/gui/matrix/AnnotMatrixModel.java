@@ -83,6 +83,9 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		List<String> exp_list = new ArrayList<String> ();
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
 		for (Bioentity node : nodes) {
+			if (node.getId().contains("S000002218")) {
+				log.debug("weird yeast gene");
+			}
 			List<GeneAnnotation> assocs = AnnotationUtil.getAspectExpAssociations(node, AspectSelector.inst().getAspectCode(aspect_name));
 			// need to see how this matches up with "do not use for annotation"
 			if (assocs != null) {
@@ -139,7 +142,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		/* Hack alert - hard coded the GO id for cellular process here */
 		String cellular = "GO:0009987";
 		for (String term : temp_list) {
-			if (OWLutil.moreSpecific(term, cellular)) {
+			if (OWLutil.inst().moreSpecific(term, cellular)) {
 				cellular_list.add(term);
 			}
 		}
@@ -176,7 +179,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			term2menu.put(cur_term, td);
 			for (int i = 0; i < orig_termlist.size();) {
 				String other_term = orig_termlist.get(i);
-				if (OWLutil.moreSpecific(other_term, cur_term) || OWLutil.moreSpecific(cur_term, other_term)) {
+				if (OWLutil.inst().moreSpecific(other_term, cur_term) || OWLutil.inst().moreSpecific(cur_term, other_term)) {
 					orig_termlist.remove(i);
 					term_list.add(other_term);
 					td = new ColumnTermData();
@@ -264,7 +267,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int columnIndex) {
-		String name = OWLutil.getTermLabel(term_list.get(columnIndex));
+		String name = OWLutil.inst().getTermLabel(term_list.get(columnIndex));
 		return name;
 	}
 
@@ -387,7 +390,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			/*
 			 * Is term4column a parent term of annotated2term?
 			 */
-			else if (OWLutil.moreSpecific(assoc_term, term)) {
+			else if (OWLutil.inst().moreSpecific(assoc_term, term)) {
 				if (experimentalOnly) {
 					if (AnnotationUtil.isExpAnnotation(assoc)) {
 						narrower_terms.add(assoc);
@@ -400,7 +403,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			/*
 			 * Conversely is term4column a child term of annotated2term
 			 */
-			else if (OWLutil.moreSpecific(term, assoc_term)) {
+			else if (OWLutil.inst().moreSpecific(term, assoc_term)) {
 				if (experimentalOnly) {
 					if (AnnotationUtil.isExpAnnotation(assoc)) {
 						broader_terms.add(assoc);
@@ -467,7 +470,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 					term = term.length() > 1 ? term.substring(0, term.length() - 1) : "";
 					Pattern p = Pattern.compile(".*" + term + ".*");
 					for (String check : term_list) {
-						String s = OWLutil.getTermLabel(check);
+						String s = OWLutil.inst().getTermLabel(check);
 						if (p.matcher(s).matches()) {
 							matches.add(check);
 						}

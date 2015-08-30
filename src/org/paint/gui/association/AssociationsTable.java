@@ -328,7 +328,7 @@ AspectChangeListener
 						}
 						else if (!leafAssoc.isNegated()) {
 							if (leafAssoc.getCls().equals(assoc.getCls()) ||
-									OWLutil.moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
+									OWLutil.inst().moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
 								validNot = false;
 								break;
 							}

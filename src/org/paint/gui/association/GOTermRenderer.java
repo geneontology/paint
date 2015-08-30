@@ -87,7 +87,7 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 		this.row = row;
 		this.column = column;
 		this.assoc = ((AssociationsTableModel) table.getModel()).getEvidenceForRow(row);
-		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.getAspect(assoc.getCls()));
+		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.inst().getAspect(assoc.getCls()));
 		bg_color = RenderUtil.getAspectColor(aspect_name);
 		return this;
 	}
@@ -114,7 +114,7 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 
 		g.setColor(Color.blue);
 		Font font = g.getFont();
-		AttributedString as = new AttributedString(OWLutil.getTermLabel(assoc.getCls()) + " (" + assoc.getCls() + ")");
+		AttributedString as = new AttributedString(OWLutil.inst().getTermLabel(assoc.getCls()) + " (" + assoc.getCls() + ")");
 		as.addAttribute(TextAttribute.FONT, font);
 		if (assoc.isNegated()) {
 			g.setColor(Color.magenta);

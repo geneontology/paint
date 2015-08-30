@@ -57,7 +57,7 @@ public class Preferences {
 	/**
 	 * 
 	 */
-//	private static final long serialVersionUID = -5472475387423113108L;
+	//	private static final long serialVersionUID = -5472475387423113108L;
 
 	protected static Logger log = Logger.getLogger("org.panther.paint.config.Preferences");
 
@@ -65,7 +65,6 @@ public class Preferences {
 	private String pantherURL = " http://paintcuration.usc.edu";
 
 	private boolean useDistances = true;
-//	private String GO_file = "http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo";
 
 	private double tree_distance_scaling = 50; 
 
@@ -113,8 +112,8 @@ public class Preferences {
 	/*
 	 * Get the NCBI taxon ID from their FTP-ed file dump
 	 */
-//	private Map<String, String> taxa2IDs;
-//	private Map<String, String> IDs2taxa;
+	//	private Map<String, String> taxa2IDs;
+	//	private Map<String, String> IDs2taxa;
 
 	/**
 	 * Constructor declaration
@@ -153,46 +152,53 @@ public class Preferences {
 			if (preferences == null)
 				preferences = new Preferences();
 
-			GUIManager.addShutdownHook(new Runnable() {
-				public void run() {
-					try {
-						writePreferences(inst());
-					} catch (IOException ex) {
-						log.info("Could not write verification settings!");
-						ex.printStackTrace();
-					}
-				}
-			});
+//			GUIManager.addShutdownHook(new Runnable() {
+//				public void run() {
+//					writePreferences(inst());
+//				}
+//			});
 		}
 		return preferences;
 	}
 
-	protected static void writePreferences(Preferences preferences)
-			throws IOException {
-		XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(
-				new FileOutputStream(getPrefsXMLFile())));
-		log.info("Writing preferences to " + getPrefsXMLFile());
-		encoder.setPersistenceDelegate(Font.class,
-				new DefaultPersistenceDelegate(
-						new String[]{ "name",
-								"style",
-						"size" }) );
-		encoder.setPersistenceDelegate(Color.class,
-				new DefaultPersistenceDelegate(
-						new String[]{ "red",
-								"green",
-						"blue" }) );
-		encoder.writeObject(preferences);
-		encoder.close();
-	}
-
-	public static File getPrefsXMLFile() {
+	protected static File getPrefsXMLFile() {
 		return new File(getPaintPrefsDir(), "preferences.xml");
 	}
 
-	public static File getPaintPrefsDir() {
-		File prefsDir = new File("config");
-		return prefsDir;
+	protected static File getPaintPrefsDir() {
+		File f = new File("config");
+		f.mkdirs();
+		return f;
+	}
+
+	public Object clone() throws CloneNotSupportedException {
+
+		throw new CloneNotSupportedException();
+
+	}
+
+	public static void writePreferences(Preferences preferences) {
+		try {
+			XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(
+					new FileOutputStream(getPrefsXMLFile())));
+			log.info("Writing preferences to " + getPrefsXMLFile());
+			encoder.setPersistenceDelegate(Font.class,
+					new DefaultPersistenceDelegate(
+							new String[]{ "name",
+									"style",
+							"size" }) );
+			encoder.setPersistenceDelegate(Color.class,
+					new DefaultPersistenceDelegate(
+							new String[]{ "red",
+									"green",
+							"blue" }) );
+			encoder.writeObject(preferences);
+			encoder.close();
+
+		} catch (IOException ex) {
+			log.info("Could not write verification settings!");
+			ex.printStackTrace();
+		}
 	}
 
 	public VersionNumber getVersion() {
@@ -294,12 +300,6 @@ public class Preferences {
 
 	public void setTree_distance_scaling(double scale) {
 		tree_distance_scaling = scale;
-	}
-
-	public Object clone() throws CloneNotSupportedException {
-
-		throw new CloneNotSupportedException();
-
 	}
 
 	public boolean isUseDistances(){

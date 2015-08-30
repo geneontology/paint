@@ -81,7 +81,7 @@ public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
 		Color bg_color = RenderUtil.getAspectColor();
 		AnnotMatrixModel matrix = (AnnotMatrixModel) table.getModel();
 		if (column >= 0 && column < matrix.getColumnCount()) {
-			String col_term = OWLutil.getTermLabel(matrix.getTermForColumn(column));
+			String col_term = OWLutil.inst().getTermLabel(matrix.getTermForColumn(column));
 			setToolTipText(col_term);
 			if (col_term == null || (col_term != null && col_term.length() == 0))
 				log.debug("No term name for column " + column);

@@ -317,7 +317,7 @@ public class EventManager {
 			 */
 			String aspect = AspectSelector.inst().getAspectCode();
 			for (String old_term : old_terms) {
-				String old_aspect = OWLutil.getAspect(old_term);
+				String old_aspect = OWLutil.inst().getAspect(old_term);
 				if (!old_aspect.equals(aspect) && !new_terms.contains(old_term)) {
 					new_terms.add(old_term);
 				}
@@ -336,7 +336,7 @@ public class EventManager {
 					Bioentity node = genes.get(i);
 					((DisplayBioentity) node).setSelected(false);
 					for (String term : new_terms) {
-						GeneAnnotation assoc = OWLutil.isAnnotatedToTerm(node.getAnnotations(), term);
+						GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term);
 						if (assoc != null && AnnotationUtil.isExpAnnotation(assoc) && node.isLeaf()) {
 							((DisplayBioentity) node).setSelected(true);
 							new_nodes.add(node);

@@ -24,13 +24,14 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.bbop.framework.GUIManager;
+import org.paint.config.Preferences;
+import org.bbop.phylo.util.DirectoryUtil;
 import org.bbop.util.OSUtil;
 
 public class PAINT {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	protected Thread runner;
 
 	private static String[] args;
@@ -51,10 +52,20 @@ public class PAINT {
 		if (OSUtil.isMacOSX()) {
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", getAppName());
 		}
+		
+		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 
 		PAINT theRunner = new PAINT();
+		
+		GUIManager.addShutdownHook(new Thread(theRunner.mainRun) {
+			public void run() {
+				Preferences.writePreferences(Preferences.inst());
+				DirectoryUtil.writePreferences(DirectoryUtil.inst());
+			}
+		});
 
-		SwingUtilities.invokeLater(theRunner.mainRun);
+		SwingUtilities.invokeLater(theRunner.mainRun);	
+		
 	}
 
 	Runnable mainRun =

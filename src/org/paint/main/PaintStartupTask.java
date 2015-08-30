@@ -31,7 +31,7 @@ import org.bbop.util.CollectionUtil;
 import org.paint.config.Preferences;
 import org.paint.dialog.AboutDialog;
 import org.paint.factory.AssociationsPanelFactory;
-import org.paint.factory.EvidenceFactory;
+import org.paint.factory.TrackingFactory;
 import org.paint.factory.GeneTreeFactory;
 import org.paint.factory.StatusViewFactory;
 import org.paint.gui.DirtyIndicator;
@@ -53,7 +53,7 @@ public class PaintStartupTask extends AbstractApplicationStartupTask {
 		// super.getDefaultComponentFactories();
 		Collection<GUIComponentFactory<?>> factories = new ArrayList<GUIComponentFactory<?>>();
 		factories.add(new AssociationsPanelFactory());
-		factories.add(new EvidenceFactory());
+		factories.add(new TrackingFactory());
 		factories.add(new GeneTreeFactory());
 		factories.add(new StatusViewFactory());
 		return factories;

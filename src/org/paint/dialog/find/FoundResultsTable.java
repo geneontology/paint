@@ -144,7 +144,7 @@ public class FoundResultsTable extends JTable {
 				return match.getDBID();
 			} else if (search_type == SEARCH_TYPE.TERM) {
 				String match = term_results.get(row);
-				return OWLutil.getTermLabel(match);
+				return OWLutil.inst().getTermLabel(match);
 			} else {
 				return "";
 			}

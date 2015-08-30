@@ -19,6 +19,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.util.DirectoryUtil;
 import org.paint.main.PaintManager;
 
 
@@ -26,7 +27,6 @@ public class OpenActiveFamily {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	protected static Logger log = Logger.getLogger(OpenActiveFamily.class);
 
 	private static String extension;
@@ -47,37 +47,27 @@ public class OpenActiveFamily {
 		this.frame = frame;
 	}
 
-	private void setCurrentDirectory() {
-		if (PaintManager.inst().getCurrentDirectory() != null){
-			chooser.setCurrentDirectory(PaintManager.inst().getCurrentDirectory());
-		}
-		else {
-			StringBuffer  defaultDirectory = new StringBuffer(System.getProperty(USER_DIR));
-			defaultDirectory.append(File.separator);
-			defaultDirectory.append(DATA_DIR);
-			File f = new File(defaultDirectory.toString());
-			if (f.exists()) {
-				chooser.setCurrentDirectory(f);
-			}
-		}
-	}
-
 	public File getSelectedFile(boolean save, String suffix) {
 		chooser = new JFileChooser();
 		chooser.setDialogTitle("Choose a family");
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setFileFilter(new PAINTFileFilter());
 		Family family = PaintManager.inst().getFamily();
-		if (suffix == null || suffix.equals(""))
+		if (suffix == null || suffix.equals("")) {
 			extension = "";
-		else
+		} else {
+			if (suffix.charAt(0) == '.') {
+				suffix = suffix.substring(1);
+			}
 			extension = suffix;
+		}
+
+		chooser.setFileFilter(new PAINTFileFilter());
 
 		if (family != null && family.getFamily_name() != null) {
 			String filename = family.getFamily_name();
 			if (extension.length() > 0)
-				filename = filename + '.' + extension;
+				filename = filename + extension;
 			chooser.setSelectedFile(new File(filename));
 		}
 		setCurrentDirectory();
@@ -97,10 +87,28 @@ public class OpenActiveFamily {
 		File f = null;
 		if (returned == JFileChooser.APPROVE_OPTION) {
 			f = chooser.getSelectedFile();
-			if (f != null)
-				PaintManager.inst().setCurrentDirectory(f);
+			if (f != null) {
+				String dir = f.getAbsolutePath();
+				DirectoryUtil.inst().setGafDir(dir.substring(0, dir.lastIndexOf('/')));
+			}
 		}
 		return f;
+	}
+
+	private void setCurrentDirectory() {
+		if (DirectoryUtil.inst().getGafDir() != null) {
+			File gaf_dir = new File(DirectoryUtil.inst().getGafDir());
+			chooser.setCurrentDirectory(gaf_dir);
+		}
+		else {
+			StringBuffer  defaultDirectory = new StringBuffer(System.getProperty(USER_DIR));
+			defaultDirectory.append(File.separator);
+			defaultDirectory.append(DATA_DIR);
+			File f = new File(defaultDirectory.toString());
+			if (f.exists()) {
+				chooser.setCurrentDirectory(f);
+			}
+		}
 	}
 
 	/**

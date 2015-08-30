@@ -26,7 +26,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,8 +39,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-import org.paint.displaymodel.DisplayBioentity;
 import org.paint.util.RenderUtil;
+
+import owltools.gaf.GeneAnnotation;
 
 public class QualifierDialog extends JDialog implements ActionListener {
 	/**
@@ -49,31 +49,30 @@ public class QualifierDialog extends JDialog implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	Map<JCheckBox, String> selections;
-	Set<String> qual_list;
+	Map<JCheckBox, Integer> selections;
+	int qual_list;
 
 	/** Creates the GUI shown inside the frame's content pane. */
-	public QualifierDialog(Frame frame, Map<String, Set<DisplayBioentity>> qual2node) {
+	public QualifierDialog(Frame frame, int quals) {
 		super(frame, true);
 		setLayout(new BorderLayout());
-		setContentPane(qualifyPane(qual2node));
-		qual_list = new HashSet<String>();
+		setContentPane(qualifyPane(quals));
 		pack();
 		setLocationRelativeTo(frame);
 	}
 
-	public Set<String> getQualifiers() {
+	public int getQualifiers() {
 		setVisible(true);
 		// this.paintComponents(this.getGraphics());
 		return qual_list;
 	}
 
-	private JPanel qualifyPane (Map<String, Set<DisplayBioentity>> qual2node) {
+	private JPanel qualifyPane (int quals) {
 		JPanel qualify = new JPanel();
 		qualify.setLayout(new BoxLayout(qualify, BoxLayout.PAGE_AXIS));
 		
 		//Create the components.
-		JPanel selectionPane = createSelectionPane(qual2node);
+		JPanel selectionPane = createSelectionPane(quals);
 
 		//Lay them out.
 
@@ -96,14 +95,9 @@ public class QualifierDialog extends JDialog implements ActionListener {
 	}
 
 	/** Creates the panel shown by the first tab. */
-	private JPanel createSelectionPane(Map<String, Set<DisplayBioentity>> qual2node) {
+	private JPanel createSelectionPane(int quals) {
 		String description;
-		if (qual2node.size() == 1) {
-			description = "Check the box if you also want to propagate this qualifier.";
-		}
-		else {
-			description = "Check the boxes if you also want to propagate any of these qualifiers.";
-		}
+		description = "Check the boxes of any qualifiers you wish propagated.";
 
 		JPanel box = new JPanel();
 		JLabel label = new JLabel(description);
@@ -114,23 +108,20 @@ public class QualifierDialog extends JDialog implements ActionListener {
 		box.setLayout(new BoxLayout(box, BoxLayout.PAGE_AXIS));
 		box.add(label);
 
-		selections = new HashMap<JCheckBox, String>();
-		Set<String> qualifiers = qual2node.keySet();
-		for (String qual : qualifiers) {
-			Set<DisplayBioentity> nodes = qual2node.get(qual);
-			JCheckBox check = new JCheckBox();
-			StringBuffer qual_label = new StringBuffer (qual + " (from ");
-			String prefix = "";
-			for (DisplayBioentity node : nodes) {
-				qual_label.append(prefix + node.getNodeLabel());
-				prefix = ", ";
-			}
-			check.setText(qual_label.toString() + ')');
-			check.setSelected(false);
-			selections.put(check, qual);
+		selections = new HashMap<JCheckBox, Integer>();
+		JCheckBox check;
+		check = addCheckbox(quals, GeneAnnotation.COLOCALIZES_MASK, "COLOCALIZES");
+		if (check != null) {
 			box.add(check);
 		}
-
+		check = addCheckbox(quals, GeneAnnotation.CONTRIBUTES_TO_MASK, "CONTRIBUTES TO");
+		if (check != null) {
+			box.add(check);
+		}
+		check = addCheckbox(quals, GeneAnnotation.INTEGRAL_TO_MASK, "INTEGRAL_TO");
+		if (check != null) {
+			box.add(check);
+		}
 		JPanel pane = new JPanel(new BorderLayout());
 		pane.add(box, BorderLayout.PAGE_START);
 		Border padding = BorderFactory.createEmptyBorder(20,20,5,20);
@@ -139,13 +130,26 @@ public class QualifierDialog extends JDialog implements ActionListener {
 		pane.setBackground(RenderUtil.getAspectColor());
 		return pane;
 	}
+	
+	private JCheckBox addCheckbox(int quals, int mask, String label) {
+		if ((quals & mask) == mask) {
+			JCheckBox check = new JCheckBox();
+			check.setText(label);
+			check.setSelected(false);
+			selections.put(check, new Integer(mask));
+			return(check);
+		}
+		return null;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		Set<JCheckBox> checkboxes = selections.keySet();
+		qual_list = 0;
 		for (JCheckBox check : checkboxes) {
 			if (check.isSelected()) {
-				String qual = selections.get(check);
-				qual_list.add(qual);
+				Integer q = selections.get(check);
+				int qual = q.intValue();
+				qual_list |= qual;
 			}
 		}
 		this.setVisible(false);				
