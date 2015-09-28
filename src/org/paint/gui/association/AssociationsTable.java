@@ -50,13 +50,13 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.annotate.PaintAction;
-import org.bbop.phylo.touchup.Constant;
 import org.bbop.phylo.tracking.LogAction;
+import org.bbop.phylo.util.Constant;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
@@ -99,9 +99,8 @@ AspectChangeListener
 		assoc_model = new AssociationsTableModel();
 		setModel(assoc_model);
 
-		Preferences prefs = Preferences.inst();
-		setBackground(prefs.getBackgroundColor());
-		setSelectionBackground(prefs.getSelectionColor());
+		setBackground(GuiConstant.BACKGROUND_COLOR);
+		setSelectionBackground(GuiConstant.SELECTION_COLOR);
 
 		setRowSelectionAllowed(true);
 		setColumnSelectionAllowed(false);
@@ -203,8 +202,9 @@ AspectChangeListener
 			if (HyperlinkLabel.class == getModel().getColumnClass(column)) {
 				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
 				List<String> evi = assoc.getReferenceIds();
-				if (evi.size() == 1) {
-					String [] xref = evi.get(0).split(":");
+				String preferred_ref = HTMLUtil.getPMID(evi);
+				if (preferred_ref.length() > 0) {
+					String [] xref = preferred_ref.split(":");
 					String text = HTMLUtil.getURL(xref[0], xref[1], false);
 					HTMLUtil.bringUpInBrowser(text);
 				}

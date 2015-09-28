@@ -28,12 +28,12 @@ import org.bbop.framework.ScreenLockTask;
 import org.bbop.framework.dock.LayoutDriver;
 import org.bbop.framework.dock.idw.IDWDriver;
 import org.bbop.util.CollectionUtil;
-import org.paint.config.Preferences;
+import org.paint.config.VersionResource;
 import org.paint.dialog.AboutDialog;
 import org.paint.factory.AssociationsPanelFactory;
-import org.paint.factory.TrackingFactory;
 import org.paint.factory.GeneTreeFactory;
 import org.paint.factory.StatusViewFactory;
+import org.paint.factory.TrackingFactory;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.PaintDockingTheme;
 
@@ -91,13 +91,13 @@ public class PaintStartupTask extends AbstractApplicationStartupTask {
 	}
 
 	@Override
-	protected String getAppID() {
+	public String getAppID() {
 		/*
 		 * This is used as the DB source of the annotations in the GAF files,
 		 * so it can not be changed without changing any previous GAF files
 		 * that have been generated and conferring with the curators first.
 		 */
-		return PAINT.getAppName() + Preferences.inst().getVersion();
+		return PAINT.getAppID();
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class PaintStartupTask extends AbstractApplicationStartupTask {
 		//		log4j straight up, and have log4j appender for an error window
 		//		error manager used to go to term info but no longer
 		//		ErrorManager.inst().addErrorListener(new LogErrorListener());
-		LOG.info("Loading Paint version " + Preferences.inst().getVersion().toString());
+		LOG.info("Loading Paint version " + VersionResource.inst().getVersion().toString());
 	}
 
 	@Override

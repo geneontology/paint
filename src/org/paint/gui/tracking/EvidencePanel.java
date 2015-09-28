@@ -48,10 +48,11 @@ import org.bbop.phylo.model.Family;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogAlert;
 import org.bbop.phylo.tracking.Logger;
-import org.paint.config.Preferences;
+import org.paint.config.PaintConfig;
 import org.paint.gui.AbstractPaintGUIComponent;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.DirtyIndicator;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
@@ -97,7 +98,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		comment_set = false;
 		setLayout(new BorderLayout());
 		setOpaque(true);
-		setBackground(Preferences.inst().getBackgroundColor());
+		setBackground(GuiConstant.BACKGROUND_COLOR);
 
 		JPanel pane = new JPanel();
 		pane.setOpaque(true);
@@ -112,9 +113,9 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		initWarningPane();
 		pane.add(warning_panel);
 
-		mf_panel = initLogPane(Preferences.HIGHLIGHT_MF, Aspect.MOLECULAR_FUNCTION.toString());
-		cc_panel = initLogPane(Preferences.HIGHLIGHT_CC, Aspect.CELLULAR_COMPONENT.toString());
-		bp_panel = initLogPane(Preferences.HIGHLIGHT_BP, Aspect.BIOLOGICAL_PROCESS.toString());
+		mf_panel = initLogPane(GuiConstant.HIGHLIGHT_MF, Aspect.MOLECULAR_FUNCTION.toString());
+		cc_panel = initLogPane(GuiConstant.HIGHLIGHT_CC, Aspect.CELLULAR_COMPONENT.toString());
+		bp_panel = initLogPane(GuiConstant.HIGHLIGHT_BP, Aspect.BIOLOGICAL_PROCESS.toString());
 		prune_panel = initLogPane(-1, "Pruned");
 		pane.add(mf_panel);
 		pane.add(cc_panel);
@@ -141,7 +142,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		comment_panel.setOpaque(true);
 		comment_panel.setLineWrap(true);
 		comment_panel.setWrapStyleWord(true);
-		Border titled = loggerBorder(Preferences.inst().getBackgroundColor(), "NOTES");
+		Border titled = loggerBorder(GuiConstant.BACKGROUND_COLOR, "NOTES");
 		comment_panel.setBorder(titled);
 		comment_panel.getDocument().addDocumentListener(new DocumentListener() {
 			public void removeUpdate(DocumentEvent e) {
@@ -174,7 +175,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 	private LoggingPanel initLogPane(int aspect, String log_category) {
 		Color border_color;
 		if (aspect >= 0)
-			border_color = Preferences.inst().getAspectColor(aspect).darker();
+			border_color = PaintConfig.inst().getAspectColor(aspect).darker();
 		else
 			border_color = Color.GRAY;
 		Border border = loggerBorder(border_color, log_category);

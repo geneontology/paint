@@ -24,9 +24,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
-import org.paint.config.Preferences;
 import org.paint.panther.PantherDbInfo;
 import org.paint.panther.PantherServerAdapter;
 
@@ -51,8 +49,6 @@ public class LoginUtil {
 		logged_in = false;
 	}
 	
-	private static Logger log = Logger.getLogger(LoginUtil.class);
-
 	/**
 	 * 
 	 * @param results The first element in the vector is a String holding the user name to use.  The Second it an character array that contains the password.
@@ -68,9 +64,7 @@ public class LoginUtil {
 		}
 		String loginErrorMsg = "";
 
-		String pantherURL = Preferences.inst().getPantherURL();
-		log.debug("Logging in to Panther URL: " + pantherURL);
-		FixedInfo fi = PantherServerAdapter.inst().getFixedInfoFromServer(pantherURL);
+		FixedInfo fi = PantherServerAdapter.inst().getFixedInfoFromServer();
 		if (fi == null){
 			loginErrorMsg = PantherServerAdapter.inst().getServerStatus();
 		} else {
@@ -94,7 +88,7 @@ public class LoginUtil {
 			objs.addElement(results);
 			objs.addElement(FixedInfo.getDb(PantherDbInfo.getDbAndVersionName()));
 
-			Object  o = PantherServerAdapter.inst().sendAndReceive(Preferences.inst().getPantherURL(), "GetUserInfo", objs, null, null);
+			Object  o = PantherServerAdapter.inst().sendAndReceive("GetUserInfo", objs, null, null);
 
 			if (o == null) {
 				loginErrorMsg = "Unable to get user information";

@@ -34,7 +34,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.bbop.phylo.util.OWLutil;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.config.PaintConfig;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
@@ -79,11 +80,11 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		ccButton.setOpaque(true);
 		bpButton.setOpaque(true);
 
-		Preferences prefs = Preferences.inst();
+		PaintConfig prefs = PaintConfig.inst();
 
-		mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-		ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-		bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+		mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+		ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+		bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 
 		plainBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 		mfButton.setMargin(new Insets(2, 12, 2, 12));
@@ -111,21 +112,21 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		if (event.getSource() == this)
 			return;
 
-		Preferences prefs = Preferences.inst();
+		PaintConfig prefs = PaintConfig.inst();
 		if (mfButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 		if (bpButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 		else if (ccButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 	}
 
@@ -150,24 +151,24 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 	}
 
 	private void switchAspect(JRadioButton button) {
-		Preferences prefs = Preferences.inst();
+		PaintConfig prefs = PaintConfig.inst();
 		if (button == bpButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.BIOLOGICAL_PROCESS);
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 		else if (button == ccButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.CELLULAR_COMPONENT);
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 		else if (button == mfButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.MOLECULAR_FUNCTION);
-			mfButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(Preferences.HIGHLIGHT_BP));
+			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
+			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
+			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
 		}
 	}
 }

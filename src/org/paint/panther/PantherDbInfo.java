@@ -25,11 +25,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.paint.config.Preferences;
 
 import com.sri.panther.paintCommon.FixedInfo;
 
 public class PantherDbInfo {
+
+	private static String uploadVersion = "dev_3_panther_upl|UPL 10.0";
 
 	private static PantherDbInfo INSTANCE = null;
 
@@ -110,7 +111,7 @@ public class PantherDbInfo {
 		dbToUPLInfo = null;
 		currentDB = null;
 		currentVersionKey = null;
-		String version_pref = Preferences.inst().getUploadVersion();
+		String version_pref = uploadVersion;
 		if (fi != null) {
 			fixedInfo = fi;
 			dbToUPLInfo = (Hashtable<String, Hashtable<String, Vector<String>>>) fixedInfo.getDbToUploadInfo();
@@ -133,7 +134,7 @@ public class PantherDbInfo {
 						}
 					}
 				}
-				Preferences.inst().setUploadVersion(getDbAndVersionName());
+				uploadVersion =getDbAndVersionName();
 			} else {
 				error_msg = "Unable to retrieve upload version information from Panther DB server";
 			}

@@ -19,6 +19,7 @@
  */
 
 package org.paint.dialog;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -45,7 +46,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
-import org.paint.config.Preferences;
+import org.paint.config.PaintConfig;
 
 
 public class MSAColorDialog extends JDialog{
@@ -59,8 +60,8 @@ public class MSAColorDialog extends JDialog{
 	protected boolean			weighted;
 	protected String            description;
 	protected JPanel            mainPanel;
-	protected JList             choiceList;
-	protected DefaultListModel  listModel;
+	protected JList<String>             choiceList;
+	protected DefaultListModel<String>  listModel;
 	protected JScrollPane       listScroller;
 	protected JTextField        percentField;
 	protected Hashtable<String, Color>         percentToColor;
@@ -84,8 +85,8 @@ public class MSAColorDialog extends JDialog{
 		this.frame = f;
 		this.weighted = weighted;
 		
-		Preferences prefs = Preferences.inst();
-		float thresholds[] = orig_thresholds = prefs.getMSAThresholds(weighted);
+		PaintConfig prefs = PaintConfig.inst();
+		float[] thresholds = orig_thresholds = prefs.getMSAThresholds(weighted);
 		Color colorList[] = orig_colorList = prefs.getMSAColors(weighted);
 		if (weighted) 
 			description = "Color based on sequence weights being greater than a given thresholds";
@@ -117,11 +118,11 @@ public class MSAColorDialog extends JDialog{
 			strPercent[i] = Float.toString(thresholds[i]);
 			percentToColor.put(strPercent[i], colorList[i]);
 		}
-		listModel = new DefaultListModel();
+		listModel = new DefaultListModel<>();
 		for (int i = 0; i < strPercent.length; i++){
 			listModel.addElement(strPercent[i]);
 		}
-		choiceList = new JList(listModel);
+		choiceList = new JList<>(listModel);
 		choiceList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		choiceList.setCellRenderer(new CellRenderer());
 		listScroller = new JScrollPane(choiceList);
@@ -212,7 +213,7 @@ public class MSAColorDialog extends JDialog{
 		float percentages[] = new float[values.length];
 
 		for (int i = 0; i < values.length; i++){
-			percentages[i] = Float.parseFloat(values[i]);
+			percentages[i] = Float.valueOf(values[i]);
 		}
 		return percentages;
 	}
@@ -450,8 +451,8 @@ public class MSAColorDialog extends JDialog{
 		 */
 		public void actionPerformed(ActionEvent e){
 			choice = true;
-			Preferences.inst().setMSAColors(weighted, getColors());
-			Preferences.inst().setMSAThresholds(weighted, getThresholds());
+			PaintConfig.inst().setMSAColors(weighted, getColors());
+			PaintConfig.inst().setMSAThresholds(weighted, getThresholds());
 			MSAColorDialog.this.setVisible(false);
 		}
 	}

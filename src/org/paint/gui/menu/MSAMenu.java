@@ -19,21 +19,18 @@
  */
 package org.paint.gui.menu;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
-import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.swing.DynamicMenu;
 import org.paint.dialog.MSAColorDialog;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
-import org.paint.gui.msa.MSA;
 import org.paint.gui.msa.MSAPanel;
 import org.paint.main.PaintManager;
 
@@ -43,7 +40,6 @@ implements FamilyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static Logger log = Logger.getLogger("MSAMenu");
 
 	private static final String full_align = "Entire Alignment";
 	//	private static final String match_align = "Condensed Alignment";
@@ -84,11 +80,6 @@ implements FamilyChangeListener {
 		weightedItem.setEnabled(use_weight);
 		weightedItem.addActionListener(new MSAActionListener());
 		add(weightedItem);
-		//
-		//		wtsItem = new JCheckBoxMenuItem(coloring);
-		//		wtsItem.setSelected(displayType == MSA.DISPLAY_TYPE_WTS);
-		//		wtsItem.addActionListener(new MSAActionListener(MSA.DISPLAY_TYPE_WTS, this));
-		//		add(wtsItem);
 
 		addSeparator();
 

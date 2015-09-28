@@ -28,9 +28,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
-import org.bbop.phylo.touchup.Constant;
 import org.bbop.phylo.tracking.LogAction;
-import org.paint.config.Preferences;
+import org.bbop.phylo.util.Constant;
+import org.paint.config.IconResource;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
@@ -77,7 +78,7 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener, Annota
 		setOpaque(true);
 	
 		setBorder(border);
-		setBackground(Preferences.inst().getBackgroundColor());
+		setBackground(GuiConstant.BACKGROUND_COLOR);
 		add(annotation_log);
 		setLogText();
 		EventManager.inst().registerFamilyListener(this);

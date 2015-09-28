@@ -24,9 +24,11 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.bbop.framework.GUIManager;
-import org.paint.config.Preferences;
-import org.bbop.phylo.util.DirectoryUtil;
+import org.bbop.phylo.touchup.Touchup;
 import org.bbop.util.OSUtil;
+import org.paint.config.PaintConfig;
+import org.paint.config.PaintYaml;
+import org.paint.config.VersionResource;
 
 public class PAINT {
 	/**
@@ -36,6 +38,9 @@ public class PAINT {
 
 	private static String[] args;
 
+	private static final String yaml_file = "config/preferences.yaml";
+
+	private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(Touchup.class);
 
 	/**
 	 * Method declaration
@@ -52,27 +57,29 @@ public class PAINT {
 		if (OSUtil.isMacOSX()) {
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", getAppName());
 		}
-		
+
 		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 
 		PAINT theRunner = new PAINT();
-		
-		GUIManager.addShutdownHook(new Thread(theRunner.mainRun) {
+
+		Runtime.getRuntime().addShutdownHook(new Thread(theRunner.mainRun) {
 			public void run() {
-				Preferences.writePreferences(Preferences.inst());
-				DirectoryUtil.writePreferences(DirectoryUtil.inst());
+				PaintConfig.inst().save(yaml_file);
 			}
 		});
 
 		SwingUtilities.invokeLater(theRunner.mainRun);	
-		
+
 	}
 
 	Runnable mainRun =
-		new Runnable() {
+			new Runnable() {
 		// this thread runs in the AWT event queue
 		public void run() {
 			try {
+				PaintYaml configManager = new PaintYaml();
+				configManager.loadConfig(yaml_file);
+				
 				GUIManager.getManager().addStartupTask(new PaintStartupTask(args));
 				GUIManager.getManager().start();
 			}
@@ -82,17 +89,21 @@ public class PAINT {
 						e,
 						"Warning",
 						JOptionPane.WARNING_MESSAGE
-				);
+						);
 				e.printStackTrace();
 				System.exit(2);
 			}
 		}
 	};
 
-	public static String getAppName() {
+	protected static String getAppName() {
 		/*
 		 * If you want the version # included, then use getAppId
 		 */
 		return "Paint";
+	}
+
+	public static String getAppID() {
+		return getAppName() + VersionResource.inst().getVersion();
 	}
 }

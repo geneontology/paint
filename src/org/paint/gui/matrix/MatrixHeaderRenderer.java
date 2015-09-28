@@ -38,7 +38,8 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
@@ -73,10 +74,9 @@ public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus,
 			int row, int column) {
-		Preferences dp = Preferences.inst();
-		Icon icon = Preferences.inst().getIconByName("arrowDown");
+		Icon icon = IconResource.inst().getIconByName("arrowDown");
 		setIcon(icon);
-		setForeground(dp.getForegroundColor());
+		setForeground(GuiConstant.FOREGROUND_COLOR);
 
 		Color bg_color = RenderUtil.getAspectColor();
 		AnnotMatrixModel matrix = (AnnotMatrixModel) table.getModel();
@@ -85,7 +85,7 @@ public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
 			setToolTipText(col_term);
 			if (col_term == null || (col_term != null && col_term.length() == 0))
 				log.debug("No term name for column " + column);
-			UIManager.put("ToolTip.foreground", dp.getForegroundColor());
+			UIManager.put("ToolTip.foreground", GuiConstant.FOREGROUND_COLOR);
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 			
 			ColumnTermData td = matrix.getTermData(column);

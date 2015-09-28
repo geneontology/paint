@@ -13,7 +13,7 @@ import javax.swing.table.TableCellRenderer;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
 import org.paint.util.RenderUtil;
 
@@ -44,15 +44,15 @@ public class ECOCellRenderer extends JLabel implements TableCellRenderer {
 		Icon icon = null;
 		String label = assoc.getShortEvidence();
 		if (assoc.isMRC()) {
-			icon = Preferences.inst().getIconByName("paint");
+			icon = IconResource.inst().getIconByName("paint");
 		} else {
 			if (node != null) {
 				if (assoc.isNegated()) {
-					icon = Preferences.inst().getIconByName("not");
+					icon = IconResource.inst().getIconByName("not");
 				} else if (AnnotationUtil.isExpAnnotation(assoc)) {
-					icon = Preferences.inst().getIconByName("exp");
+					icon = IconResource.inst().getIconByName("exp");
 				} else {
-					icon = Preferences.inst().getIconByName("inherited");
+					icon = IconResource.inst().getIconByName("inherited");
 				}
 			} else {
 				label = "bug, please report database identifier.";

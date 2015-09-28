@@ -14,7 +14,7 @@ import javax.swing.JRadioButtonMenuItem;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.swing.DynamicMenu;
-import org.paint.config.Preferences;
+import org.paint.config.PaintConfig;
 import org.paint.dialog.ScaleTreeDlg;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
@@ -31,7 +31,7 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 
 	private static final String expand = "Expand all nodes";
 	private static final String collapse = "Collapse nodes without experimental data";
-	private static final String reset = "Reset root to main";
+//	private static final String reset = "Reset root to main";
 	private static final String distance = "Use distances";
 	private static final String order = "Order leaves ";
 	private static final String ladder_top = "Most leaves above";
@@ -39,33 +39,44 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 	private static final String species = "By species";
 	private static final String scale = "Scale...";
 
+	private static final int TREE_COLLAPSE_NONEXP_NODES = 201;
+	private static final int TREE_EXPAND_ALL_NODES = 202;
+//	private static final int TREE_RESET_ROOT_TO_MAIN = 203;
+	private static final int TREE_USE_DISTANCES = 204;
+	private static final int TREE_SPECIES = 205;
+	private static final int TREE_TOP = 206;
+	private static final int TREE_BOTTOM = 207;
+	
 	private JRadioButtonMenuItem species_order;
-
+	private JMenuItem collapseNonExpNodesItem;
+	
 	public TreeMenu() {
 		super("Tree");
 		this.setMnemonic('t');
 
 		JMenuItem expandAllNodesItem = new JMenuItem(expand);
-		expandAllNodesItem.addActionListener(new TreeActionListener(TreePanel.TREE_EXPAND_ALL_NODES));
+		expandAllNodesItem.addActionListener(new TreeActionListener(TREE_EXPAND_ALL_NODES));
 		this.add(expandAllNodesItem);
 
-		JMenuItem collapseNonExpNodesItem = new JMenuItem(collapse);
-		collapseNonExpNodesItem.addActionListener(new TreeActionListener(TreePanel.TREE_COLLAPSE_NONEXP_NODES));
+		collapseNonExpNodesItem = new JCheckBoxMenuItem(collapse);
+		collapseNonExpNodesItem.setSelected(PaintConfig.inst().collapse_no_exp);
+		collapseNonExpNodesItem.addActionListener(new TreeActionListener(TREE_COLLAPSE_NONEXP_NODES));
 		this.add(collapseNonExpNodesItem);
 
 		// Separator line
 		this.addSeparator();
 
-		JMenuItem resetRootToMain = new JMenuItem(reset);
-		resetRootToMain.addActionListener(new TreeActionListener(TreePanel.TREE_RESET_ROOT_TO_MAIN));
-		this.add(resetRootToMain);
-
+//		JMenuItem resetRootToMain = new JMenuItem(reset);
+//		resetRootToMain.addActionListener(new TreeActionListener(TREE_RESET_ROOT_TO_MAIN));
+//		resetRootToMain.setEnabled(PaintManager.inst().getTree().rooted());
+//		this.add(resetRootToMain);
+//	
 		// Separator line
-		this.addSeparator();
+//		this.addSeparator();
 
 		JCheckBoxMenuItem useDistances = new JCheckBoxMenuItem(distance);
-		useDistances.setSelected(Preferences.inst().isUseDistances());
-		useDistances.addActionListener(new TreeActionListener(TreePanel.TREE_USE_DISTANCES));
+		useDistances.setSelected(PaintConfig.inst().use_distances);
+		useDistances.addActionListener(new TreeActionListener(TREE_USE_DISTANCES));
 		this.add(useDistances);
 
 		JMenuItem scaleTree = new JMenuItem(scale);
@@ -87,9 +98,9 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 		group.add(top_order);
 		group.add(bottom_order);
 
-		species_order.addItemListener(new TreeReorderListener(TreePanel.TREE_SPECIES));
-		top_order.addItemListener(new TreeReorderListener(TreePanel.TREE_TOP));
-		bottom_order.addItemListener(new TreeReorderListener(TreePanel.TREE_BOTTOM));
+		species_order.addItemListener(new TreeReorderListener(TREE_SPECIES));
+		top_order.addItemListener(new TreeReorderListener(TREE_TOP));
+		bottom_order.addItemListener(new TreeReorderListener(TREE_BOTTOM));
 
 		tree_ordering.add(species_order);
 		tree_ordering.add(top_order);
@@ -122,7 +133,7 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 		 * @see
 		 */
 		public void actionPerformed(ActionEvent e){
-			ScaleTreeDlg scaleTreeDlg = new ScaleTreeDlg(GUIManager.getManager().getFrame(), Preferences.inst().getTree_distance_scaling());
+			ScaleTreeDlg scaleTreeDlg = new ScaleTreeDlg(GUIManager.getManager().getFrame(), PaintConfig.inst().tree_distance_scaling);
 			Double  d = scaleTreeDlg.display();
 			if (null == d){
 				return;
@@ -131,7 +142,7 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 			if (tree != null) {
 				tree.scaleTree(d);
 			} else {
-				Preferences.inst().setTree_distance_scaling(d);
+				PaintConfig.inst().tree_distance_scaling = d;
 			}
 		}
 	}
@@ -153,19 +164,26 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 			TreePanel tree = PaintManager.inst().getTree();
 			if (tree != null) {
 				switch (action) {
-				case TreePanel.TREE_USE_DISTANCES:
-					Preferences.inst().toggleUseDistances();
+				case TREE_USE_DISTANCES:
+					PaintConfig.inst().use_distances = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 					tree.adjustTree();
 					break;
-				case TreePanel.TREE_EXPAND_ALL_NODES:
+				case TREE_EXPAND_ALL_NODES:
+					PaintConfig.inst().collapse_no_exp = false;
+					collapseNonExpNodesItem.setSelected(false);
 					tree.expandAllNodes();
 					break;
-				case TreePanel.TREE_COLLAPSE_NONEXP_NODES:
-					tree.collapseNonExperimental();
+				case TREE_COLLAPSE_NONEXP_NODES:
+					PaintConfig.inst().collapse_no_exp = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+					if (PaintConfig.inst().collapse_no_exp) {
+						tree.collapseNonExperimental();
+					} else {
+						tree.expandAllNodes();
+					}
 					break;
-				case TreePanel.TREE_RESET_ROOT_TO_MAIN:
-					tree.resetRootToMain();
-					break;
+//				case TREE_RESET_ROOT_TO_MAIN:
+//					tree.resetRootToMain();
+//					break;
 				}
 			}
 		}
@@ -189,13 +207,13 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 				TreePanel tree = PaintManager.inst().getTree();
 				if (tree != null) {
 					switch (action) {
-					case TreePanel.TREE_SPECIES:
+					case TREE_SPECIES:
 						tree.speciesOrder();
 						break;
-					case TreePanel.TREE_TOP:
+					case TREE_TOP:
 						tree.descendentCountLadder(true);
 						break;
-					case TreePanel.TREE_BOTTOM:
+					case TREE_BOTTOM:
 						tree.descendentCountLadder(false);
 						break;
 					}

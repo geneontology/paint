@@ -19,7 +19,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.model.Family;
-import org.bbop.phylo.util.DirectoryUtil;
+import org.paint.config.PaintConfig;
 import org.paint.main.PaintManager;
 
 
@@ -89,15 +89,15 @@ public class OpenActiveFamily {
 			f = chooser.getSelectedFile();
 			if (f != null) {
 				String dir = f.getAbsolutePath();
-				DirectoryUtil.inst().setGafDir(dir.substring(0, dir.lastIndexOf('/')));
+				PaintConfig.inst().gafdir = dir.substring(0, dir.lastIndexOf('/'));
 			}
 		}
 		return f;
 	}
 
 	private void setCurrentDirectory() {
-		if (DirectoryUtil.inst().getGafDir() != null) {
-			File gaf_dir = new File(DirectoryUtil.inst().getGafDir());
+		if (PaintConfig.inst().gafdir != null) {
+			File gaf_dir = new File(PaintConfig.inst().gafdir);
 			chooser.setCurrentDirectory(gaf_dir);
 		}
 		else {
@@ -109,6 +109,7 @@ public class OpenActiveFamily {
 				chooser.setCurrentDirectory(f);
 			}
 		}
+		PaintConfig.inst().gafdir = chooser.getCurrentDirectory().getPath();
 	}
 
 	/**

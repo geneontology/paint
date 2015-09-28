@@ -18,8 +18,10 @@ import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.GeneAnnotation;
@@ -66,19 +68,19 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 			return this;
 		
 		if (!td.isOddColumn())
-			c = Preferences.inst().getBackgroundColor();
+			c = GuiConstant.BACKGROUND_COLOR;
 		else
 			c = new Color(224, 224, 224);
 		ScaledIcon scaledIcon = null;
 		if (assoc != null) {
 			if (AnnotationUtil.isExpAnnotation(assoc)) {
-				color = Preferences.inst().getExpPaintColor();
+				color = PaintConfig.inst().expPaintColor;
 			} else {
-				color = Preferences.inst().getInferPaintColor();				
+				color = PaintConfig.inst().inferPaintColor;				
 			}
 			if (isNot) {
 				scaledIcon = new ScaledIcon(null);
-				scaledIcon.setIcon(Preferences.inst().getIconByName("not"));
+				scaledIcon.setIcon(IconResource.inst().getIconByName("not"));
 				scaledIcon.setDimension(15);
 			}
 		} else {

@@ -28,8 +28,9 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.paint.config.Preferences;
+import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
+import org.paint.gui.GuiConstant;
 import org.paint.main.PaintManager;
 
 import owltools.gaf.Bioentity;
@@ -43,18 +44,6 @@ import owltools.gaf.Bioentity;
  */
 public class MSA {
 
-	private enum MSA_DISPLAY {
-		SIGNIFICANT,
-		//		SF_CONSERVED,
-		TYPE_WTS;
-
-		public String toString() {
-			return super.toString().toLowerCase();
-		}
-	}
-
-	private boolean full_length;
-	private MSA_DISPLAY  display_type;
 	private boolean have_weights;
 
 	/* by row and then by column */
@@ -89,10 +78,7 @@ public class MSA {
 		MSAParser parser = MSAParser.inst();
 		parser.parseSeqs(list);
 		have_weights = parser.parseWts(list2);
-		full_length = true;
-		display_type = MSA_DISPLAY.SIGNIFICANT;
-
-		Font f = Preferences.inst().getFont();
+		Font f = GuiConstant.DEFAULT_FONT;
 		setFont(new Font(msaFont, f.getStyle(), f.getSize()));
 		setColors();
 	}
@@ -112,17 +98,6 @@ public class MSA {
 	 */
 	protected void setFont(Font f){
 		font = f;
-	}
-
-	protected boolean isFullLength() {
-		return full_length;
-	}
-
-	protected void setFullLength(boolean full) {
-		if (full != full_length) {
-			full_length = full;
-			colors_initialized = false;
-		}
 	}
 
 	protected void updateColors() {
@@ -175,7 +150,7 @@ public class MSA {
 		List<Bioentity> nodes = PaintManager.inst().getRows();
 		if (nodes != null){
 			r.height += nodes.size() * row_height;
-			r.width += (MSAParser.inst().getSeqLength(full_length)) * colWidth;
+			r.width += (MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa)) * colWidth;
 		}
 		return r;
 	}
@@ -216,7 +191,7 @@ public class MSA {
 		int seq_x_position = viewport.x; // + seq_range[0] * charWidth + 1;
 
 		int column_x = seq_x_position;
-		char [] ruler = MSAParser.inst().getRuler(full_length);
+		char [] ruler = MSAParser.inst().getRuler(PaintConfig.inst().full_msa);
 		for (int column = seq_range[START_BASE]; column < seq_range[END_BASE]; column++) {
 			g.drawChars(ruler, column, 1, column_x, header_y);
 			column_x += charWidth;
@@ -233,7 +208,7 @@ public class MSA {
 				continue;
 			}
 
-			String seq = (full_length ? node.getSequence() : node.getHMMSeq());
+			String seq = (PaintConfig.inst().full_msa ? node.getSequence() : node.getHMMSeq());
 			if ((null == seq) || (0 == seq.length())){
 				curHeight += row_height;
 				continue;
@@ -324,13 +299,13 @@ public class MSA {
 
 	private boolean setUnweightedColor() {
 		nodeToColor.clear();
-		Color colors [] = Preferences.inst().getMSAColors(false);
-		float threshold [] = Preferences.inst().getMSAThresholds(false);
+		Color colors [] = PaintConfig.inst().getMSAColors(false);
+		float threshold [] = PaintConfig.inst().getMSAThresholds(false);
 		List<Bioentity> nodes = PaintManager.inst().getRows();
 		int row_count = nodes != null ? nodes.size() : 0;
 		for (int row = 0; row < row_count; row++) {
 			DisplayBioentity node = (DisplayBioentity) nodes.get(row);
-			String  seq = (full_length ? node.getSequence() : node.getHMMSeq());
+			String  seq = (PaintConfig.inst().full_msa ? node.getSequence() : node.getHMMSeq());
 			int seqLength;
 			Color [] columnColors = null;
 			if (seq == null) {
@@ -363,12 +338,12 @@ public class MSA {
 
 	private boolean setWeightedColor(double totalWt) {
 		nodeToColor.clear();
-		Color colors [] = Preferences.inst().getMSAColors(true);
-		float threshold [] = Preferences.inst().getMSAThresholds(true);
+		Color colors [] = PaintConfig.inst().getMSAColors(true);
+		float threshold [] = PaintConfig.inst().getMSAThresholds(true);
 		List<Bioentity> nodes = PaintManager.inst().getRows();
 		for (int row = 0; nodes != null && row < nodes.size(); row++) {
 			DisplayBioentity node = (DisplayBioentity) nodes.get(row);
-			String  seq = full_length ? node.getSequence() : node.getHMMSeq();
+			String  seq = PaintConfig.inst().full_msa ? node.getSequence() : node.getHMMSeq();
 			if (!node.isTerminus() || seq == null)
 				continue;
 
@@ -404,7 +379,7 @@ public class MSA {
 		int	charWidth = getColumnWidth(g);
 
 		// Header row
-		int length = MSAParser.inst().getSeqLength(full_length) * charWidth;
+		int length = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa) * charWidth;
 		if (0 <= p.x - length) {
 			selectedCol = (p.x - length)/ charWidth;
 		}
@@ -416,7 +391,7 @@ public class MSA {
 		}
 		// Header row
 		int	charWidth = getColumnWidth(g);
-		int header_width = MSAParser.inst().getSeqLength(full_length) * charWidth;
+		int header_width = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa) * charWidth;
 
 		int cur_y = PaintManager.inst().getTopMargin();
 		// right most x position for the header (where the click should be)
@@ -479,7 +454,7 @@ public class MSA {
 	 */
 	private double initColumnWeights(boolean weighted) {
 
-		int seq_length = MSAParser.inst().getSeqLength(full_length);
+		int seq_length = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa);
 		/* this keeps the overall totals for each count of an AA in a column */
 		aminoAcidStats = new AminoAcidStats[seq_length];
 
@@ -501,7 +476,7 @@ public class MSA {
 					 * this is the aligned sequence, with dashes inserted, so all of them are the same length
 					 * and so we don't have to worry about which column we are counting
 					 */
-					String  sequence = (full_length ? ((DisplayBioentity) node).getSequence() : ((DisplayBioentity) node).getHMMSeq());
+					String  sequence = (PaintConfig.inst().full_msa ? ((DisplayBioentity) node).getSequence() : ((DisplayBioentity) node).getHMMSeq());
 					if (sequence == null) {
 						continue;
 					}
@@ -520,17 +495,26 @@ public class MSA {
 	}
 
 	protected void setWeighted(boolean weighted) {
-		MSA_DISPLAY type = weighted ? MSA_DISPLAY.TYPE_WTS : MSA_DISPLAY.SIGNIFICANT;
-		colors_initialized = (display_type == type);
-		display_type = type;
+		colors_initialized = (PaintConfig.inst().weighted != weighted);
+		PaintConfig.inst().weighted = weighted;
 	}
 
 	protected boolean isWeighted() {
-		return have_weights && display_type == MSA_DISPLAY.TYPE_WTS;
+		return have_weights && PaintConfig.inst().weighted;
 	}
 
 	protected boolean haveWeights() {
 		return have_weights;
 	}
 
+	protected boolean isFullLength() {
+		return PaintConfig.inst().full_msa;
+	}
+
+	protected void setFullLength(boolean full) {
+		if (full != PaintConfig.inst().full_msa) {
+			PaintConfig.inst().full_msa = full;
+			colors_initialized = false;
+		}
+	}
 }

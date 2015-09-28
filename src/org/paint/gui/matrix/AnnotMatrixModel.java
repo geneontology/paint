@@ -83,9 +83,6 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		List<String> exp_list = new ArrayList<String> ();
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
 		for (Bioentity node : nodes) {
-			if (node.getId().contains("S000002218")) {
-				log.debug("weird yeast gene");
-			}
 			List<GeneAnnotation> assocs = AnnotationUtil.getAspectExpAssociations(node, AspectSelector.inst().getAspectCode(aspect_name));
 			// need to see how this matches up with "do not use for annotation"
 			if (assocs != null) {

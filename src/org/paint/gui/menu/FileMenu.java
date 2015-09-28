@@ -33,15 +33,13 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
-import org.bbop.phylo.touchup.Constant;
-import org.bbop.phylo.util.DirectoryUtil;
+import org.bbop.phylo.util.Constant;
 import org.paint.dialog.OpenActiveFamily;
 import org.paint.dialog.OpenNewFamily;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.EventManager;
-import org.paint.main.PAINT;
 import org.paint.main.PaintManager;
 import org.paint.util.InternetChecker;
 import org.paint.util.LoginUtil;
@@ -106,9 +104,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 
 			File f = dlg.getSelectedFile(true, null);
 			if (f != null) {
-			    String username = System.getProperty("user.name");
-				String program_name = PAINT.getAppName();
-				PaintManager.inst().getFamily().save(username + " using " + program_name);
+				PaintManager.inst().saveFamily();
 			}
 		}
 	}
@@ -181,7 +177,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 								e1.printStackTrace();
 							}
 							String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1, full_file_name.lastIndexOf('.'));
-							PaintManager.inst().openNewFamily(familyID);
+							PaintManager.inst().openActiveFamily(familyID);
 							updateMenu();
 						}
 					}

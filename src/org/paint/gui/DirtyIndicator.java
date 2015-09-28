@@ -1,19 +1,15 @@
 package org.paint.gui;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.framework.VetoableShutdownListener;
-import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Family;
-import org.bbop.phylo.touchup.Constant;
+import org.bbop.phylo.util.Constant;
 import org.paint.dialog.OpenActiveFamily;
-import org.paint.gui.tree.TreePanel;
-import org.paint.main.PAINT;
 import org.paint.main.PaintManager;
 
 /**
@@ -87,9 +83,7 @@ public class DirtyIndicator implements VetoableShutdownListener {
 				OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
 				File f = dlg.getSelectedFile(true, Constant.GAF_SUFFIX);
 				if (null != f){
-					Family family = PaintManager.inst().getFamily();
-					String familyID = family.getFamily_name();
-					family.save(familyID + " using " + PAINT.getAppName());
+					PaintManager.inst().saveFamily();
 				}	
 			}
 			return (options[result] != cancel);

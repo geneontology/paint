@@ -14,7 +14,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
-import org.paint.config.Preferences;
+import org.paint.gui.GuiConstant;
 
 
 public class OrthoCellRenderer extends JLabel
@@ -39,14 +39,13 @@ implements TableCellRenderer {
 		 OrthoCell ortho_cell = (OrthoCell) value;
 		 Color program_color = ortho_cell.getProgramColor();
 		 if (program_color == null) {
-			 program_color = Preferences.inst().getBackgroundColor();
+			 program_color = GuiConstant.BACKGROUND_COLOR;
 		 } 
 		 setBackground(program_color);
 
 		 if (isSelected) {
 			 if (selectedBorder == null) {
-				 Preferences prefs = Preferences.inst();
-				 selectedBorder = BorderFactory.createMatteBorder(1,1,1,1, prefs.getForegroundColor());
+				 selectedBorder = BorderFactory.createMatteBorder(1,1,1,1, GuiConstant.FOREGROUND_COLOR);
 			 }
 			 setBorder(selectedBorder);
 		 } else {

@@ -33,8 +33,10 @@ import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.config.PaintConfig;
 import org.paint.gui.AspectSelector;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.EventManager;
 
@@ -42,9 +44,9 @@ public class AspectColorPane extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	Color oldBPcolor = Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_BP);
-	Color oldMFcolor = Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_MF);
-	Color oldCCcolor = Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_CC);
+	Color oldBPcolor = PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_BP);
+	Color oldMFcolor = PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_MF);
+	Color oldCCcolor = PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_CC);
 
 	JColorChooser chooser = new JColorChooser();
 
@@ -63,7 +65,7 @@ public class AspectColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldMFcolor);
-					chooser.setColor(Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_MF));
+					chooser.setColor(PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_MF));
 				}
 			}
 		});
@@ -73,7 +75,7 @@ public class AspectColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldCCcolor);
-					chooser.setColor(Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_CC));
+					chooser.setColor(PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_CC));
 				}
 			}
 		});
@@ -82,7 +84,7 @@ public class AspectColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldBPcolor);
-					chooser.setColor(Preferences.inst().getAspectColor(Preferences.HIGHLIGHT_BP));
+					chooser.setColor(PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_BP));
 				}
 			}
 		});
@@ -103,15 +105,15 @@ public class AspectColorPane extends JPanel {
 		chooser.setPreviewPanel(previewPanel);
 		chooser.getSelectionModel().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				Preferences preferences = Preferences.inst();
+				PaintConfig preferences = PaintConfig.inst();
 				if (mf.isSelected()) {
-					preferences.setAspectColor(Preferences.HIGHLIGHT_MF, chooser.getColor());
+					preferences.setAspectColor(GuiConstant.HIGHLIGHT_MF, chooser.getColor());
 				}
 				else if (cc.isSelected()) {
-					preferences.setAspectColor(Preferences.HIGHLIGHT_CC, chooser.getColor());
+					preferences.setAspectColor(GuiConstant.HIGHLIGHT_CC, chooser.getColor());
 				}
 				else if (bp.isSelected()) {
-					preferences.setAspectColor(Preferences.HIGHLIGHT_BP, chooser.getColor());
+					preferences.setAspectColor(GuiConstant.HIGHLIGHT_BP, chooser.getColor());
 				}
 				AspectChangeEvent aspEvent = new AspectChangeEvent(this);
 				EventManager.inst().fireAspectChangeEvent(aspEvent);
@@ -123,19 +125,19 @@ public class AspectColorPane extends JPanel {
 	}	
 
 	public void cancelColorChange() {
-		Preferences preferences = Preferences.inst();
-		preferences.setAspectColor(Preferences.HIGHLIGHT_BP, oldBPcolor);
-		preferences.setAspectColor(Preferences.HIGHLIGHT_MF, oldMFcolor);
-		preferences.setAspectColor(Preferences.HIGHLIGHT_CC, oldCCcolor);
+		PaintConfig preferences = PaintConfig.inst();
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_BP, oldBPcolor);
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_MF, oldMFcolor);
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_CC, oldCCcolor);
 		AspectChangeEvent aspEvent = new AspectChangeEvent(this);
 		EventManager.inst().fireAspectChangeEvent(aspEvent);
 	}
 
 	public void resetColorChange() {
-		Preferences preferences = Preferences.inst();
-		preferences.setAspectColor(Preferences.HIGHLIGHT_BP, oldBPcolor);
-		preferences.setAspectColor(Preferences.HIGHLIGHT_MF, oldMFcolor);
-		preferences.setAspectColor(Preferences.HIGHLIGHT_CC, oldCCcolor);
+		PaintConfig preferences = PaintConfig.inst();
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_BP, oldBPcolor);
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_MF, oldMFcolor);
+		preferences.setAspectColor(GuiConstant.HIGHLIGHT_CC, oldCCcolor);
 		Color c = null;
 		if (bp.isSelected()) {
 			c = oldBPcolor;

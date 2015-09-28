@@ -34,8 +34,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.apache.log4j.Logger;
 import org.bbop.swing.ExtensibleLabelUI.Renderer;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;
@@ -64,14 +64,14 @@ public class GeneCellRenderer extends DefaultTableCellRenderer {
 		selected = isSelected;
 		GeneTableModel genes = (GeneTableModel) table.getModel();
 		Bioentity gene = genes.getNode(row);
-		bg_color = Preferences.inst().getBackgroundColor();
+		bg_color = GuiConstant.BACKGROUND_COLOR;
 		if (isSelected)
 			bg_color = RenderUtil.annotationStatusColor((DisplayBioentity) gene, bg_color); //.brighter();
 		if (value != null) {
 			label = (HyperlinkLabel) value;
 			String tip = label.getToolTipText();
 			setToolTipText(tip);
-			UIManager.put("ToolTip.foreground", Preferences.inst().getForegroundColor());
+			UIManager.put("ToolTip.foreground", GuiConstant.FOREGROUND_COLOR);
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 			if (table.getColumnName(column).equals(GeneTableModel.PERMNODEID_COL_NAME)) {
 				text = gene.getPersistantNodeID();
@@ -94,7 +94,7 @@ public class GeneCellRenderer extends DefaultTableCellRenderer {
 			Renderer r = (Renderer) label.getClientProperty(BasicHTML.propertyKey);
 			if (r == null) {
 				log.debug("Missing renderer");
-				g.setColor(Preferences.inst().getForegroundColor());
+				g.setColor(GuiConstant.FOREGROUND_COLOR);
 
 				g.drawString(text, bounds.x, bounds.height - 3);
 			}	

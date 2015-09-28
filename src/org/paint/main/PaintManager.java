@@ -19,6 +19,7 @@
  */
 package org.paint.main;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ import org.bbop.phylo.panther.PantherAdapter;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogAlert;
 import org.bbop.phylo.tracking.Logger;
-import org.bbop.phylo.util.DirectoryUtil;
+import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayTree;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.event.EventManager;
@@ -128,20 +129,28 @@ public class PaintManager {
 	/**
 	 * Method declaration
 	 * 
-	 * @param family_id
+	 * @param family_name
 	 * @param useServer
 	 * 
 	 * @see
 	 */
-	public void openNewFamily(String family_id) {
+	public void openNewFamily(String family_name) {
+		openFamily(family_name, false);
+	}
+	
+	public void openActiveFamily(String family_name) {
+		openFamily(family_name, true);
+	}
+	
+	private void openFamily(String family_name, boolean existing) {
 
 		fireProgressChange("Fetching protein family", 0, ProgressEvent.Status.START);
 
-		family = new Family(family_id);
+		family = new Family(family_name);
 		IDmap.inst().clearGeneIDs();
 		LogAction.clearLog();
 		LogAlert.clearLog();
-		DisplayTree tree = new DisplayTree(family_id);
+		DisplayTree tree = new DisplayTree(family_name);
 		PantherAdapter adapter = new PantherServerAdapter();
 		boolean success = family.fetch(tree, adapter);
 		if (success) {
@@ -162,25 +171,21 @@ public class PaintManager {
 				fireProgressChange("Fetching experimental annotations from GOLR", 0, ProgressEvent.Status.START);
 				AnnotationUtil.collectExpAnnotationsBatched(family);
 				/*
-				 * The file may be null, in which case the following two methods
-				 * simply return
+				 * Don't bother with looking for these if they don't exist yet
 				 */
-				Logger.importPrior(DirectoryUtil.inst().getGafDir(), family.getFamily_name());
+				if (existing) {
+					File family_dir = new File(PaintConfig.inst().gafdir);
+					Logger.importPrior(family.getFamily_name(), family_dir);
 
-				fireProgressChange("Fetching PAINT annotations", 0, ProgressEvent.Status.START);
-				GafPropagator.importAnnotations(family);
+					fireProgressChange("Fetching PAINT annotations", 0, ProgressEvent.Status.START);
+
+					GafPropagator.importAnnotations(family, family_dir);
+				}
 
 			} catch (Exception e) {
 				success = false;
 			}
 
-			// Keep a copy of the latest subfamily to sequence information
-			// loaded from database.
-			// This is to check when trying to determine if
-			// tree should be saved when modifying subfamily evidence.
-			//			if (null == origTreeTable) {
-			//				origTreeTable = SubFamilyUtil.getSubfamilyRelations(tree_pane);
-			//			}
 			if (success) {
 				fireProgressChange("Initializing annotation matrix", 90, ProgressEvent.Status.START);
 				annot_matrix.setModels(getTree().getTerminusNodes());
@@ -189,6 +194,10 @@ public class PaintManager {
 
 				DirtyIndicator.inst().dirtyGenes(false);
 
+				if (PaintConfig.inst().collapse_no_exp) {
+					tree_pane.collapseNonExperimental();
+				}
+				
 				EventManager.inst().fireNewFamilyEvent(this, family);
 
 			} else {
@@ -198,6 +207,13 @@ public class PaintManager {
 		}
 	}
 
+	public void saveFamily() {
+	    String username = System.getProperty("user.name");
+		String program_name = PAINT.getAppID();
+		File family_dir = new File(PaintConfig.inst().gafdir);
+		family.save(family_dir, username + " using " + program_name);
+	}
+	
 	private static void fireProgressChange(String message, int percentageDone,
 			ProgressEvent.Status status) {
 		ProgressEvent event = new ProgressEvent(PaintManager.class, message,

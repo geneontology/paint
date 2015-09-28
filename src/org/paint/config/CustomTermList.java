@@ -1,6 +1,6 @@
 package org.paint.config;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +20,7 @@ public class CustomTermList {
 	
 	public static CustomTermList inst() {
 		if (singleton == null) {
-			singleton = new CustomTermList("config/custom_term_list.xml");
+			singleton = new CustomTermList("custom_term_list.xml");
 		}
 		return singleton;
 	}
@@ -30,15 +30,16 @@ public class CustomTermList {
 	}
 	
 	private CustomTermList(String xml) throws CustomTermListException {
-		this(new File(xml));
-	}
-	
-	private CustomTermList(File xml) throws CustomTermListException {
 		exclusionList = new HashSet<String>();
-		parseXML(xml);
+		InputStream inputStream = CustomTermList.class.getClassLoader().
+				getResourceAsStream(xml);
+		if (inputStream == null) {
+			throw new CustomTermListException("Could not load resource for term list: "+xml);
+		}
+		parseXML(inputStream);
 	}
 	
-	private void parseXML(File xml) throws CustomTermListException {
+	private void parseXML(InputStream xml) throws CustomTermListException {
 		Document doc = null;
 		try {
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();

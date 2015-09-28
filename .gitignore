@@ -17,3 +17,7 @@ target
 
 /junk/
 /lib/
+/test_resources/
+*.log
+/restore.txt
+/backup.txt

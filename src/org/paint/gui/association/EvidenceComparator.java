@@ -6,9 +6,6 @@ import org.bbop.phylo.util.OWLutil;
 
 import owltools.gaf.GeneAnnotation;
 
-import com.sri.panther.paintCommon.GO.Evidence;
-
-
 public class EvidenceComparator implements Comparator<GeneAnnotation> {
 
 	public static final int LESS_THAN = -1;

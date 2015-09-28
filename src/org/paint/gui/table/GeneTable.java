@@ -43,9 +43,9 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.FamilyViews;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.PaintTable;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
@@ -84,8 +84,8 @@ AspectChangeListener {
 	public GeneTable() {
 		super();
 
-		this.setBackground(Preferences.inst().getBackgroundColor());
-		this.setSelectionBackground(Preferences.inst().getSelectionColor());
+		this.setBackground(GuiConstant.BACKGROUND_COLOR);
+		this.setSelectionBackground(GuiConstant.SELECTION_COLOR);
 
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setRowSelectionAllowed(true);
@@ -112,8 +112,7 @@ AspectChangeListener {
 		geneSelectionModel.addListSelectionListener(new GeneSelectionHandler(this));
 		setSelectionModel(geneSelectionModel);
 
-		Preferences user_settings = Preferences.inst();
-		Font f = user_settings.getFont();
+		Font f = GuiConstant.DEFAULT_FONT;
 
 		this.setFont(f);
 

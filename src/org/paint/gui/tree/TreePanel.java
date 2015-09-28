@@ -65,11 +65,11 @@ import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
 import org.bbop.phylo.tracking.LogAction;
-import org.bbop.phylo.util.DirectoryUtil;
-import org.paint.config.Preferences;
+import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.displaymodel.DisplayTree;
 import org.paint.gui.FamilyViews;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AnnotationDragEvent;
@@ -87,8 +87,6 @@ import org.paint.gui.table.GeneTable;
 import org.paint.main.PaintManager;
 
 import owltools.gaf.Bioentity;
-
-import com.sri.panther.paintCommon.Constant;
 
 public class TreePanel extends JPanel 
 implements MouseListener, 
@@ -120,16 +118,10 @@ AnnotationDragListener {
 	public static final String POPUP_MENU_RESET_ROOT = "Reset Root to Main";
 	public static final String POPUP_MENU_PRUNE = "Prune";
 
-	public static final int TREE_COLLAPSE_NONEXP_NODES = 201;
-	public static final int TREE_EXPAND_ALL_NODES = 202;
-	public static final int TREE_RESET_ROOT_TO_MAIN = 203;
-	public static final int TREE_USE_DISTANCES = 204;
-	public static final int TREE_SPECIES = 205;
-	public static final int TREE_TOP = 206;
-	public static final int TREE_BOTTOM = 207;
-
 	private static final String OUTPUT_SEQ_INFO_TITLE = "#Descendant sequence information for node ";
-	private static final String OUTPUT_SEQ_DELIM = Constant.STR_TAB;
+	private static final String OUTPUT_SEQ_DELIM = "\t";
+	private static final String STR_EMPTY = "";
+	private static final String NEWLINE = "\n";
 	private static final String OUTPUT_SEQ_INFO_COLUMNS = "#Database id" + OUTPUT_SEQ_DELIM + "Sequence id";
 
 	// indicates whether or not the y values need to be recalculated on next draw
@@ -196,7 +188,7 @@ AnnotationDragListener {
 		if (this.getDistanceScaling() != scale) {
 			this.setDistance(scale);
 			setNeedPositionUpdate();
-			Preferences.inst().setTree_distance_scaling(scale);
+			PaintConfig.inst().tree_distance_scaling = scale;
 		}
 	}
 
@@ -319,8 +311,7 @@ AnnotationDragListener {
 		if ((null == g) || (null == current_root)){
 			return;
 		}
-
-		boolean use_distances = Preferences.inst().isUseDistances();
+		boolean use_distances = PaintConfig.inst().use_distances;
 		if (need_update) {
 			updateNodePositions(current_root, g, PaintManager.inst().getRowHeight(), use_distances);
 		}
@@ -408,7 +399,6 @@ AnnotationDragListener {
 		List<Bioentity> terminus_nodes = tree.getTerminusNodes();
 		DisplayBioentity bottom_node =  (DisplayBioentity) terminus_nodes.get(terminus_nodes.size() - 1);
 		Rectangle bottomRect = bottom_node.getScreenRectangle();
-
 		// Set the height
 		tree_rect.height = bottomRect.y;
 
@@ -427,7 +417,8 @@ AnnotationDragListener {
 	protected Rectangle getTreeSize(Graphics g) {
 		if (tree != null) {
 			if (need_update) {
-				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), Preferences.inst().isUseDistances());
+				tree.nodesReordered();
+				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
 			}
 		}
 		return tree_rect;
@@ -510,7 +501,7 @@ AnnotationDragListener {
 	 */
 	protected double getDistanceScaling(){
 		if (tree_distance_scaling < 0) {
-			tree_distance_scaling = Preferences.inst().getTree_distance_scaling();
+			tree_distance_scaling = PaintConfig.inst().tree_distance_scaling;
 		}
 		return tree_distance_scaling;
 	}
@@ -525,7 +516,7 @@ AnnotationDragListener {
 	 */
 	protected void setDistance(double scale){
 		tree_distance_scaling = scale;
-		Preferences.inst().setTree_distance_scaling(scale);
+		PaintConfig.inst().tree_distance_scaling = scale;
 	}
 
 	private int getNodeWidth(Graphics g, Bioentity node) {
@@ -541,8 +532,8 @@ AnnotationDragListener {
 		int width = 0;
 		if (node.isTerminus()) {
 			String s = ((DisplayBioentity) node).getNodeLabel();
-			if (s != null && !s.equals(Constant.STR_EMPTY)) {
-				FontMetrics fm = g.getFontMetrics(Preferences.inst().getFont());
+			if (s != null && !s.equals(STR_EMPTY)) {
+				FontMetrics fm = g.getFontMetrics(GuiConstant.DEFAULT_FONT);
 				width = (fm.stringWidth(s));
 			}
 		}
@@ -562,7 +553,7 @@ AnnotationDragListener {
 	public void mouseClicked(MouseEvent e) {
 
 		// Called just after the user clicks the listened-to component.
-		setToolTipText(Constant.STR_EMPTY);
+		setToolTipText(STR_EMPTY);
 		int modifiers = e.getModifiers();
 		if ((modifiers & InputEvent.BUTTON1_MASK) != 0 &&
 				(modifiers      & InputEvent.BUTTON3_MASK) == 0) {
@@ -707,7 +698,7 @@ AnnotationDragListener {
 	 * @see
 	 */
 	public void mouseExited(MouseEvent e){
-		setToolTipText(Constant.STR_EMPTY);
+		setToolTipText(STR_EMPTY);
 	}
 
 	/**
@@ -762,14 +753,14 @@ AnnotationDragListener {
 			DisplayBioentity  node = getClickedInNodeArea(e.getPoint());
 			String tool_tip;
 			if (null == node){
-				tool_tip =  Constant.STR_EMPTY;
+				tool_tip =  STR_EMPTY;
 			} else {
 				tool_tip = getToolTipInfo(node);
 			}
 
 			setToolTipText(tool_tip);
-			if (!tool_tip.equals(Constant.STR_EMPTY)) {
-				UIManager.put(TOOLTIP_FOREGROUND, new ColorUIResource(Preferences.inst().getForegroundColor()));
+			if (!tool_tip.equals(STR_EMPTY)) {
+				UIManager.put(TOOLTIP_FOREGROUND, new ColorUIResource(GuiConstant.FOREGROUND_COLOR));
 				ToolTipManager.sharedInstance().setEnabled(true);
 				ToolTipManager.sharedInstance().mouseMoved(e);
 			}
@@ -916,21 +907,21 @@ AnnotationDragListener {
 		// Get the information
 		StringBuffer sb =
 				new StringBuffer(OUTPUT_SEQ_INFO_TITLE + n.getSeqId());
-		sb.append(Constant.STR_NEWLINE);
+		sb.append(NEWLINE);
 		sb.append(OUTPUT_SEQ_INFO_COLUMNS);
-		sb.append(Constant.STR_NEWLINE);
+		sb.append(NEWLINE);
 		for (int i = 0; i < leafList.size(); i++) {
 			Bioentity aNode = leafList.get(i);
 			sb.append(aNode.getDBID());
 			sb.append(OUTPUT_SEQ_DELIM);
 			sb.append(aNode.getSeqId());
-			sb.append(Constant.STR_NEWLINE);
+			sb.append(NEWLINE);
 		}
 
 		// Prompt user for file name
 		JFileChooser dlg = new JFileChooser();
-		if (null != DirectoryUtil.inst().getGafDir()) {
-			File gaf_dir = new File(DirectoryUtil.inst().getGafDir());
+		if (null != PaintConfig.inst().gafdir) {
+			File gaf_dir = new File(PaintConfig.inst().gafdir);
 			dlg.setCurrentDirectory(gaf_dir);
 		}
 		int rtrnVal = dlg.showSaveDialog(GUIManager.getManager().getFrame());
@@ -1083,11 +1074,11 @@ AnnotationDragListener {
 
 	public void setDropInfo(DisplayBioentity node, Point dropPoint, String dropLabel) {
 
-		String tool_tip = (dropLabel != null ? dropLabel : Constant.STR_EMPTY);
+		String tool_tip = (dropLabel != null ? dropLabel : STR_EMPTY);
 
 		setToolTipText(tool_tip);
 
-		UIManager.put(TOOLTIP_FOREGROUND, new ColorUIResource(Preferences.inst().getForegroundColor()));
+		UIManager.put(TOOLTIP_FOREGROUND, new ColorUIResource(GuiConstant.FOREGROUND_COLOR));
 		MouseEvent phantom = new MouseEvent(
 				this,
 				MouseEvent.MOUSE_MOVED,

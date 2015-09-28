@@ -15,8 +15,8 @@ import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ExtensibleLabelUI.Renderer;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
 import org.paint.gui.AspectSelector;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.GeneAnnotation;
@@ -40,14 +40,13 @@ public class HyperlinkCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		selected = isSelected;
-		Preferences dp = Preferences.inst();
-		setFont(dp.getFont());
-		setForeground(dp.getForegroundColor());
+		setFont(GuiConstant.DEFAULT_FONT);
+		setForeground(GuiConstant.FOREGROUND_COLOR);
 		if (value != null) {
 			label = (HyperlinkLabel) value;
 			String tip = label.getToolTipText();
 			setToolTipText(tip);
-			UIManager.put("ToolTip.foreground", dp.getForegroundColor());
+			UIManager.put("ToolTip.foreground", GuiConstant.FOREGROUND_COLOR);
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 		}
 		GeneAnnotation assoc = ((AssociationsTableModel) table.getModel()).getEvidenceForRow(row);

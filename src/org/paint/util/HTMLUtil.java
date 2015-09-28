@@ -22,23 +22,20 @@ package org.paint.util;
 import java.awt.Color;
 import java.awt.Font;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.event.HyperlinkEvent;
 
 import org.apache.log4j.Logger;
-import org.bbop.phylo.touchup.Constant;
+import org.bbop.phylo.util.Constant;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
 
 import owltools.gaf.Bioentity;
-
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
-import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
 public class HTMLUtil {
 
@@ -148,7 +145,7 @@ public class HTMLUtil {
 		if (guts != null) {
 			panelText += "<a href=\"" + guts + "\">" + id + "</a>";
 			field.setToolTipText(guts);
-			field.setFont(Preferences.inst().getFont());
+			field.setFont(GuiConstant.DEFAULT_FONT);
 
 		} else {
 			field.setToolTipText("no link");
@@ -296,16 +293,25 @@ public class HTMLUtil {
 		if (url == null)
 			return;
 		try {
-			BrowserLauncher bl = new BrowserLauncher(); // no logger
-			bl.openURLinBrowser(url.toString());
-			//			BrowserLauncherRunner br = new BrowserLauncherRunner(bl,
-			//					url.toString(), null);
-			//			new Thread(bl).start();
-		} catch (BrowserLaunchingInitializingException be) {
+			BrowserLaunch.openURL(url.toString());
+		} catch (Exception be) {
 			LOG.error("cant launch browser ", be);
-		} catch (UnsupportedOperatingSystemException ue) {
-			LOG.error("cant launch browser ", ue);
 		}
+	}
+
+	public static String getPMID(List<String> xrefs) {
+		String use_xref = null;
+		for (int i = 0; i < xrefs.size() && use_xref == null; i++) {
+			if (xrefs.get(i).startsWith("PMID"))
+				use_xref = xrefs.get(i);
+		}
+		if (use_xref == null) {
+			if (xrefs.size() > 0)
+				use_xref = xrefs.get(0);
+			else
+				use_xref = "";
+		}
+		return use_xref;
 	}
 
 	public static String displayPropertiesToCSS(Font font, Color fg) {

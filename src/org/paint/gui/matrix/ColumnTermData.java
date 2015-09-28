@@ -81,6 +81,7 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 				add_item &= !label.endsWith(" part");
 				add_item &= !column_terms.contains(ancestor);
 				add_item &= !term_list.contains(ancestor);
+				add_item &= !OWLutil.inst().isExcluded(ancestor);
 				if (add_item) {
 					addTermMenuItem(ancestor, term_list);
 				}

@@ -34,11 +34,11 @@ import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.log4j.Logger;
 import org.bbop.phylo.model.Family;
 import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.panther.PantherAdapter;
 import org.bbop.phylo.panther.ParsingHack;
-import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.ProgressEvent;
@@ -52,6 +52,9 @@ import com.sri.panther.paintCommon.RawComponentContainer;
 import com.sri.panther.paintCommon.TransferInfo;
 
 public class PantherServerAdapter extends PantherAdapter {
+	
+	public static final String PANTHER_URL = " http://paintcuration.usc.edu";
+	
 	public static final String CHAR_ENCODING = "UTF-8";
 	public static final String STRING_EMPTY = "";
 
@@ -88,6 +91,8 @@ public class PantherServerAdapter extends PantherAdapter {
 	public static final String SERVER_ERROR = "Server cannot access information, please contact Systems Administrator";
 
 	public static String server_status;
+	
+	private static Logger LOG = Logger.getLogger(LoginUtil.class);
 
 	private static PantherServerAdapter INSTANCE = null;
 
@@ -163,8 +168,7 @@ public class PantherServerAdapter extends PantherAdapter {
 		objs.addElement(userInfo);
 		objs.addElement(PantherDbInfo.getDbAndVersionKey());
 		objs.addElement(familyID);
-		String servletURL = Preferences.inst().getPantherURL();
-		Object  o = sendAndReceive(servletURL, REQUEST_OPEN_BOOK, objs, null, null);
+		Object  o = sendAndReceive(REQUEST_OPEN_BOOK, objs, null, null);
 
 
 		if (null == o){
@@ -186,38 +190,38 @@ public class PantherServerAdapter extends PantherAdapter {
 
 	}
 
-	public Vector searchGeneName(String servletURL, Object sendInfo,
+	public Vector searchGeneName(Object sendInfo,
 			String sessionIdName,
 			String sessionIdValue) {
-		return doSearch(servletURL, REQUEST_SEARCH_GENE_NAME,
+		return doSearch(PANTHER_URL, REQUEST_SEARCH_GENE_NAME,
 				sendInfo, sessionIdName, sessionIdValue);
 	}
 
-	public Vector searchGeneExtId(String servletURL, Object sendInfo,
+	public Vector searchGeneExtId(Object sendInfo,
 			String sessionIdName,
 			String sessionIdValue) {
-		return doSearch(servletURL, REQUEST_SEARCH_GENE_EXT_ID,
+		return doSearch(PANTHER_URL, REQUEST_SEARCH_GENE_EXT_ID,
 				sendInfo, sessionIdName, sessionIdValue);
 	}
 
-	public Vector searchProteinExtId(String servletURL, Object sendInfo,
+	public Vector searchProteinExtId(Object sendInfo,
 			String sessionIdName,
 			String sessionIdValue) {
-		return doSearch(servletURL, REQUEST_SEARCH_PROTEIN_EXT_ID,
+		return doSearch(PANTHER_URL, REQUEST_SEARCH_PROTEIN_EXT_ID,
 				sendInfo, sessionIdName, sessionIdValue);
 	}
 
-	public Vector searchDefinition(String servletURL, Object sendInfo,
+	public Vector searchDefinition(Object sendInfo,
 			String sessionIdName,
 			String sessionIdValue) {
-		return doSearch(servletURL, REQUEST_SEARCH_DEFINITION,
+		return doSearch(PANTHER_URL, REQUEST_SEARCH_DEFINITION,
 				sendInfo, sessionIdName, sessionIdValue);
 	}
 
-	public Vector searchAllBooks(String servletURL, Object sendInfo,
+	public Vector searchAllBooks(Object sendInfo,
 			String sessionIdName,
 			String sessionIdValue) {
-		return doSearch(servletURL, REQUEST_SEARCH_ALL_BOOKS,
+		return doSearch(PANTHER_URL, REQUEST_SEARCH_ALL_BOOKS,
 				sendInfo, sessionIdName, sessionIdValue);
 	}
 
@@ -333,14 +337,14 @@ public class PantherServerAdapter extends PantherAdapter {
 	 *
 	 * @see
 	 */
-	public Object sendAndReceive(String servletURL, String actionRequest, Object sendInfo,
+	public Object sendAndReceive(String actionRequest, Object sendInfo,
 			String sessionIdName, String sessionIdValue){
 		String message = null; // if no message, then it's all lovely
 		Object            outputFromServlet = null;
 		try{
 			// connect to the servlet
 			URL                     servlet =
-					new URL(servletURL + "/servlet/com.sri.panther.paintServer.servlet.Client2Servlet?action="
+					new URL(PANTHER_URL + "/servlet/com.sri.panther.paintServer.servlet.Client2Servlet?action="
 							+ actionRequest);
 			java.net.URLConnection  servletConnection = servlet.openConnection();
 
@@ -390,23 +394,23 @@ public class PantherServerAdapter extends PantherAdapter {
 		return outputFromServlet;			
 	}
 
-	public FixedInfo getFixedInfoFromServer(String serverPath) {
+	public FixedInfo getFixedInfoFromServer() {
 		Vector objs = null;
 		server_status = "";
 		try {
 			// try to get if from the session
 			// connect to the servlet
-			URL servlet = new URL(serverPath + "/servlet/com.sri.panther.paintServer.servlet.Client2Servlet?action=FixedInfo");
+			LOG.info("Logging in to Panther URL: " + PANTHER_URL);
+			URL servlet = new URL(PANTHER_URL + "/servlet/com.sri.panther.paintServer.servlet.Client2Servlet?action=FixedInfo");
 			URLConnection servletConnection = servlet.openConnection();
 
 			// Don't used a cached version of URL connection.
 			servletConnection.setUseCaches(false);
 			servletConnection.setDefaultUseCaches(false);
-			// Read the input from the servlet.
 			//
 			// The servlet will return a serialized vector containing a DataTransfer object
 			//
-			ObjectInputStream   inputFromServlet = new ObjectInputStream(new GZIPInputStream(servletConnection.getInputStream()));
+			ObjectInputStream inputFromServlet = new ObjectInputStream(new GZIPInputStream(servletConnection.getInputStream()));
 			objs = (Vector) inputFromServlet.readObject();
 			inputFromServlet.close();
 		}
@@ -441,7 +445,7 @@ public class PantherServerAdapter extends PantherAdapter {
 
 			// connect to the servlet
 			URL               servlet =
-					new URL(Preferences.inst().getPantherURL()
+					new URL(PANTHER_URL
 							+ "/servlet/com.sri.panther.paintServer.servlet.Client2Servlet?action=BookList");
 			HttpURLConnection servletConnection = (HttpURLConnection) servlet.openConnection();
 

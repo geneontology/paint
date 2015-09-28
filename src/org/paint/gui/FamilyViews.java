@@ -29,7 +29,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
 import org.paint.gui.event.EventManager;
@@ -105,7 +105,7 @@ implements AspectChangeListener {
 			gtabbedPane.addTab("Protein Information", tablePanel);
 			gtabbedPane.addTab("MSA", msaPanel);
 			gtabbedPane.setOpaque(true);
-			gtabbedPane.setBackground(Preferences.inst().getBackgroundColor());
+			gtabbedPane.setBackground(GuiConstant.BACKGROUND_COLOR);
 
 			TreePanel tree_pane = new TreePanel();
 			treePanel = new NodeScroller(tree_pane);
@@ -113,9 +113,9 @@ implements AspectChangeListener {
 			ttabbedPane = new JTabbedPane();
 			ttabbedPane.addTab("Tree", treePanel);
 			ttabbedPane.setOpaque(true);
-			gtabbedPane.setBackground(Preferences.inst().getBackgroundColor());
+			gtabbedPane.setBackground(GuiConstant.BACKGROUND_COLOR);
 
-			setBackground(Preferences.inst().getBackgroundColor());
+			setBackground(GuiConstant.BACKGROUND_COLOR);
 
 			PaintManager.inst().setGeneTable(gene_table);
 			PaintManager.inst().setTreePane(tree_pane);

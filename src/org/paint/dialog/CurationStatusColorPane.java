@@ -13,7 +13,8 @@ import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.config.PaintConfig;
 import org.paint.gui.event.CurationColorEvent;
 import org.paint.gui.event.EventManager;
 
@@ -21,9 +22,9 @@ public class CurationStatusColorPane extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private Color oldExperimentalColor = Preferences.inst().getExpPaintColor();
-	private Color oldCuratedColor = Preferences.inst().getCuratedPaintColor();
-	private Color oldInferColor = Preferences.inst().getInferPaintColor();
+	private Color oldExperimentalColor = PaintConfig.inst().expPaintColor;
+	private Color oldCuratedColor = PaintConfig.inst().curatedPaintColor;
+	private Color oldInferColor = PaintConfig.inst().inferPaintColor;
 
 	private JColorChooser chooser = new JColorChooser();
 
@@ -45,7 +46,7 @@ public class CurationStatusColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldExperimentalColor);
-					chooser.setColor(Preferences.inst().getExpPaintColor());
+					chooser.setColor(PaintConfig.inst().expPaintColor);
 				}
 			}
 		});
@@ -55,7 +56,7 @@ public class CurationStatusColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldCuratedColor);
-					chooser.setColor(Preferences.inst().getCuratedPaintColor());
+					chooser.setColor(PaintConfig.inst().curatedPaintColor);
 				}
 			}
 		});
@@ -64,7 +65,7 @@ public class CurationStatusColorPane extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					previewPanel.setOldColor(oldInferColor);
-					chooser.setColor(Preferences.inst().getInferPaintColor());
+					chooser.setColor(PaintConfig.inst().inferPaintColor);
 				}
 			}
 		});
@@ -83,15 +84,15 @@ public class CurationStatusColorPane extends JPanel {
 		chooser.setPreviewPanel(previewPanel);
 		chooser.getSelectionModel().addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				Preferences preferences = Preferences.inst();
+				PaintConfig preferences = PaintConfig.inst();
 				if (experimental.isSelected()) {
-					preferences.setExpPaintColor(chooser.getColor());
+					preferences.expPaintColor = chooser.getColor();
 				}
 				else if (curated.isSelected()) {
-					preferences.setCuratedPaintColor(chooser.getColor());
+					preferences.curatedPaintColor = chooser.getColor();
 				}
 				else if (inferred.isSelected()) {
-					preferences.setInferPaintColor(chooser.getColor());
+					preferences.inferPaintColor = chooser.getColor();
 				}
 				CurationColorEvent colorEvent = new CurationColorEvent(this);
 				EventManager.inst().fireCurationColorEvent(colorEvent);
@@ -103,10 +104,10 @@ public class CurationStatusColorPane extends JPanel {
 	}	
 
 	public void cancelColorChange() {
-		Preferences preferences = Preferences.inst();
-		preferences.setExpPaintColor(oldExperimentalColor);
-		preferences.setCuratedPaintColor(oldCuratedColor);
-		preferences.setInferPaintColor(oldInferColor);
+		PaintConfig preferences = PaintConfig.inst();
+		preferences.expPaintColor = oldExperimentalColor;
+		preferences.curatedPaintColor = oldCuratedColor;
+		preferences.inferPaintColor = oldInferColor;
 		CurationColorEvent colorEvent = new CurationColorEvent(this);
 		EventManager.inst().fireCurationColorEvent(colorEvent);
 	}

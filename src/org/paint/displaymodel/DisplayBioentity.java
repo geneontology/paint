@@ -37,7 +37,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
+import org.paint.config.PaintConfig;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.table.OrthoCell;
@@ -49,8 +51,6 @@ import owltools.gaf.Bioentity;
 import owltools.gaf.GeneAnnotation;
 import owltools.gaf.species.TaxonFinder;
 
-import com.sri.panther.paintCommon.Constant;
-
 public class DisplayBioentity extends Bioentity {
 	/**
 	 * 
@@ -61,6 +61,8 @@ public class DisplayBioentity extends Bioentity {
 	public static final int								GLYPH_RADIUS = GLYPH_DIAMETER / 2;
 
 	private final static BasicStroke dashed = new BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1f, new float[] {2f, 2f}, 0f);
+
+    private static final String STR_EMPTY = "";
 
 	private String sequence;
 	private String nodeNote;
@@ -107,7 +109,7 @@ public class DisplayBioentity extends Bioentity {
 		super();
 		this.is_expanded = isExpanded;
 		this.visible = true;
-		this.ortho_mcl = Constant.STR_EMPTY;
+		this.ortho_mcl = STR_EMPTY;
 	}
 
 //	public void setDepthInTree (int depth) {
@@ -193,13 +195,12 @@ public class DisplayBioentity extends Bioentity {
 
 		Rectangle r = new Rectangle(this.getScreenRectangle());
 		Point p = new Point(this.getScreenPosition());
-		Preferences user_settings = Preferences.inst();
 		Color       fillColor = dropColor != null ? dropColor :
-			RenderUtil.annotationStatusColor(this, user_settings.getBackgroundColor(), true);
+			RenderUtil.annotationStatusColor(this, GuiConstant.BACKGROUND_COLOR, true);
 		if (isSelected()) {
 			fillColor = fillColor.brighter();
 		}
-		Color       drawColor = user_settings.getForegroundColor();
+		Color       drawColor = GuiConstant.FOREGROUND_COLOR;
 
 		connectToParent(root, g);
 
@@ -310,14 +311,14 @@ public class DisplayBioentity extends Bioentity {
 			
 			if (isPruned()) {
 				s = "XXX-" + s;
-				g.setColor(Preferences.inst().getBackgroundColor());
+				g.setColor(GuiConstant.BACKGROUND_COLOR);
 			} else
 				g.setColor(DuplicationColor.inst().getDupColor(getDupColorIndex()));
 			g.fillRect(x, p.y - GLYPH_RADIUS, viewport.width, GLYPH_DIAMETER * 2);
 
 			AttributedString as = new AttributedString(s);
 			as.addAttribute(TextAttribute.FONT, f);
-			g.setColor(RenderUtil.annotationStatusColor(this, user_settings.getForegroundColor(), false));
+			g.setColor(RenderUtil.annotationStatusColor(this, GuiConstant.FOREGROUND_COLOR, false));
 			if (null != s) {
 				int text_x = p.x + nodeToTextDist;
 				int text_y = p.y + (r.height / 2);
@@ -410,8 +411,9 @@ public class DisplayBioentity extends Bioentity {
 	}
 
 	public Rectangle getScreenRectangle() {
-		if (screenRectangle == null)
+		if (screenRectangle == null) {
 			log.debug(this + " has not had its screen rectangle set!");
+		}
 		return screenRectangle;
 	}
 
@@ -478,7 +480,7 @@ public class DisplayBioentity extends Bioentity {
 
 	public OrthoCell getOrthoCell() {
 		if (ortho_cell == null) {
-			Color color = ortho_mcl.equals(Constant.STR_EMPTY) ? Preferences.inst().getBackgroundColor() : RenderUtil.getOrthoColor(ortho_mcl);
+			Color color = ortho_mcl.equals(STR_EMPTY) ? GuiConstant.BACKGROUND_COLOR : RenderUtil.getOrthoColor(ortho_mcl);
 			ortho_cell = new OrthoCell(color, ortho_mcl);	
 		}
 		return ortho_cell;
@@ -488,9 +490,9 @@ public class DisplayBioentity extends Bioentity {
 		if (ortho_cell == null) {
 			String value = this.getAttrLookup(heading);
 			if (null == value) {
-				value = Constant.STR_EMPTY;
+				value = STR_EMPTY;
 			}
-			Color color = value.equals(Constant.STR_EMPTY) ? Preferences.inst().getBackgroundColor() : RenderUtil.getOrthoColor(value);
+			Color color = value.equals(STR_EMPTY) ? GuiConstant.BACKGROUND_COLOR : RenderUtil.getOrthoColor(value);
 			ortho_cell = new OrthoCell(color, ortho_mcl);   
 		}
 		return ortho_cell;

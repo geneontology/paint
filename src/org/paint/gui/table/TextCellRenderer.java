@@ -31,8 +31,9 @@ import java.awt.Rectangle;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
 import org.paint.displaymodel.DisplayBioentity;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;
@@ -65,17 +66,16 @@ public class TextCellRenderer extends DefaultTableCellRenderer {
 		
 		Bioentity dot = genes.getNode(row);
 		node = (DisplayBioentity) dot;
-		Preferences prefs = Preferences.inst();
 		Font f = RenderUtil.getNodeFont(node);;
 		setFont(f);
 		
-		fg_color = RenderUtil.annotationStatusColor(node, prefs.getForegroundColor());
+		fg_color = RenderUtil.annotationStatusColor(node, GuiConstant.FOREGROUND_COLOR);
 		if (isSelected) {
-			fg_color = prefs.getForegroundColor();
-			bg_color = RenderUtil.annotationStatusColor(node, prefs.getBackgroundColor(), true);
+			fg_color = GuiConstant.FOREGROUND_COLOR;
+			bg_color = RenderUtil.annotationStatusColor(node, GuiConstant.BACKGROUND_COLOR, true);
 		} else {
-			fg_color = RenderUtil.annotationStatusColor(node, prefs.getForegroundColor());
-			bg_color = prefs.getBackgroundColor();
+			fg_color = RenderUtil.annotationStatusColor(node, GuiConstant.FOREGROUND_COLOR);
+			bg_color = GuiConstant.BACKGROUND_COLOR;
 		}
 		this.setText((String) value);
 		setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));

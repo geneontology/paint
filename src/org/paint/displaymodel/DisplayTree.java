@@ -31,7 +31,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Tree;
-import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
@@ -183,7 +182,7 @@ public class DisplayTree extends Tree implements Serializable {
     }
 
 	// Method to set number of leaves in tree
-	private void nodesReordered() {
+	public void nodesReordered() {
 		initCurrentNodes();
 		NodeReorderEvent event = new NodeReorderEvent(this);
 		event.setNodes(getTerminusNodes());

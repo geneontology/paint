@@ -35,8 +35,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
+import org.paint.gui.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.GeneAnnotation;
@@ -65,12 +66,12 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 		super();
 		contributes_icon = new ScaledIcon(null);
 		Icon icon;
-		icon = Preferences.inst().getIconByName("colocate");
+		icon = IconResource.inst().getIconByName("colocate");
 		colocates_icon.setIcon(icon);
 		if (colocates_icon != null) {
 			colocates_icon.setDimension(15);
 		}
-		icon = Preferences.inst().getIconByName("contribute");
+		icon = IconResource.inst().getIconByName("contribute");
 		contributes_icon.setIcon(icon);
 		if (contributes_icon != null) {
 			contributes_icon.setDimension(15);
@@ -80,9 +81,8 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
-		Preferences dp = Preferences.inst();
-		setFont(dp.getFont());
-		setForeground(dp.getForegroundColor());
+		setFont(GuiConstant.DEFAULT_FONT);
+		setForeground(GuiConstant.FOREGROUND_COLOR);
 		selected = isSelected;
 		this.row = row;
 		this.column = column;

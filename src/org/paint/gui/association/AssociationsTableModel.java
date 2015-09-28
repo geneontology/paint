@@ -112,7 +112,8 @@ implements PaintTable {
 			field.addHyperlinkListener(new TermHyperlinkListener());
 			List<String> xrefs = assoc.getReferenceIds();
 			if (xrefs.size() > 0) {
-				String[] xref = xrefs.get(0).split(":");
+				String preferred_xref = HTMLUtil.getPMID(xrefs);
+				String[] xref = preferred_xref.split(":");
 				String xref_text = HTMLUtil.getHTML(xref[0], xref[1], false);
 				field.setText(xref_text);
 				pub_labels.put(assoc, field);

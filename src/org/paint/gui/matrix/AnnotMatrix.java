@@ -38,10 +38,10 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
-import org.paint.config.Preferences;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
 import org.paint.gui.FamilyViews;
+import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
@@ -89,7 +89,7 @@ AspectChangeListener {
 		super();
 
 		setOpaque(true);
-		setBackground(Preferences.inst().getBackgroundColor());
+		setBackground(GuiConstant.BACKGROUND_COLOR);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setRowSelectionAllowed(true);
 		setColumnSelectionAllowed(true);
@@ -108,7 +108,7 @@ AspectChangeListener {
 		manager.registerAspectChangeListener(this);
 		manager.registerGeneAnnotationChangeListener(this);
 
-		setFont(Preferences.inst().getFont());
+		setFont(GuiConstant.DEFAULT_FONT);
 
 		setDragEnabled(true);
 		annot_handler = new AnnotationTransferHandler();

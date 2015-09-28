@@ -12,7 +12,7 @@ import javax.swing.table.TableCellRenderer;
 
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
-import org.paint.config.Preferences;
+import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
 import org.paint.util.RenderUtil;
 
@@ -40,7 +40,7 @@ public class TrashCellRenderer extends JLabel implements TableCellRenderer {
 		boolean deletable = ((Boolean) value).booleanValue();
 
 		if (deletable) {
-			icon = Preferences.inst().getIconByName("trash");
+			icon = IconResource.inst().getIconByName("trash");
 		}
 		scaledIcon.setIcon(icon);
 		if (scaledIcon != null) {
