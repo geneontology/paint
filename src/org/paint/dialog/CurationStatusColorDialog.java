@@ -10,6 +10,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.paint.config.PaintConfig;
+
 public class CurationStatusColorDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -43,6 +45,7 @@ public class CurationStatusColorDialog extends JDialog {
 		ok.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				CurationStatusColorDialog.this.dispose();
+				PaintConfig.inst().save(PaintConfig.PREF_FILE);
 			}
 		});
 

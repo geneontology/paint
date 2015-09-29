@@ -38,9 +38,7 @@ public class PAINT {
 
 	private static String[] args;
 
-	private static final String yaml_file = "config/preferences.yaml";
-
-	private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(Touchup.class);
+//	private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(Touchup.class);
 
 	/**
 	 * Method declaration
@@ -64,7 +62,7 @@ public class PAINT {
 
 		Runtime.getRuntime().addShutdownHook(new Thread(theRunner.mainRun) {
 			public void run() {
-				PaintConfig.inst().save(yaml_file);
+				PaintConfig.inst().save(PaintConfig.PREF_FILE);
 			}
 		});
 
@@ -78,7 +76,7 @@ public class PAINT {
 		public void run() {
 			try {
 				PaintYaml configManager = new PaintYaml();
-				configManager.loadConfig(yaml_file);
+				configManager.loadConfig(PaintConfig.PREF_FILE);
 				
 				GUIManager.getManager().addStartupTask(new PaintStartupTask(args));
 				GUIManager.getManager().start();

@@ -2,11 +2,11 @@
 bpPaintColor: !color '138, 190, 204, 255'
 ccPaintColor: !color '138, 204, 177, 255'
 collapse_no_exp: true
-curatedPaintColor: !color '255, 127, 0, 255'
-expPaintColor: !color '142, 35, 35, 255'
+curatedPaintColor: !color '255, 204, 0, 255'
+expPaintColor: !color '61, 153, 61, 255'
 full_msa: false
-gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR10026
-inferPaintColor: !color '16, 64, 128, 255'
+gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR10619
+inferPaintColor: !color '61, 100, 153, 255'
 mfPaintColor: !color '177, 204, 138, 255'
 msa_colors:
 - !color '51, 102, 77, 255'
@@ -22,7 +22,7 @@ msa_weighted_colors:
 msa_weighted_threshold:
 - 90.0
 - 75.0
-tree_distance_scaling: 50.0
+tree_distance_scaling: 25.0
 treedir: /Users/suzi/projects/go/data/trees/panther/
 use_distances: true
 weighted: true

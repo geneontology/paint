@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -307,6 +308,7 @@ AspectChangeListener
 		}
 
 		String [] notStrings = Constant.Not_Strings;
+		List<String> exclude_reasons = new ArrayList<>();
 		org.paint.gui.tree.TreePanel tree = PaintManager.inst().getTree();
 		Vector<Bioentity> leafList = new Vector<Bioentity>();
 		tree.getLeafDescendants(node, leafList);
@@ -330,6 +332,8 @@ AspectChangeListener
 							if (leafAssoc.getCls().equals(assoc.getCls()) ||
 									OWLutil.inst().moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
 								validNot = false;
+								exclude_reasons.add(leaf.getId() + " has experimental annotation to " + 
+								OWLutil.inst().getTermLabel(leafAssoc.getCls()) + " (" + leafAssoc.getCls() + ")");
 								break;
 							}
 						}
@@ -339,7 +343,10 @@ AspectChangeListener
 			if (validNot) {
 				extendNotMenu(flow_menu, assoc, notStrings, row, x, y);
 			} else {
-				flow_menu.add("descendants: " + date_str);			
+				flow_menu.add("Can't negate because —");
+				for (String reason : exclude_reasons) {
+				flow_menu.add(reason);
+				}
 			}
 		}
 		flow_menu.show(this, x, y);

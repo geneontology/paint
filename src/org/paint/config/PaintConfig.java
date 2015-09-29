@@ -11,6 +11,8 @@ public class PaintConfig extends TouchupConfig {
 
 //	private static Logger LOG = Logger.getLogger(PaintConfig.class);
 
+	public static final String PREF_FILE = "config/preferences.yaml";
+	
 	public boolean use_distances;
 	public double tree_distance_scaling; 
 	public boolean collapse_no_exp;
@@ -90,11 +92,11 @@ public class PaintConfig extends TouchupConfig {
 	
 	public static void main(String[] args) {
 		PaintYaml configManager = new PaintYaml();
-		configManager.loadConfig("config/preferences.yaml");
+		configManager.loadConfig(PREF_FILE);
 		PaintConfig blah = PaintConfig.inst();
 		String s = blah.save();
 		System.out.println(s);
-		blah.save("config/preferences.yaml");
+		blah.save(PREF_FILE);
 	}
 		
 	public Color getAspectColor(int aspect) {
