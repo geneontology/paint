@@ -17,8 +17,7 @@
 					<exclude>META-INF</exclude>
 					<exclude>META-INF/**</exclude>
 					<exclude>log4j.properties</exclude>
-					<exclude>*.txt</exclude>
-					<exclude>README</exclude>
+					<exclude>README*</exclude>
 				</excludes>
 			</unpackOptions>
 			<scope>runtime</scope>
