@@ -49,8 +49,6 @@ public class PaintStartupTask extends AbstractApplicationStartupTask {
 
 	@Override
 	protected Collection<GUIComponentFactory<?>> getDefaultComponentFactories() {
-		// Collection<GUIComponentFactory<?>> factories =
-		// super.getDefaultComponentFactories();
 		Collection<GUIComponentFactory<?>> factories = new ArrayList<GUIComponentFactory<?>>();
 		factories.add(new AssociationsPanelFactory());
 		factories.add(new TrackingFactory());

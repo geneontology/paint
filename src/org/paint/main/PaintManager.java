@@ -211,7 +211,7 @@ public class PaintManager {
 	    String username = System.getProperty("user.name");
 		String program_name = PAINT.getAppID();
 		File family_dir = new File(PaintConfig.inst().gafdir);
-		family.save(family_dir, username + " using " + program_name);
+		family.save(family_dir, "Saved by " + username + " using " + program_name);
 	}
 	
 	private static void fireProgressChange(String message, int percentageDone,

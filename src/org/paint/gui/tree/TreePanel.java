@@ -524,7 +524,7 @@ AnnotationDragListener {
 		if (width == 0)
 			width = DisplayBioentity.GLYPH_DIAMETER;
 		else
-			width += DisplayBioentity.GLYPH_DIAMETER + DisplayBioentity.nodeToTextDist;
+			width += DisplayBioentity.GLYPH_DIAMETER + DisplayBioentity.NODE_TO_TEXT_OFFSET;
 		return width;
 	}
 

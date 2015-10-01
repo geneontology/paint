@@ -102,6 +102,6 @@ public class PAINT {
 	}
 
 	public static String getAppID() {
-		return getAppName() + VersionResource.inst().getVersion();
+		return getAppName() + " " + VersionResource.inst().getVersion();
 	}
 }

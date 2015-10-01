@@ -37,8 +37,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.config.IconResource;
-import org.paint.config.PaintConfig;
 import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
@@ -55,12 +53,12 @@ public class DisplayBioentity extends Bioentity {
 	/**
 	 * 
 	 */
-	public static final int                              nodeToTextDist = 10;
-	private static final int								TextToLineDist = 5;
-	public static final int								GLYPH_DIAMETER = 8;
-	public static final int								GLYPH_RADIUS = GLYPH_DIAMETER / 2;
+	public static final int NODE_TO_TEXT_OFFSET = 10;
+	public static final int	GLYPH_DIAMETER = 8;
+	private static final int TEXT_TO_LINE_OFFSET = 5;
+	private static final int GLYPH_RADIUS = GLYPH_DIAMETER / 2;
 
-	private final static BasicStroke dashed = new BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1f, new float[] {2f, 2f}, 0f);
+	private final static BasicStroke DASHED = new BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1f, new float[] {2f, 2f}, 0f);
 
     private static final String STR_EMPTY = "";
 
@@ -301,7 +299,7 @@ public class DisplayBioentity extends Bioentity {
 			 * if this is a terminus then there is a label
 			 * draw the little line that connects the node to the label
 			 */
-			int x = p.x + nodeToTextDist;
+			int x = p.x + NODE_TO_TEXT_OFFSET;
 
 			/*
 			 */	
@@ -320,7 +318,7 @@ public class DisplayBioentity extends Bioentity {
 			as.addAttribute(TextAttribute.FONT, f);
 			g.setColor(RenderUtil.annotationStatusColor(this, GuiConstant.FOREGROUND_COLOR, false));
 			if (null != s) {
-				int text_x = p.x + nodeToTextDist;
+				int text_x = p.x + NODE_TO_TEXT_OFFSET;
 				int text_y = p.y + (r.height / 2);
 				g.drawString(as.getIterator(), text_x, text_y);
 				fm = g.getFontMetrics(f);
@@ -330,7 +328,7 @@ public class DisplayBioentity extends Bioentity {
 				log.debug("Why is label null for " + this.toString());
 			}
 
-			x += TextToLineDist;
+			x += TEXT_TO_LINE_OFFSET;
 
 			g.setColor(drawColor);
 			if (!(g instanceof Graphics2D)) {
@@ -339,7 +337,7 @@ public class DisplayBioentity extends Bioentity {
 			else {
 				Graphics2D g2 = (Graphics2D)g;
 				Stroke oldStroke = g2.getStroke();
-				g2.setStroke(dashed);
+				g2.setStroke(DASHED);
 				g2.drawLine(x, p.y, viewport.x + viewport.width, p.y);
 				g2.setStroke(oldStroke);
 			}
@@ -376,9 +374,11 @@ public class DisplayBioentity extends Bioentity {
 		String  s = null;
 		if (isLeaf()){
 			// only display the node name, as requested
-			s = getFullName();
+			s = getSymbol();
 			if (s == null || s.length() == 0)
-				s = getSymbol();
+				s = getFullName();
+			else
+				s += " - " + getFullName();
 		}
 		else {
 			if (s == null || s.length() == 0){

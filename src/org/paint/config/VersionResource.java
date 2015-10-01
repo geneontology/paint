@@ -20,23 +20,12 @@
 
 package org.paint.config;
 
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.File;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.paint.util.SVGIcon;
 import org.paint.util.VersionNumber;
 
 /**
@@ -78,7 +67,7 @@ public class VersionResource { // extends DirectoryUtil {
 						"org/paint/resources/VERSION");
 				if (inputStream != null) {
 					List<String> lines = IOUtils.readLines(inputStream);
-					if (lines.isEmpty()) {
+					if (!lines.isEmpty()) {
 						version = new VersionNumber(lines.get(0));
 					}
 				}
