@@ -144,7 +144,7 @@ public class PaintManager {
 	
 	private void openFamily(String family_name, boolean existing) {
 
-		fireProgressChange("Fetching protein family", 0, ProgressEvent.Status.START);
+		fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", 0, ProgressEvent.Status.START);
 
 		family = new Family(family_name);
 		IDmap.inst().clearGeneIDs();
@@ -168,7 +168,7 @@ public class PaintManager {
 				msa_pane.setModel(msa);
 			}
 			try {
-				fireProgressChange("Fetching experimental annotations from GOLR", 0, ProgressEvent.Status.START);
+				fireProgressChange("Fetching experimental annotations from GOLR", 25, ProgressEvent.Status.START);
 				AnnotationUtil.collectExpAnnotationsBatched(family);
 				/*
 				 * Don't bother with looking for these if they don't exist yet
@@ -177,7 +177,7 @@ public class PaintManager {
 					File family_dir = new File(PaintConfig.inst().gafdir);
 					Logger.importPrior(family.getFamily_name(), family_dir);
 
-					fireProgressChange("Fetching PAINT annotations", 0, ProgressEvent.Status.START);
+					fireProgressChange("Loading PAINT annotations from GAF file", 50, ProgressEvent.Status.START);
 
 					GafPropagator.importAnnotations(family, family_dir);
 				}
@@ -187,22 +187,23 @@ public class PaintManager {
 			}
 
 			if (success) {
-				fireProgressChange("Initializing annotation matrix", 90, ProgressEvent.Status.START);
+				fireProgressChange("Initializing annotation matrix", 75, ProgressEvent.Status.START);
 				annot_matrix.setModels(getTree().getTerminusNodes());
-
-				fireProgressChange("Family is ready", 100, ProgressEvent.Status.END);
 
 				DirtyIndicator.inst().dirtyGenes(false);
 
 				if (PaintConfig.inst().collapse_no_exp) {
+					fireProgressChange("Collapsing branches lacking experimental data", 90, ProgressEvent.Status.START);
 					tree_pane.collapseNonExperimental();
 				}
-				
+			
+				fireProgressChange(family_name + " is ready", 100, ProgressEvent.Status.END);
+
 				EventManager.inst().fireNewFamilyEvent(this, family);
 
 			} else {
 				family = null;
-				fireProgressChange("Unable to open family", 100, ProgressEvent.Status.END);
+				fireProgressChange("Unable to open " + family_name, 100, ProgressEvent.Status.END);
 			}
 		}
 	}

@@ -81,7 +81,7 @@ public class DirtyIndicator implements VetoableShutdownListener {
 						JOptionPane.WARNING_MESSAGE, null, options, "Save");
 			if (options[result] == save) {
 				OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
-				File f = dlg.getSelectedFile(true, Constant.GAF_SUFFIX);
+				File f = dlg.getSelectedFile(true);
 				if (null != f){
 					PaintManager.inst().saveFamily();
 				}	

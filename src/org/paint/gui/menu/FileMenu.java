@@ -102,7 +102,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 
 			OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
 
-			File f = dlg.getSelectedFile(true, null);
+			File f = dlg.getSelectedFile(true);
 			if (f != null) {
 				PaintManager.inst().saveFamily();
 			}
@@ -167,7 +167,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 							LoginUtil.login();
 						}
 						OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
-						File f = dlg.getSelectedFile(false, Constant.GAF_SUFFIX.substring(1));
+						File f = dlg.getSelectedFile(false);
 						if ((null != f) && (f.isFile())){
 							String full_file_name = "";
 							try {

@@ -89,7 +89,7 @@ public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 			
 			ColumnTermData td = matrix.getTermData(column);
-			if (td.isDeletable()) {
+			if (td != null && td.isDeletable()) {
 				bg_color = bg_color.darker();
 			}
 		}

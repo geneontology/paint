@@ -11,14 +11,14 @@
  *
  */
 package org.paint.dialog;
+import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import java.io.FilenameFilter;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.util.Constant;
 import org.paint.config.PaintConfig;
 import org.paint.main.PaintManager;
 
@@ -29,11 +29,10 @@ public class OpenActiveFamily {
 	 */
 	protected static Logger log = Logger.getLogger(OpenActiveFamily.class);
 
-	private static String extension;
 	private static final String USER_DIR = "user.dir";
 	private static final String DATA_DIR = "test_resources";
 
-	private JFileChooser chooser;
+	private FileDialog chooser;
 	private Frame frame;
 
 	/**
@@ -47,69 +46,52 @@ public class OpenActiveFamily {
 		this.frame = frame;
 	}
 
-	public File getSelectedFile(boolean save, String suffix) {
-		chooser = new JFileChooser();
-		chooser.setDialogTitle("Choose a family");
-		chooser.setMultiSelectionEnabled(false);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	public File getSelectedFile(boolean save) {
+		chooser = new FileDialog(frame);
+		chooser.setMultipleMode(false);
+//		chooser.setFilenameFilter(new PAINTFileFilter());
+		String suffix = Constant.GAF_SUFFIX;
 		Family family = PaintManager.inst().getFamily();
-		if (suffix == null || suffix.equals("")) {
-			extension = "";
-		} else {
-			if (suffix.charAt(0) == '.') {
-				suffix = suffix.substring(1);
-			}
-			extension = suffix;
-		}
 
-		chooser.setFileFilter(new PAINTFileFilter());
-
-		if (family != null && family.getFamily_name() != null) {
-			String filename = family.getFamily_name();
-			if (extension.length() > 0)
-				filename = filename + extension;
-			chooser.setSelectedFile(new File(filename));
-		}
 		setCurrentDirectory();
+		if (family != null && family.getFamily_name() != null) {
+			chooser.setFile(family.getFamily_name() + suffix);
+		} else {
+			chooser.setFile('*' + suffix);			
+		}
 
-		chooser.setVisible(true);
-		int returned;
-		if (frame == null)
-			log.debug("Frame is null");
 		if (save) {
-			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-			returned = chooser.showDialog(frame, "Save");
+			chooser.setMode(FileDialog.SAVE);
+			chooser.setTitle("Save family");
+			chooser.setVisible(true);
 		}
 		else {
-			chooser.setDialogType(JFileChooser.OPEN_DIALOG);
-			returned = chooser.showDialog(frame, "Open");
+			chooser.setMode(FileDialog.LOAD);
+			chooser.setTitle("Open family");
+			chooser.setVisible(true);
 		}
-		File f = null;
-		if (returned == JFileChooser.APPROVE_OPTION) {
-			f = chooser.getSelectedFile();
-			if (f != null) {
-				String dir = f.getAbsolutePath();
-				PaintConfig.inst().gafdir = dir.substring(0, dir.lastIndexOf('/'));
-			}
+		log.info("Dimensions: " + chooser.getMaximumSize());
+		File gaf_file = null;
+		String filename = chooser.getFile();
+		if (filename != null) {
+			String gaf_dir = chooser.getDirectory();
+			gaf_file = new File(gaf_dir, filename);
+			PaintConfig.inst().gafdir = gaf_dir;
 		}
-		return f;
+		chooser.dispose();
+		return gaf_file;
 	}
 
 	private void setCurrentDirectory() {
 		if (PaintConfig.inst().gafdir != null) {
-			File gaf_dir = new File(PaintConfig.inst().gafdir);
-			chooser.setCurrentDirectory(gaf_dir);
+			chooser.setDirectory(PaintConfig.inst().gafdir);
 		}
 		else {
 			StringBuffer  defaultDirectory = new StringBuffer(System.getProperty(USER_DIR));
 			defaultDirectory.append(File.separator);
 			defaultDirectory.append(DATA_DIR);
-			File f = new File(defaultDirectory.toString());
-			if (f.exists()) {
-				chooser.setCurrentDirectory(f);
-			}
+			chooser.setDirectory(defaultDirectory.toString());
 		}
-		PaintConfig.inst().gafdir = chooser.getCurrentDirectory().getPath();
 	}
 
 	/**
@@ -119,17 +101,16 @@ public class OpenActiveFamily {
 	 * @author
 	 * @version %I%, %G%
 	 */
-	public class PAINTFileFilter extends FileFilter {
+	public class PAINTFileFilter implements FilenameFilter {
 
-		@Override
-		public boolean accept(File f){
-			if (f.isDirectory()){
+		public boolean accept(File dir, String name){
+			if (dir.isDirectory()){
 				return true;
 			}
-			String  suffix = getExtension(f);
+			String  suffix = getExtension(new File(name));
 
 			if (suffix != null){
-				if (suffix.equals(extension)){
+				if (suffix.equals(Constant.GAF_SUFFIX)){
 					return true;
 				}
 				else{
@@ -139,9 +120,8 @@ public class OpenActiveFamily {
 			return false;
 		}
 
-		@Override
 		public String getDescription(){
-			return "PAINT FILES";
+			return "PAINT GAF FILE";
 		}
 
 		public String getExtension(File f){

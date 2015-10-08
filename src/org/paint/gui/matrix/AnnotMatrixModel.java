@@ -283,8 +283,10 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		if (data == null) {
 			String term = term_list.get(columnIndex);
 			Bioentity node = nodes.get(rowIndex);
-			data = this.getCellAssoc(term, node);
-			associationMatrix[rowIndex][columnIndex] = data;
+			if (node != null) {
+				data = this.getCellAssoc(term, node);
+				associationMatrix[rowIndex][columnIndex] = data;
+			}
 		}
 		return data;
 	}

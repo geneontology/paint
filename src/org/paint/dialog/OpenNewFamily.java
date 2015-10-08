@@ -50,7 +50,6 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.swing.SpringUtilities;
-import org.paint.gui.GuiConstant;
 import org.paint.panther.PantherDbInfo;
 import org.paint.panther.PantherServerAdapter;
 import org.paint.util.LoginUtil;
@@ -104,7 +103,7 @@ public class OpenNewFamily extends JDialog implements ActionListener {
 
 	String openBookId = null;
 
-	private static Logger log = Logger.getLogger(OpenNewFamily.class);
+//	private static Logger log = Logger.getLogger(OpenNewFamily.class);
 
 	public OpenNewFamily(Frame frame) {
 		super(frame, true);
