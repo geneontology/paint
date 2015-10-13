@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.bbop.framework.GUIManager;
-import org.bbop.phylo.touchup.Touchup;
 import org.bbop.util.OSUtil;
 import org.paint.config.PaintConfig;
 import org.paint.config.PaintYaml;

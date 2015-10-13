@@ -72,7 +72,6 @@ public class OpenActiveFamily {
 			chooser.setTitle("Open family");
 			chooser.setVisible(true);
 		}
-		log.info("Dimensions: " + chooser.getWidth() + "x" + chooser.getHeight());
 		File gaf_file = null;
 		String filename = chooser.getFile();
 		if (filename != null) {

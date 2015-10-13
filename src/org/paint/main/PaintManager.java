@@ -247,9 +247,9 @@ public class PaintManager {
 		String title;
 
 		if (getFamily().getFamily_name() != null) {
-			title = getFamily().getFamily_name();
+			title = getFamily().getFamily_name() + " - " + PAINT.getAppID();
 		} else {
-			title = "";
+			title = PAINT.getAppID();
 		}
 		GUIManager.getManager().getFrame().setTitle(title);
 	}
