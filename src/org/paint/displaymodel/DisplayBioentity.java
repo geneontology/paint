@@ -60,7 +60,7 @@ public class DisplayBioentity extends Bioentity {
 
 	private final static BasicStroke DASHED = new BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1f, new float[] {2f, 2f}, 0f);
 
-    private static final String STR_EMPTY = "";
+	private static final String STR_EMPTY = "";
 
 	private String sequence;
 	private String nodeNote;
@@ -70,7 +70,7 @@ public class DisplayBioentity extends Bioentity {
 	 * and just use the appropriate bit mask to determine whether it belongs or not
 	 */
 	private String ortho_mcl;
-	
+
 	private List<Bioentity> originalChildrenOrder;
 
 	private boolean is_subfamily;
@@ -87,7 +87,7 @@ public class DisplayBioentity extends Bioentity {
 	private String subFamilyName;
 	private   Color	subFamilyColor = Color.black;
 
-//	private int depthInTree;
+	//	private int depthInTree;
 	private int dupColorIndex;
 
 	private double sequenceWt = 0;
@@ -110,14 +110,14 @@ public class DisplayBioentity extends Bioentity {
 		this.ortho_mcl = STR_EMPTY;
 	}
 
-//	public void setDepthInTree (int depth) {
-//		depthInTree = depth;
-//	}
-//
-//	public int getDepthInTree() {
-//		return depthInTree;
-//	}
-//
+	//	public void setDepthInTree (int depth) {
+	//		depthInTree = depth;
+	//	}
+	//
+	//	public int getDepthInTree() {
+	//		return depthInTree;
+	//	}
+	//
 	/**
 	 * Method declaration
 	 *
@@ -170,7 +170,7 @@ public class DisplayBioentity extends Bioentity {
 		}
 	}
 
-//	final static BasicStroke wideStroke = new BasicStroke(8.0f);
+	//	final static BasicStroke wideStroke = new BasicStroke(8.0f);
 
 	/**
 	 * Method declaration
@@ -189,7 +189,7 @@ public class DisplayBioentity extends Bioentity {
 		if (!nodeAndParentFallInViewport(viewport)) {
 			return;
 		}
- 		DisplayBioentity root = (DisplayBioentity) currentRoot;
+		DisplayBioentity root = (DisplayBioentity) currentRoot;
 
 		Rectangle r = new Rectangle(this.getScreenRectangle());
 		Point p = new Point(this.getScreenPosition());
@@ -306,7 +306,7 @@ public class DisplayBioentity extends Bioentity {
 			Font f = RenderUtil.getNodeFont(this);
 			g.setFont(f);
 			String  s = getNodeLabel();
-			
+
 			if (isPruned()) {
 				s = "XXX-" + s;
 				g.setColor(GuiConstant.BACKGROUND_COLOR);
@@ -375,10 +375,14 @@ public class DisplayBioentity extends Bioentity {
 		if (isLeaf()){
 			// only display the node name, as requested
 			s = getSymbol();
-			if (s == null || s.length() == 0)
+			if (s == null || s.length() == 0) {
+				s = getId();
+			}
+			if (s == null || s.length() == 0) {
 				s = getFullName();
-			else
-				s += " - " + getFullName();
+			} else if (getFullName() != null && getFullName().length() > 0) {
+				s += " (" + getFullName() + ")";
+			}
 		}
 		else {
 			if (s == null || s.length() == 0){
@@ -387,7 +391,7 @@ public class DisplayBioentity extends Bioentity {
 		}
 		String fiver = TaxonFinder.getCode(this.getNcbiTaxonId());
 		if (fiver != null && fiver.length() > 0)
-			s = fiver + '_' + s;
+			s = fiver + ": " + s;
 
 		return s;
 	}

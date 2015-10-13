@@ -130,13 +130,17 @@ AspectChangeListener {
 		AnnotMatrixModel annot_model;
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString());
 		models.put(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString(), annot_model);
+		log.info("Built BP matrix");
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.CELLULAR_COMPONENT.toString());
 		models.put(AspectSelector.Aspect.CELLULAR_COMPONENT.toString(), annot_model);
+		log.info("Built CC matrix");
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.MOLECULAR_FUNCTION.toString());
 		models.put(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString(), annot_model);
+		log.info("Built MF matrix");
 
 		String go_aspect = AspectSelector.inst().getAspectName();
 		AnnotMatrixModel matrix = models.get(go_aspect);
+		log.info("Setting matrix model");
 		setModel(matrix);
 		setSelectedColumn(0);
 		revalidate();

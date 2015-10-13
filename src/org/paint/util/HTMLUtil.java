@@ -208,11 +208,13 @@ public class HTMLUtil {
 				Matcher matcher = pattern.matcher(temp_url);
 				url = matcher.replaceAll(species);
 
-				if (id.charAt(6) == 'P') {
+				if (id.length() > 6 && id.charAt(6) == 'P') {
 					temp_url = url;
 					pattern = Pattern.compile("g=");
 					matcher = pattern.matcher(temp_url);
 					url = matcher.replaceAll("p=");
+				} else {
+					LOG.debug("URL is odd " + url);
 				}
 			}
 			return url;

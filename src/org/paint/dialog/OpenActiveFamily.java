@@ -11,6 +11,7 @@
  *
  */
 package org.paint.dialog;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
@@ -50,6 +51,7 @@ public class OpenActiveFamily {
 		chooser = new FileDialog(frame);
 		chooser.setMultipleMode(false);
 //		chooser.setFilenameFilter(new PAINTFileFilter());
+		chooser.setPreferredSize(new Dimension(400,400));
 		String suffix = Constant.GAF_SUFFIX;
 		Family family = PaintManager.inst().getFamily();
 
@@ -70,7 +72,7 @@ public class OpenActiveFamily {
 			chooser.setTitle("Open family");
 			chooser.setVisible(true);
 		}
-		log.info("Dimensions: " + chooser.getMaximumSize());
+		log.info("Dimensions: " + chooser.getWidth() + "x" + chooser.getHeight());
 		File gaf_file = null;
 		String filename = chooser.getFile();
 		if (filename != null) {
