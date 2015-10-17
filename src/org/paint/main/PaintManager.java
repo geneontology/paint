@@ -144,8 +144,13 @@ public class PaintManager {
 	
 	private void openFamily(String family_name, boolean existing) {
 
-		fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", 0, ProgressEvent.Status.START);
-
+		int progress_increment = (PaintConfig.inst().collapse_no_exp) ? 15 : 20;
+		progress_increment += !existing? 5 : 0;
+		int progress = 0;
+		
+		fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", progress, ProgressEvent.Status.START);
+		progress += progress_increment;
+		
 		family = new Family(family_name);
 		IDmap.inst().clearGeneIDs();
 		LogAction.clearLog();
@@ -168,7 +173,9 @@ public class PaintManager {
 				msa_pane.setModel(msa);
 			}
 			try {
-				fireProgressChange("Fetching experimental annotations from GOLR", 25, ProgressEvent.Status.START);
+				fireProgressChange("Fetching experimental annotations from GOLR", progress, ProgressEvent.Status.START);
+				progress += progress_increment;
+				
 				AnnotationUtil.collectExpAnnotationsBatched(family);
 				/*
 				 * Don't bother with looking for these if they don't exist yet
@@ -177,7 +184,8 @@ public class PaintManager {
 					File family_dir = new File(PaintConfig.inst().gafdir);
 					Logger.importPrior(family.getFamily_name(), family_dir);
 
-					fireProgressChange("Loading PAINT annotations from GAF file", 50, ProgressEvent.Status.START);
+					fireProgressChange("Loading PAINT annotations from GAF file", progress, ProgressEvent.Status.START);
+					progress += progress_increment;
 
 					GafPropagator.importAnnotations(family, family_dir);
 				}
@@ -187,19 +195,24 @@ public class PaintManager {
 			}
 
 			if (success) {
-				fireProgressChange("Initializing annotation matrix", 75, ProgressEvent.Status.START);
+				fireProgressChange("Initializing annotation matrix", progress, ProgressEvent.Status.START);
+				progress += progress_increment;
+
 				annot_matrix.setModels(getTree().getTerminusNodes());
 
 				DirtyIndicator.inst().dirtyGenes(false);
 
 				if (PaintConfig.inst().collapse_no_exp) {
-					fireProgressChange("Collapsing branches lacking experimental data", 90, ProgressEvent.Status.START);
+					fireProgressChange("Collapsing branches lacking experimental data", progress, ProgressEvent.Status.START);
+					progress += progress_increment;
+
 					tree_pane.collapseNonExperimental();
 				}
 			
-				fireProgressChange(family_name + " is ready", 100, ProgressEvent.Status.END);
-
+				fireProgressChange("Notifying displays of new family", progress, ProgressEvent.Status.START);
 				EventManager.inst().fireNewFamilyEvent(this, family);
+				
+				fireProgressChange(family_name + " is ready", 100, ProgressEvent.Status.END);
 
 			} else {
 				family = null;
