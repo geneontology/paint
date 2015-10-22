@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.paint.displaymodel.DisplayBioentity;
 import org.paint.main.PaintManager;
 
 import owltools.gaf.Bioentity;
@@ -74,7 +73,6 @@ public class FindPanel extends JPanel implements ActionListener {
 	private static List<Bioentity> gene_results;
 	private static String term_search;
 	private static List<String> term_results;
-
 
 	public enum SEARCH_TYPE {
 		GENE,

@@ -45,7 +45,7 @@ public class DisplayTree extends Tree implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static Logger log = Logger.getLogger("DisplayTree.class");
+	private static Logger log = Logger.getLogger(DisplayTree.class);
 
 	private Bioentity currentRoot = null;
 
@@ -248,6 +248,17 @@ public class DisplayTree extends Tree implements Serializable {
 			setNodeExpanded(node);
 			nodesReordered();
 		}
+	}
+	
+	public void handleCollapseExpand(List<DisplayBioentity> nodes) {
+		boolean change = false;
+		for (DisplayBioentity node : nodes) {
+			if (!node.isLeaf() && !node.isPruned())
+				setNodeExpanded(node);
+			change |= !node.isLeaf() && !node.isPruned();
+		}
+		if (change) 
+			initCurrentNodes();
 	}
 
 	public boolean handlePruning(DisplayBioentity node) {

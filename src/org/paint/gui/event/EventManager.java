@@ -279,6 +279,16 @@ public class EventManager {
 		selectNodes(true);
 
 		if (selection_changed) {
+			// Ensure all of the selections have their nodes expanded in the tree
+			TreePanel tree = PaintManager.inst().getTree();
+			if (tree.ensureExpansion(selectedNodes)) {
+				NodeReorderEvent event = new NodeReorderEvent(this);
+				event.setNodes(tree.getTerminusNodes());
+				for (Iterator<NodeReorderListener> it = node_listeners.iterator(); it.hasNext();) {
+					NodeReorderListener listener = it.next();
+					listener.handleNodeReorderEvent(event);
+				}
+			}
 			for (Iterator<GeneSelectListener> it = gene_listeners.iterator(); it.hasNext();) {
 				GeneSelectListener listener = it.next();
 				listener.handleGeneSelectEvent(e);

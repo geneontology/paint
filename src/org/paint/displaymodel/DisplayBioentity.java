@@ -37,6 +37,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
+import org.paint.config.PaintConfig;
 import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
@@ -191,8 +192,8 @@ public class DisplayBioentity extends Bioentity {
 		}
 		DisplayBioentity root = (DisplayBioentity) currentRoot;
 
-		Rectangle r = new Rectangle(this.getScreenRectangle());
-		Point p = new Point(this.getScreenPosition());
+		Rectangle r = new Rectangle(getScreenRectangle());
+		Point p = new Point(getScreenPosition());
 		Color       fillColor = dropColor != null ? dropColor :
 			RenderUtil.annotationStatusColor(this, GuiConstant.BACKGROUND_COLOR, true);
 		if (isSelected()) {
@@ -415,9 +416,6 @@ public class DisplayBioentity extends Bioentity {
 	}
 
 	public Rectangle getScreenRectangle() {
-		if (screenRectangle == null) {
-			log.debug(this + " has not had its screen rectangle set!");
-		}
 		return screenRectangle;
 	}
 
@@ -572,6 +570,9 @@ public class DisplayBioentity extends Bioentity {
 
 	public void setExpanded(boolean expanded) {
 		is_expanded = expanded;
+		if (expanded) {
+			PaintConfig.inst().collapse_no_exp = false;
+		}
 	}
 
 	public boolean isExpanded() {

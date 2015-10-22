@@ -306,7 +306,7 @@ AnnotationDragListener {
 	 *
 	 * @see
 	 */
-	protected void paintTree(Graphics g, Rectangle r){
+	private void paintTree(Graphics g, Rectangle r){
 		Bioentity current_root = getCurrentRoot();
 		if ((null == g) || (null == current_root)){
 			return;
@@ -375,8 +375,8 @@ AnnotationDragListener {
 		int x = TreePanel.LEFTMARGIN + getNodeWidth(g, current_root);
 		setNodeRectangle(current_root, row_height, x, 0, use_distances, g);
 		tree_rect = calcTreeSize(g);
-		revalidate();
-		repaint();
+//		revalidate();
+//		repaint();
 		need_update = false;
 	}
 
@@ -414,7 +414,7 @@ AnnotationDragListener {
 		return tree_rect;
 	}
 
-	protected Rectangle getTreeSize(Graphics g) {
+	private Rectangle getTreeSize(Graphics g) {
 		if (tree != null) {
 			if (need_update) {
 				tree.nodesReordered();
@@ -965,22 +965,22 @@ AnnotationDragListener {
 		if (genes != null) {
 			for (Bioentity kid : genes) {
 				DisplayBioentity node = (DisplayBioentity) kid;
-				Rectangle node_rect = new Rectangle(node.getScreenRectangle());
+				Rectangle select_area_rect = new Rectangle(node.getScreenRectangle());
 				// add some padding to make sure the entire area is cleared
-				node_rect.x -= DisplayBioentity.GLYPH_DIAMETER;
-				node_rect.width += 2 * DisplayBioentity.GLYPH_DIAMETER;
-				node_rect.y -= 1;
-				node_rect.height += 2;
+				select_area_rect.x -= DisplayBioentity.GLYPH_DIAMETER;
+				select_area_rect.width += 2 * DisplayBioentity.GLYPH_DIAMETER;
+				select_area_rect.y -= 1;
+				select_area_rect.height += 2;
 				if (r == null) {
-					r = node_rect;
+					r = select_area_rect;
 				} else {
-					if (node_rect.x < r.x)
-						r.x = node_rect.x;
-					if (node_rect.y < r.y)
-						r.y = node_rect.y;
+					if (select_area_rect.x < r.x)
+						r.x = select_area_rect.x;
+					if (select_area_rect.y < r.y)
+						r.y = select_area_rect.y;
 				}
-				height += node_rect.height;
-				width = Math.max(width, node_rect.width);
+				height += select_area_rect.height;
+				width = Math.max(width, select_area_rect.width);
 			}
 		}
 		if (r != null) {
@@ -1198,5 +1198,35 @@ AnnotationDragListener {
 	 protected String getToolTipInfo(DisplayBioentity node){
 		 return node.getNodeLabel();
 	 }
+
+	public boolean ensureExpansion(List<Bioentity> genes) {
+		List<DisplayBioentity> nodes_to_make_visible = new ArrayList<>();
+		for (Bioentity kid : genes) {
+			DisplayBioentity node = (DisplayBioentity) kid;
+			Rectangle node_rect = node.getScreenRectangle();
+			if (node_rect == null) {
+				// must be invisible because a parent node is collapsed
+				Bioentity parent = kid.getParent();
+				while (parent != null && ((DisplayBioentity) parent).isExpanded()) {
+					parent = parent.getParent();
+				}
+				if (parent == null) {
+					logger.info("Crap, how did this ever happen");
+					return false;
+				}
+				nodes_to_make_visible.add((DisplayBioentity) parent);
+			}
+		}
+		if (!nodes_to_make_visible.isEmpty()) {
+			tree.handleCollapseExpand(nodes_to_make_visible);
+			Graphics g = getGraphics();
+			int x = TreePanel.LEFTMARGIN + getNodeWidth(g, getCurrentRoot());
+			setNodeRectangle(getCurrentRoot(), PaintManager.inst().getRowHeight(), x, 0, PaintConfig.inst().use_distances, g);
+			tree_rect = calcTreeSize(g);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }

@@ -19,10 +19,13 @@ import org.paint.dialog.ScaleTreeDlg;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
+import org.paint.gui.event.NodeReorderEvent;
+import org.paint.gui.event.NodeReorderListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 
-public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
+public class TreeMenu extends DynamicMenu 
+implements FamilyChangeListener, NodeReorderListener {
 	/**
 	 * 
 	 */
@@ -31,7 +34,6 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 
 	private static final String expand = "Expand all nodes";
 	private static final String collapse = "Collapse nodes without experimental data";
-//	private static final String reset = "Reset root to main";
 	private static final String distance = "Use distances";
 	private static final String order = "Order leaves ";
 	private static final String ladder_top = "Most leaves above";
@@ -41,7 +43,6 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 
 	private static final int TREE_COLLAPSE_NONEXP_NODES = 201;
 	private static final int TREE_EXPAND_ALL_NODES = 202;
-//	private static final int TREE_RESET_ROOT_TO_MAIN = 203;
 	private static final int TREE_USE_DISTANCES = 204;
 	private static final int TREE_SPECIES = 205;
 	private static final int TREE_TOP = 206;
@@ -65,14 +66,6 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 
 		// Separator line
 		this.addSeparator();
-
-//		JMenuItem resetRootToMain = new JMenuItem(reset);
-//		resetRootToMain.addActionListener(new TreeActionListener(TREE_RESET_ROOT_TO_MAIN));
-//		resetRootToMain.setEnabled(PaintManager.inst().getTree().rooted());
-//		this.add(resetRootToMain);
-//	
-		// Separator line
-//		this.addSeparator();
 
 		JCheckBoxMenuItem useDistances = new JCheckBoxMenuItem(distance);
 		useDistances.setSelected(PaintConfig.inst().use_distances);
@@ -109,6 +102,7 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 		this.add(tree_ordering);
 
 		EventManager.inst().registerFamilyListener(this);
+		EventManager.inst().registerNodeReorderListener(this);
 	}
 
 	/**
@@ -181,9 +175,6 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 						tree.expandAllNodes();
 					}
 					break;
-//				case TREE_RESET_ROOT_TO_MAIN:
-//					tree.resetRootToMain();
-//					break;
 				}
 			}
 		}
@@ -224,6 +215,10 @@ public class TreeMenu extends DynamicMenu implements FamilyChangeListener {
 
 	public void newFamilyData(FamilyChangeEvent e) {
 		species_order.setSelected(true);		
+	}
+
+	public void handleNodeReorderEvent(NodeReorderEvent e) {
+		collapseNonExpNodesItem.setSelected(PaintConfig.inst().collapse_no_exp);
 	}
 
 }

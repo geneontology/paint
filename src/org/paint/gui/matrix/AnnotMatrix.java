@@ -130,17 +130,13 @@ AspectChangeListener {
 		AnnotMatrixModel annot_model;
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString());
 		models.put(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString(), annot_model);
-		log.info("Built BP matrix");
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.CELLULAR_COMPONENT.toString());
 		models.put(AspectSelector.Aspect.CELLULAR_COMPONENT.toString(), annot_model);
-		log.info("Built CC matrix");
 		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.MOLECULAR_FUNCTION.toString());
 		models.put(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString(), annot_model);
-		log.info("Built MF matrix");
 
 		String go_aspect = AspectSelector.inst().getAspectName();
 		AnnotMatrixModel matrix = models.get(go_aspect);
-		log.info("Setting matrix model");
 		setModel(matrix);
 		setSelectedColumn(0);
 		revalidate();
@@ -196,7 +192,6 @@ AspectChangeListener {
 		else if (e.getSource() != this) {
 			// not sure if this is the correct way to proceed
 			AnnotMatrixModel genes = (AnnotMatrixModel) this.getModel();
-			setSelectedColumn(-1);
 			int total = genes.getRowCount();
 			if (total > 0) {
 				ListSelectionModel lsm = this.getSelectionModel();
@@ -238,7 +233,7 @@ AspectChangeListener {
 				AnnotMatrixModel model = (AnnotMatrixModel) getModel();
 				String term = e.getTermSelection().get(0);
 				int column = model.getTermColumn(term);
-				this.setSelectedColumn(column);
+				setSelectedColumn(column);
 			}
 		}
 	}
@@ -311,7 +306,7 @@ AspectChangeListener {
 
 	public void setSelectedColumn(int col) {
 		updateColumn(selectedColumn);
-		this.selectedColumn = col;
+		selectedColumn = col;
 		updateColumn(selectedColumn);
 	}
 
@@ -362,11 +357,10 @@ AspectChangeListener {
 			}
 
 			if (event.isMetaDown() && !event.isShiftDown() && !event.isAltDown() && !event.isControlDown()) {
-				int col = getColumnModel().getSelectionModel().getLeadSelectionIndex();
+				int col = columnAtPoint(point);
 				setSelectedColumn(col);
 				String term = ((AnnotMatrixModel)getModel()).getTermForColumn(col);
 				if (term != null) {
-					setSelectedColumn(col);
 					TermSelectEvent term_event = new TermSelectEvent (this, term);
 					selected_genes = EventManager.inst().fireTermEvent(term_event);
 				}

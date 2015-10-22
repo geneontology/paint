@@ -55,8 +55,10 @@ import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
 import org.bbop.phylo.annotate.WithEvidence;
 import org.bbop.phylo.model.Tree;
+import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.util.TaxonChecker;
 import org.paint.dialog.QualifierDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.AnnotationChangeEvent;
@@ -139,8 +141,12 @@ public class AnnotationTransferHandler extends TransferHandler {
 				}
 				else {
 					node.setDropColor(Color.RED);
-					if (because != null)
-						drop_label = node.getLocalId() + " " + because;
+					if (because != null) {
+						if (because != LogEntry.LOG_ENTRY_TYPE.WRONG_TAXA)
+							drop_label = node.getLocalId() + " " + because;
+						else
+							drop_label = TaxonChecker.getTaxonError();
+					}
 				}
 				tree_panel.repaint();
 			}
@@ -370,7 +376,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 					log.error("Unable to get term name, io problem");
 				} catch (Exception e) {
 					th.exportDone(c, t, TransferHandler.NONE);
-					log.error(e.getMessage());
+//					log.error(e.getMessage());
 				}
 			} else
 			{
