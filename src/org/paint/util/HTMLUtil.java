@@ -287,7 +287,6 @@ public class HTMLUtil {
 			LOG.warn("could not create url from \"" + text + "\"");
 			return;
 		}
-		// LOG.debug("got url " + text);
 		bringUpInBrowser(url);
 	}
 
