@@ -108,6 +108,7 @@ public class PantherServerAdapter extends PantherAdapter {
 		if (family != null) {
 			RawComponentContainer rcc = PantherServerAdapter.inst().getRawPantherFam(LoginUtil.getUserInfo(), family.getFamily_name());
 			if (rcc != null){
+				family.setDescription(rcc.getName());
 			    
 				Vector<String[]> info = ((Vector<String[]>) rcc.getTree());
 				family.setTreeContent(new ArrayList<String>(Arrays.asList(info.elementAt(0))));

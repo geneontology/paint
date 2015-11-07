@@ -176,11 +176,11 @@ public class PaintManager {
 				fireProgressChange("Fetching experimental annotations from GOLR", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
 				
-				AnnotationUtil.collectExpAnnotationsBatched(family);
+				success = AnnotationUtil.loadExperimental(family);
 				/*
 				 * Don't bother with looking for these if they don't exist yet
 				 */
-				if (existing) {
+				if (success && existing) {
 					File family_dir = new File(PaintConfig.inst().gafdir);
 					Logger.importPrior(family.getFamily_name(), family_dir);
 
@@ -188,6 +188,10 @@ public class PaintManager {
 					progress += progress_increment;
 
 					GafPropagator.importAnnotations(family, family_dir);
+					
+				} else if (!success) {
+					family = null;
+					fireProgressChange("Unable to retrieve experimental annotations " + family_name, 100, ProgressEvent.Status.END);
 				}
 
 			} catch (Exception e) {
@@ -258,9 +262,14 @@ public class PaintManager {
 	 */
 	public void setTitle() {
 		String title;
-
-		if (getFamily().getFamily_name() != null) {
-			title = getFamily().getFamily_name() + " - " + PAINT.getAppID();
+		Family family = getFamily();
+		if (family.getFamily_name() != null) {
+			title = family.getFamily_name();
+			String description = family.getDescription();
+			if (description != null && !description.contains("NOT NAMED")) {
+				title += " (" + description + ")";
+			}
+			title +=  " - " + PAINT.getAppID();
 		} else {
 			title = PAINT.getAppID();
 		}
