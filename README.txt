@@ -1,5 +1,8 @@
 Instructions for Building PAINT
 
+UNDER CONSTRUCTION!
+EVERYTHING BELOW IS USELESS, IT'S ALL ON GIT NOW.
+
 1.  Install JDK1.5 or above
 
 2.  Install ant version 1.6 or above
