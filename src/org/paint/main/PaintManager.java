@@ -62,11 +62,9 @@ public class PaintManager {
 	private MSAPanel msa_pane;
 	private AnnotMatrix annot_matrix;
 
-//	private static Hashtable<String, Vector<DisplayBioentity>> origTreeTable; // Subfamily
-
 	private static Family family;
 
-//    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
 	
 	private PaintManager() {
 		// Exists only to defeat instantiation.
@@ -152,9 +150,6 @@ public class PaintManager {
 		progress += progress_increment;
 		
 		family = new Family(family_name);
-		IDmap.inst().clearGeneIDs();
-		LogAction.clearLog();
-		LogAlert.clearLog();
 		DisplayTree tree = new DisplayTree(family_name);
 		PantherAdapter adapter = new PantherServerAdapter();
 		boolean success = family.fetch(tree, adapter);
@@ -196,6 +191,8 @@ public class PaintManager {
 
 			} catch (Exception e) {
 				success = false;
+				log.error("Something wrong with clade NOTs: " + e.getMessage());
+				e.printStackTrace();
 			}
 
 			if (success) {

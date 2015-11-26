@@ -31,13 +31,13 @@ import javax.swing.border.Border;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.util.Constant;
 import org.paint.config.IconResource;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
+import org.paint.util.GuiConstant;
 
 public class LoggingPanel extends JPanel implements FamilyChangeListener, AnnotationChangeListener {
 	/**

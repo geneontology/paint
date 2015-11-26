@@ -42,6 +42,7 @@ import org.paint.gui.event.AspectChangeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
+import org.paint.util.GuiConstant;
 
 public class AspectSelectorPanel extends JPanel implements AspectChangeListener, TermSelectionListener {
 

@@ -43,13 +43,18 @@ public class AboutDialog extends JDialog implements ActionListener {
 	private final static String developers = 
 		"Developed by: " +
 		"Suzanna Lewis, " +
-		"Ed Lee, " + 
-		"Paul Thomas, " + 
+		"Seth Carbon (GOlr), " +
+		"and Heiko Dietze (OWLtools), " +
+		"With user evaluation from: " +
+		"Marc Feuermann, " +
 		"Pascale Gaudet, " +
-		"and Michael Livstone\n\n" +
-		"Former developers: " +
+		"Huaiyu Mi, " +
+		"and Paul Thomas, " + 
+		"Former contributors: " +
 		"Kara Dolinski, " + 
-		"Anushya Muruganujan";
+		"Ed Lee, " + 
+		"Michael Livstone\n\n" +
+		"and Anushya Muruganujan";
 
 	private static final String logoFile = "images/paints.jpg";    
 	private ImageIcon image;

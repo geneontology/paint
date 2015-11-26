@@ -69,7 +69,6 @@ import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.displaymodel.DisplayTree;
 import org.paint.gui.FamilyViews;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AnnotationDragEvent;
@@ -85,6 +84,7 @@ import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.table.GeneTable;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 
 import owltools.gaf.Bioentity;
 

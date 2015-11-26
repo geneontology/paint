@@ -30,8 +30,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
-import org.paint.gui.GuiConstant;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 
 import owltools.gaf.Bioentity;
 

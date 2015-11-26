@@ -45,7 +45,6 @@ import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.FamilyViews;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.PaintTable;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
@@ -60,6 +59,7 @@ import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
 
 import owltools.gaf.Bioentity;

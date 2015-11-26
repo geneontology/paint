@@ -39,7 +39,7 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.config.IconResource;
-import org.paint.gui.GuiConstant;
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {

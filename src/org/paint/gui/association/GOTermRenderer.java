@@ -37,7 +37,7 @@ import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
 import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
-import org.paint.gui.GuiConstant;
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.GeneAnnotation;

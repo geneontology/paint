@@ -162,7 +162,7 @@ public class DisplayTree extends Tree implements Serializable {
 		boolean no_exp = true;
 		for (int i = 0; i < twigList.size() && no_exp; i++) {
 			Bioentity check = twigList.get(i);
-			List<GeneAnnotation> exp_assoc = AnnotationUtil.getExpAssociations(check);
+			List<GeneAnnotation> exp_assoc = AnnotationUtil.getExperimentalAssociations(check);
 			no_exp &= (exp_assoc == null || exp_assoc.size() == 0);
 		}
 		if (no_exp) {

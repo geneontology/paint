@@ -52,11 +52,11 @@ import org.paint.config.PaintConfig;
 import org.paint.gui.AbstractPaintGUIComponent;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.DirtyIndicator;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 
 public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyChangeListener {
 	/**

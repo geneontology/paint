@@ -33,7 +33,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.paint.config.IconResource;
 import org.paint.displaymodel.DisplayBioentity;
-import org.paint.gui.GuiConstant;
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;

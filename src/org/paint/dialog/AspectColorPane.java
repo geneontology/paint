@@ -36,9 +36,9 @@ import javax.swing.event.ChangeListener;
 import org.paint.config.IconResource;
 import org.paint.config.PaintConfig;
 import org.paint.gui.AspectSelector;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.EventManager;
+import org.paint.util.GuiConstant;
 
 public class AspectColorPane extends JPanel {
 

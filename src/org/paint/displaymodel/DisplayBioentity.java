@@ -38,11 +38,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.config.PaintConfig;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.table.OrthoCell;
 import org.paint.util.DuplicationColor;
+import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
 import org.paint.util.RenderUtil;
 

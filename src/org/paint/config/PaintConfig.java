@@ -3,9 +3,9 @@ package org.paint.config;
 import java.awt.Color;
 import java.io.StringWriter;
 
-import org.paint.gui.GuiConstant;
 import org.yaml.snakeyaml.Yaml;
 import org.bbop.phylo.config.TouchupConfig;
+import org.paint.util.GuiConstant;
 
 public class PaintConfig extends TouchupConfig {
 

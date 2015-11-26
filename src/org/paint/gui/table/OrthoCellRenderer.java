@@ -14,7 +14,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
-import org.paint.gui.GuiConstant;
+import org.paint.util.GuiConstant;
 
 
 public class OrthoCellRenderer extends JLabel

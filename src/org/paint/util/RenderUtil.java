@@ -34,7 +34,6 @@ import org.bbop.phylo.annotate.AnnotationUtil;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
-import org.paint.gui.GuiConstant;
 
 import owltools.gaf.GeneAnnotation;
 

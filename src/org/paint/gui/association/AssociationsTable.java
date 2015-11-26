@@ -49,15 +49,17 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
+import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.gaf.GafRecorder;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.util.Constant;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
+import org.paint.dialog.ChallengeDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
@@ -71,6 +73,7 @@ import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
 
 import owltools.gaf.Bioentity;
@@ -293,7 +296,7 @@ AspectChangeListener
 
 	private void showFlowMenu(GeneAnnotation assoc, int row, int x, int y) {
 		JPopupMenu flow_menu = new JPopupMenu();
-
+		boolean show_menu = true;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		sdf.setTimeZone(TimeZone.getDefault()); // local time
 		String date_str;
@@ -308,7 +311,6 @@ AspectChangeListener
 		}
 
 		String [] notStrings = Constant.Not_Strings;
-		List<String> exclude_reasons = new ArrayList<>();
 		org.paint.gui.tree.TreePanel tree = PaintManager.inst().getTree();
 		Vector<Bioentity> leafList = new Vector<Bioentity>();
 		tree.getLeafDescendants(node, leafList);
@@ -320,7 +322,7 @@ AspectChangeListener
 		} else if (assoc.isDirectNot()) {
 			flow_menu.add("Negated MRCA: " + date_str);			
 		} else {
-			boolean validNot = true;			
+			List<GeneAnnotation> positive_annots = new ArrayList<>();
 			for (Bioentity leaf : leafList) {
 				List<GeneAnnotation> leafAssocs = AnnotationUtil.getAspectExpAssociations(leaf, AspectSelector.inst().getAspectCode());
 				if (leafAssocs != null) {
@@ -331,29 +333,31 @@ AspectChangeListener
 						else if (!leafAssoc.isNegated()) {
 							if (leafAssoc.getCls().equals(assoc.getCls()) ||
 									OWLutil.inst().moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
-								validNot = false;
-								exclude_reasons.add(leaf.getId() + " has experimental annotation to " + 
-								OWLutil.inst().getTermLabel(leafAssoc.getCls()) + " (" + leafAssoc.getCls() + ")");
-								break;
+								positive_annots.add(leafAssoc);
 							}
 						}
 					}
 				}
 			}
-			if (validNot) {
-				extendNotMenu(flow_menu, assoc, notStrings, row, x, y);
-			} else {
-				flow_menu.add("Can't negate because —");
-				for (String reason : exclude_reasons) {
-				flow_menu.add(reason);
-				}
+			if (!positive_annots.isEmpty()) {
+				ChallengeDialog override_dialog = new ChallengeDialog(GUIManager.getManager().getFrame(), positive_annots);
+				show_menu = override_dialog.challenge();
+			}
+			if (show_menu) {
+				extendNotMenu(flow_menu, assoc, notStrings, row, x, y, positive_annots);
 			}
 		}
-		flow_menu.show(this, x, y);
+		if (show_menu)
+			flow_menu.show(this, x, y);
 	}
 
-	private void extendNotMenu(JPopupMenu flow_menu, GeneAnnotation assoc, String [] notStrings, int row, int x, int y) {
-		ActionListener checker = new notActionListener(assoc, row, notStrings);
+	private void extendNotMenu(JPopupMenu flow_menu, 
+			GeneAnnotation assoc, 
+			String [] notStrings, 
+			int row, 
+			int x, int y,
+			List<GeneAnnotation> positive_annots) {
+		ActionListener checker = new notActionListener(assoc, row, notStrings, positive_annots);
 		JCheckBoxMenuItem [] qual_item = new JCheckBoxMenuItem[notStrings.length];
 		for (int i = 0; i < notStrings.length; i++) {
 			String not_str = notStrings[i];
@@ -368,17 +372,28 @@ AspectChangeListener
 		private GeneAnnotation assoc;
 		int row;
 		String [] menu_str;
+		List<GeneAnnotation> positive_annots;
 
-		public notActionListener(GeneAnnotation evidence, int row, String [] menu_str) {
+		public notActionListener(GeneAnnotation evidence, int row, String [] menu_str, List<GeneAnnotation> positive_annots) {
 			this.assoc = evidence;
 			this.row = row;
 			this.menu_str = menu_str;
+			this.positive_annots = positive_annots;
 		}
 
 		public void actionPerformed(ActionEvent e) {
 			JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
 			String s = item.getText();
 			String ev_code = Constant.NOT_QUALIFIERS_TO_EVIDENCE_CODES.get(s);
+			if (!positive_annots.isEmpty()) {
+				GafRecorder.challengedPositive(positive_annots, PaintManager.inst().getFamily());
+				for (GeneAnnotation positive_annot : positive_annots) {
+					Bioentity leaf = positive_annot.getBioentityObject();
+					List<GeneAnnotation> experimental_annots = AnnotationUtil.getExperimentalAssociations(leaf);
+					experimental_annots.remove(positive_annot);
+					leaf.setAnnotations(experimental_annots);
+				}
+			}
 			PaintAction.inst().setNot(PaintManager.inst().getFamily(), node, assoc, ev_code, true);
 			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}

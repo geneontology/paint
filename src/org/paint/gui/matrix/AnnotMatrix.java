@@ -41,7 +41,6 @@ import org.apache.log4j.Logger;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
 import org.paint.gui.FamilyViews;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
@@ -58,6 +57,7 @@ import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 
 import owltools.gaf.Bioentity;
 import owltools.gaf.GeneAnnotation;
@@ -191,18 +191,20 @@ AspectChangeListener {
 		}
 		else if (e.getSource() != this) {
 			// not sure if this is the correct way to proceed
-			AnnotMatrixModel genes = (AnnotMatrixModel) this.getModel();
-			int total = genes.getRowCount();
-			if (total > 0) {
-				ListSelectionModel lsm = this.getSelectionModel();
-				lsm.clearSelection();
-				List<Bioentity> selection = e.getGenes();
-				if (selection != null && !selection.isEmpty()) {
-					Bioentity node = e.getAncestor();
-					TreePanel tree = PaintManager.inst().getTree();		
-					setSelectedRows(lsm, tree, node);
+			if (getModel() instanceof AnnotMatrixModel) {
+				AnnotMatrixModel genes = (AnnotMatrixModel) this.getModel();
+				int total = genes.getRowCount();
+				if (total > 0) {
+					ListSelectionModel lsm = this.getSelectionModel();
+					lsm.clearSelection();
+					List<Bioentity> selection = e.getGenes();
+					if (selection != null && !selection.isEmpty()) {
+						Bioentity node = e.getAncestor();
+						TreePanel tree = PaintManager.inst().getTree();		
+						setSelectedRows(lsm, tree, node);
+					}
+					repaint();
 				}
-				repaint();
 			}
 		}
 	}

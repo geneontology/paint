@@ -39,6 +39,7 @@ import org.paint.gui.msa.MSAPanel;
 import org.paint.gui.table.GeneTable;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 public class FamilyViews extends AbstractPaintGUIComponent 

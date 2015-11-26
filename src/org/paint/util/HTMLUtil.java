@@ -31,7 +31,6 @@ import javax.swing.event.HyperlinkEvent;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.util.Constant;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.gui.GuiConstant;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.gui.table.GeneTableModel;
 

@@ -35,7 +35,7 @@ import org.apache.log4j.Logger;
 import org.bbop.swing.ExtensibleLabelUI.Renderer;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.displaymodel.DisplayBioentity;
-import org.paint.gui.GuiConstant;
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;
