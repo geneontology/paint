@@ -75,6 +75,8 @@ import org.paint.gui.event.AnnotationDragEvent;
 import org.paint.gui.event.AnnotationDragListener;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
+import org.paint.gui.event.ChallengeEvent;
+import org.paint.gui.event.ChallengeListener;
 import org.paint.gui.event.CurationColorEvent;
 import org.paint.gui.event.CurationColorListener;
 import org.paint.gui.event.EventManager;
@@ -97,7 +99,9 @@ CurationColorListener,
 TermSelectionListener, 
 AnnotationChangeListener, 
 AspectChangeListener, 
-AnnotationDragListener {
+AnnotationDragListener,
+ChallengeListener
+{
 	/**
 	 * 
 	 */
@@ -150,6 +154,7 @@ AnnotationDragListener {
 		manager.registerAspectChangeListener(this);
 		manager.registerTermListener(this);
 		manager.registerCurationColorListener(this);
+		manager.registerChallengeListener(this);
 
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}
@@ -219,7 +224,7 @@ AnnotationDragListener {
 		}
 	}
 
-	public void getLeafDescendants(Bioentity node, Vector<Bioentity> leafList){
+	public void getLeafDescendants(Bioentity node, List<Bioentity> leafList){
 		if (tree != null) {
 			tree.getLeafDescendants(node, leafList);
 		}
@@ -896,7 +901,7 @@ AnnotationDragListener {
 			if (node.isPruned()) {
 				PaintAction.inst().pruneBranch(node, true);
 			} else {
-				LogAction.logGrafting(PaintManager.inst().getFamily(), node);
+				LogAction.inst().logGrafting(PaintManager.inst().getFamily(), node);
 			}
 			handlePruning(node);
 			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
@@ -955,6 +960,10 @@ AnnotationDragListener {
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
+		repaintNodes (tree.getCurrentNodes());
+	}
+
+	public void handleChallengeEvent(ChallengeEvent event) {
 		repaintNodes (tree.getCurrentNodes());
 	}
 

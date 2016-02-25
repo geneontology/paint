@@ -11,4 +11,6 @@ public class GuiConstant {
 	public static final int HIGHLIGHT_BP = 1;
 	public static final int HIGHLIGHT_CC = 2;
 	public static final int HIGHLIGHT_MF = 4;
+	public static final int HIGHLIGHT_PRUNE = 3;
+	public static final int HIGHLIGHT_CHALLENGE = 5;
 }

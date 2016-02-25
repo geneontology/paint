@@ -35,7 +35,9 @@ import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.gui.PaintTable;
+import org.paint.gui.association.AssociationsTable.PHYLO_ACTION;
 import org.paint.gui.event.TermHyperlinkListener;
+import org.paint.main.PaintManager;
 import org.paint.util.HTMLUtil;
 
 import owltools.gaf.Bioentity;
@@ -54,7 +56,7 @@ implements PaintTable {
 	protected static final String CODE_COL_NAME = "ECO";
 	protected static final String REFERENCE_COL_NAME= "Reference";
 	protected static final String WITH_COL_NAME = "With";
-	protected static final String TRASH_COL_NAME = "DEL";
+	protected static final String TRASH_COL_NAME = "Edit";
 
 	protected static final String[] column_headings = {
 		CODE_COL_NAME, 
@@ -218,7 +220,7 @@ implements PaintTable {
 				check = HyperlinkLabel.class;
 			} else if (tag.equals(TRASH_COL_NAME)) {
 				// the evidence code
-				check = Boolean.class;
+				check = AssociationsTable.PHYLO_ACTION.class;
 			} else if (tag.equals(WITH_COL_NAME)) {
 				// and what (if appropriate) the inference was based on, e.g. another sequence or an interpro domain
 				check = Set.class;
@@ -249,14 +251,20 @@ implements PaintTable {
 			return pub_labels.get(assoc);
 		} else if (tag.equals(TRASH_COL_NAME)) {
 			// whether or not the annotation was done in PAINT
-			if (AnnotationUtil.isPAINTAnnotation(assoc)) {
-				if (assoc.isMRC() || assoc.isDirectNot()) {
-					return Boolean.TRUE;
+			if (assoc.isMRC()) {
+				return PHYLO_ACTION.REMOVE; // undo association
+			} else if (assoc.isDirectNot()) {
+				return PHYLO_ACTION.RESTORE; // undo negation
+			} else if (assoc.getBioentityObject().isLeaf() && AnnotationUtil.isExpAnnotation(assoc)) {
+				return PHYLO_ACTION.CHALLENGE; // remove exp. association
+			} else if (!assoc.isNegated()) {
+				if (contradictoryNegation(assoc)) {
+					return PHYLO_ACTION.DEPENDENCIES;
 				} else {
-					return Boolean.FALSE;
+					return PHYLO_ACTION.LOST;
 				}
 			} else {
-				return Boolean.FALSE;
+				return PHYLO_ACTION.REGAIN;
 			}
 		} else if (tag.equals(WITH_COL_NAME)) {
 			// and what (if appropriate) the inference was based on, e.g. another sequence or an interpro domain
@@ -266,6 +274,38 @@ implements PaintTable {
 		} else {
 			return null;
 		}
+	}
+
+	protected boolean contradictoryNegation(GeneAnnotation assoc) {
+		List<GeneAnnotation> extant_assocs = collectExtantAnnotations(assoc);
+		return !extant_assocs.isEmpty();
+	}
+
+	protected List<GeneAnnotation> collectExtantAnnotations(GeneAnnotation lost_assoc) {
+		/*
+		 * Determine if there are any positive annotations that must be challenged before
+		 * setting this to a loss of function
+		 * 
+		 */
+		org.paint.gui.tree.TreePanel tree = PaintManager.inst().getTree();
+		List<Bioentity> leaf_list = new ArrayList<Bioentity>();
+		tree.getLeafDescendants(node, leaf_list);
+
+		List<GeneAnnotation> positive_annots = new ArrayList<>();
+		for (Bioentity leaf : leaf_list) {
+			List<GeneAnnotation> leaf_assocs = AnnotationUtil.getExperimentalAssociations(leaf);
+			if (leaf_assocs != null) {
+				for (GeneAnnotation leaf_assoc : leaf_assocs) {
+					if (!leaf_assoc.isNegated()) {
+						if (leaf_assoc.getCls().equals(lost_assoc.getCls()) ||
+								OWLutil.inst().moreSpecific(leaf_assoc.getCls(), lost_assoc.getCls(), true)) {
+							positive_annots.add(leaf_assoc);
+						}
+					}
+				}
+			}
+		}
+		return positive_annots;
 	}
 
 	public int getColumnCount() {

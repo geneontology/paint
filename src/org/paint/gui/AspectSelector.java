@@ -29,7 +29,6 @@ import org.paint.gui.event.EventManager;
 
 public class AspectSelector {
 
-	private static final long serialVersionUID = 1L;
 	private static AspectSelector selector;
 
 	private Aspect aspect;

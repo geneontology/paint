@@ -28,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.font.TextAttribute;
 import java.text.AttributedString;
@@ -171,8 +172,6 @@ public class DisplayBioentity extends Bioentity {
 		}
 	}
 
-	//	final static BasicStroke wideStroke = new BasicStroke(8.0f);
-
 	/**
 	 * Method declaration
 	 *
@@ -191,6 +190,14 @@ public class DisplayBioentity extends Bioentity {
 			return;
 		}
 		DisplayBioentity root = (DisplayBioentity) currentRoot;
+		
+		Font f = RenderUtil.getNodeFont(this);
+
+        Graphics2D g2 = (Graphics2D)g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setFont(f);
+
 
 		Rectangle r = new Rectangle(getScreenRectangle());
 		Point p = new Point(getScreenPosition());
@@ -304,8 +311,6 @@ public class DisplayBioentity extends Bioentity {
 
 			/*
 			 */	
-			Font f = RenderUtil.getNodeFont(this);
-			g.setFont(f);
 			String  s = getNodeLabel();
 
 			if (isPruned()) {
@@ -336,7 +341,6 @@ public class DisplayBioentity extends Bioentity {
 				g.drawLine(x, p.y, viewport.width, p.y);
 			}
 			else {
-				Graphics2D g2 = (Graphics2D)g;
 				Stroke oldStroke = g2.getStroke();
 				g2.setStroke(DASHED);
 				g2.drawLine(x, p.y, viewport.x + viewport.width, p.y);

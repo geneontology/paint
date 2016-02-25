@@ -45,6 +45,8 @@ import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
+import org.paint.gui.event.ChallengeEvent;
+import org.paint.gui.event.ChallengeListener;
 import org.paint.gui.event.CurationColorEvent;
 import org.paint.gui.event.CurationColorListener;
 import org.paint.gui.event.EventManager;
@@ -70,7 +72,9 @@ GeneSelectListener,
 NodeReorderListener, 
 CurationColorListener,
 TermSelectionListener, 
-AspectChangeListener {
+AspectChangeListener, 
+ChallengeListener
+{
 	/**
 	 * 
 	 */
@@ -107,6 +111,7 @@ AspectChangeListener {
 		manager.registerTermListener(this);
 		manager.registerAspectChangeListener(this);
 		manager.registerGeneAnnotationChangeListener(this);
+		manager.registerChallengeListener(this);
 
 		setFont(GuiConstant.DEFAULT_FONT);
 
@@ -217,6 +222,16 @@ AspectChangeListener {
 			model.resetAssoc(node);
 			model.fireTableDataChanged();
 		}
+	}
+
+	public void handleChallengeEvent(ChallengeEvent event) {
+		String aspect_name = (String) event.getSource();
+		List<Bioentity> orderedNodes = PaintManager.inst().getTree().getTerminusNodes();
+		AnnotMatrixModel annot_model = new AnnotMatrixModel(orderedNodes, aspect_name);
+		models.put(aspect_name, annot_model);
+		setModel(annot_model);
+		annot_model.fireTableStructureChanged();
+//		repaint();
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {

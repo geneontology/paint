@@ -74,11 +74,16 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			nodes.clear();
 			nodes.addAll(orderedNodes);
 		}
+		
+		buildMenus();
+	}
 
+	protected void buildMenus() {
+		added_term_list.clear();;	
 		List<String> exp_list = possibleTerms();		
 		initTerms(exp_list, added_term_list);
 	}
-
+	
 	private List<String> possibleTerms() {
 		List<String> exp_list = new ArrayList<String> ();
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
@@ -535,5 +540,4 @@ public class AnnotMatrixModel extends AbstractTableModel {
 			this.not = not;
 		}
 	}
-
 }

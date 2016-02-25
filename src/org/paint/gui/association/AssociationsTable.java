@@ -22,24 +22,16 @@ package org.paint.gui.association;
 
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.Vector;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -50,12 +42,10 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
-import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.annotate.PaintAction;
-import org.bbop.phylo.gaf.GafRecorder;
+import org.bbop.phylo.model.Family;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.util.Constant;
-import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.dialog.ChallengeDialog;
 import org.paint.displaymodel.DisplayBioentity;
@@ -64,6 +54,8 @@ import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
+import org.paint.gui.event.ChallengeEvent;
+import org.paint.gui.event.ChallengeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
@@ -80,9 +72,13 @@ import owltools.gaf.Bioentity;
 import owltools.gaf.GeneAnnotation;
 
 public class AssociationsTable extends JTable
-implements GeneSelectListener, MouseListener, FamilyChangeListener,
-TermSelectionListener, AnnotationChangeListener,
-AspectChangeListener 
+implements GeneSelectListener, 
+MouseListener, 
+FamilyChangeListener,
+TermSelectionListener, 
+AnnotationChangeListener,
+AspectChangeListener,
+ChallengeListener
 {
 	/**
 	 * 
@@ -95,8 +91,21 @@ AspectChangeListener
 	private boolean is_adjusting;
 	private boolean widths_initialized;
 
-	private static Logger log = Logger.getLogger(AssociationsTable.class);
-
+		private static Logger log = Logger.getLogger(AssociationsTable.class);
+	
+	public enum PHYLO_ACTION {
+	    REMOVE, 
+	    RESTORE,
+	    CHALLENGE,
+	    LOST, 
+	    REGAIN,
+	    DEPENDENCIES;
+	    
+	    public String toString() {
+			return super.toString().toUpperCase();
+		}
+	}
+	
 	public AssociationsTable() {
 		super();	
 
@@ -114,7 +123,7 @@ AspectChangeListener
 		WithCellRenderer with_cell_renderer = new WithCellRenderer();
 		setDefaultRenderer(HashSet.class, with_cell_renderer);
 		setDefaultRenderer(String.class, new ECOCellRenderer());
-		setDefaultRenderer(Boolean.class, new TrashCellRenderer());
+		setDefaultRenderer(PHYLO_ACTION.class, new TrashCellRenderer());
 
 		setShowGrid(false);
 		setIntercellSpacing(new Dimension(1, 1));
@@ -125,6 +134,7 @@ AspectChangeListener
 		EventManager.inst().registerTermListener(this);
 		EventManager.inst().registerGeneAnnotationChangeListener(this);
 		EventManager.inst().registerAspectChangeListener(this);
+		EventManager.inst().registerChallengeListener(this);
 
 		ListSelectionModel select_model = getSelectionModel();
 		select_model.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -132,14 +142,6 @@ AspectChangeListener
 		setSelectionModel(select_model);
 
 		widths_initialized = false;
-	}
-
-	public void handleGeneSelectEvent (GeneSelectEvent e) {
-		if (e.getGenes().size() > 0)
-			setAnnotations((DisplayBioentity) e.getAncestor());
-		else
-			setAnnotations(null);
-		clearSelection();
 	}
 
 	public void newFamilyData(FamilyChangeEvent e) {
@@ -174,11 +176,11 @@ AspectChangeListener
 				if (col_name.equals(AssociationsTableModel.CODE_COL_NAME)) {
 					col_width = fm.stringWidth("IDAXXX") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.TRASH_COL_NAME)) {
-					col_width = fm.stringWidth(col_name) + insets.left + insets.right + 2;
+					col_width = fm.stringWidth("CHALLENGE") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.REFERENCE_COL_NAME)) {
-					col_width = fm.stringWidth("PUBMED:0000000000") + insets.left + insets.right + 2;
+					col_width = fm.stringWidth("PUBMED:0000000000 PUBMED:0000000000 ") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.WITH_COL_NAME)) {
-					col_width = fm.stringWidth("XXXX0000000000") + insets.left + insets.right + 2;
+					col_width = fm.stringWidth("XXXX0000000000 XXXX0000000000 ") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.TERM_COL_NAME)) {
 					term_col = col_model.getColumn(i);
 				}
@@ -203,8 +205,8 @@ AspectChangeListener
 		int row = rowAtPoint(point);
 		if (row >= 0 && row <= assoc_model.getRowCount()) {
 			int column = columnAtPoint(point);
-			if (HyperlinkLabel.class == getModel().getColumnClass(column)) {
-				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
+			if (HyperlinkLabel.class == assoc_model.getColumnClass(column)) {
+				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
 				List<String> evi = assoc.getReferenceIds();
 				String preferred_ref = HTMLUtil.getPMID(evi);
 				if (preferred_ref.length() > 0) {
@@ -213,19 +215,20 @@ AspectChangeListener
 					HTMLUtil.bringUpInBrowser(text);
 				}
 			}
-			else if (String.class == getModel().getColumnClass(column)) {
+			else if (String.class == assoc_model.getColumnClass(column)) {
 				// this event is handled on mouse press, not click (so menu will disappear)
-			} else if (Boolean.class == getModel().getColumnClass(column)) {
-				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
-				Boolean value = (Boolean) getModel().getValueAt(row, column);
-				boolean deletable = value.booleanValue();
+			} else if (PHYLO_ACTION.class == assoc_model.getColumnClass(column)) {
+				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
+				PHYLO_ACTION value = (PHYLO_ACTION) assoc_model.getValueAt(row, column);
+				// returns true is this is an annotation added by a PAINT curator
+				// And it is either a direct annotation or a direct NOT
 				/*
 				 * Removing of annotations is only permitted for ancestral nodes
 				 * that have been directly annotated to that term by the curator,
 				 * so check first before deleting a term
 				 */
-				if (deletable && assoc.isMRC()) {
-					LogAction.undo(PaintManager.inst().getFamily(), assoc);
+				if (value.equals(PHYLO_ACTION.REMOVE)) {
+					LogAction.inst().undo(PaintManager.inst().getFamily(), assoc);
 					String deleted_term = assoc.getCls();
 					assoc_model.fireTableDataChanged();
 					/**
@@ -239,17 +242,36 @@ AspectChangeListener
 					}
 					// Notify listeners that the gene data has changed too
 					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
-				} else if (deletable && assoc.isDirectNot()) {
-					LogAction.undo(PaintManager.inst().getFamily(), assoc);
+				} else if (value.equals(PHYLO_ACTION.RESTORE)) {
+					LogAction.inst().undo(PaintManager.inst().getFamily(), assoc);
 					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+				} else if (value.equals(PHYLO_ACTION.CHALLENGE)) {
+					List<GeneAnnotation> positive_annots = new ArrayList<>();
+					positive_annots.add(assoc);
+					ChallengeDialog override_dialog = new ChallengeDialog(GUIManager.getManager().getFrame(), assoc, positive_annots, null);
+					if (override_dialog.okay()) {
+						String rationale = override_dialog.getRationale();
+						List<GeneAnnotation> challenge_assoc = new ArrayList<>();
+						challenge_assoc.add(assoc);
+						challengeAnnotation(challenge_assoc, rationale, true);
+					}	
+				} else if (value.equals(PHYLO_ACTION.LOST)) {
+					if (!assoc_model.contradictoryNegation(assoc)) {
+						setAnnotationAsLoss(assoc);
+					}
+				} else {
+					/*
+					 * This ought to be a regain
+					 */
+					log.debug("Association table value = " + value.toString());
 				}
-			} else if (GeneAnnotation.class == getModel().getColumnClass(column)) {
-				GeneAnnotation assoc = (GeneAnnotation) getModel().getValueAt(row, column);
+			} else if (GeneAnnotation.class == assoc_model.getColumnClass(column)) {
+				GeneAnnotation assoc = (GeneAnnotation) assoc_model.getValueAt(row, column);
 				String term = assoc.getCls();
 				String text = HTMLUtil.getURL("AMIGO", term, true);
 				HTMLUtil.bringUpInBrowser(text);
-			} else if (HashSet.class == getModel().getColumnClass(column)) {
-				GeneAnnotation assoc = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
+			} else if (HashSet.class == assoc_model.getColumnClass(column)) {
+				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
 				Collection<String> withs = assoc.getWithInfos();
 				if (withs != null && withs.size() == 1) {
 					String [] xref = withs.iterator().next().split(":");
@@ -260,6 +282,65 @@ AspectChangeListener
 		}
 	}
 
+	private List<GeneAnnotation> challengeAnnotation(List<GeneAnnotation> challenged_assocs, String rationale, boolean log_it) {
+		Family family = PaintManager.inst().getFamily();
+		/*
+		 * Remove any experimental annotations that have been challenged
+		 */
+		List<GeneAnnotation> removed = 	PaintAction.inst().challengeExpAnnotation(family, challenged_assocs, rationale);
+
+		for (GeneAnnotation positive_annot : challenged_assocs) {
+			if (log_it) {
+				LogAction.inst().logChallenge(positive_annot, removed, rationale);
+			}
+			/* 
+			 * Important to log the challenge first, otherwise it
+			 * is unavailable for display in the evidence/log panel.
+			 */
+			String aspect_name = AspectSelector.inst().getAspectName4Code(positive_annot.getAspect());
+			ChallengeEvent challenge_event = new ChallengeEvent(aspect_name);
+			EventManager.inst().fireChallengeEvent(challenge_event);
+		}
+		return removed;
+	}
+
+	private void setAnnotationAsLoss(GeneAnnotation lost_assoc) {
+		String [] notStrings = Constant.Not_Strings;
+		String evidence_type = null;
+		/*
+		 * First determine if any positive annotations are being challenged by 
+		 * setting this to a loss of function
+		 * 
+		 */
+		List<GeneAnnotation> positive_annots = assoc_model.collectExtantAnnotations(lost_assoc);
+		/*
+		 * Open a dialog with the user to 
+		 * 1. Get the evidence type
+		 * 2. If there are positive annotations, confirm that they want to challenge these
+		 */
+		Frame frame = GUIManager.getManager().getFrame();
+		ChallengeDialog challenge_dialog = new ChallengeDialog(frame, lost_assoc, positive_annots, notStrings);
+		// make sure the user hasn't cancelled the entire operation
+		if (challenge_dialog.okay()) {
+			evidence_type = challenge_dialog.getEvidenceType();
+			List<GeneAnnotation> removed = null;
+
+			// challenges?
+			if (!positive_annots.isEmpty()) {
+				String rationale = challenge_dialog.getRationale();
+				/*
+				 * It's entirely possible that this challenged annotation was the 
+				 * sole supporting evidence for the annotation that is being negated
+				 * If that is the case then there is no longer an annotation to be negated
+				 */
+				removed = challengeAnnotation(positive_annots, rationale, false);
+			}
+			String ev_code = Constant.NOT_QUALIFIERS_TO_EVIDENCE_CODES.get(evidence_type);
+			PaintAction.inst().setNot(PaintManager.inst().getFamily(), node, lost_assoc, ev_code, true, removed);
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+		}
+	}
+
 	public void mouseEntered(MouseEvent arg0) {
 	}
 
@@ -267,15 +348,6 @@ AspectChangeListener
 	}
 
 	public void mousePressed(MouseEvent event) {		
-		Point point = event.getPoint();
-		int row = rowAtPoint(point);
-		if (row >= 0 && row <= assoc_model.getRowCount()) {
-			int column = columnAtPoint(point);
-			if (String.class == getModel().getColumnClass(column)) {
-				GeneAnnotation evi = ((AssociationsTableModel) getModel()).getEvidenceForRow(row);
-				showFlowMenu(evi, row, point.x, point.y);
-			}
-		}
 	}
 
 	public void mouseReleased(MouseEvent arg0) {		
@@ -291,111 +363,6 @@ AspectChangeListener
 			} 
 		} else {
 			clearSelection();
-		}
-	}
-
-	private void showFlowMenu(GeneAnnotation assoc, int row, int x, int y) {
-		JPopupMenu flow_menu = new JPopupMenu();
-		boolean show_menu = true;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		sdf.setTimeZone(TimeZone.getDefault()); // local time
-		String date_str;
-		try {
-			Date assoc_date;
-			assoc_date = sdf.parse(assoc.getLastUpdateDate());
-			SimpleDateFormat table_sdf = new SimpleDateFormat("d-MMM-yyyy");
-			date_str = table_sdf.format(assoc_date);
-		} catch (ParseException e) {
-			log.info("Could not parse date from " + assoc.getLastUpdateDate());
-			date_str = assoc.getLastUpdateDate();
-		}
-
-		String [] notStrings = Constant.Not_Strings;
-		org.paint.gui.tree.TreePanel tree = PaintManager.inst().getTree();
-		Vector<Bioentity> leafList = new Vector<Bioentity>();
-		tree.getLeafDescendants(node, leafList);
-
-		if (AnnotationUtil.isExpAnnotation(assoc)) {
-			flow_menu.add(date_str);			
-		} else if (assoc.isMRC()) {
-			flow_menu.add("MRCA: " + date_str);			
-		} else if (assoc.isDirectNot()) {
-			flow_menu.add("Negated MRCA: " + date_str);			
-		} else {
-			List<GeneAnnotation> positive_annots = new ArrayList<>();
-			for (Bioentity leaf : leafList) {
-				List<GeneAnnotation> leafAssocs = AnnotationUtil.getAspectExpAssociations(leaf, AspectSelector.inst().getAspectCode());
-				if (leafAssocs != null) {
-					for (GeneAnnotation leafAssoc : leafAssocs) {
-						if (leafAssoc.getCls().equals(assoc.getCls()) && leafAssoc.isNegated()) {
-							notStrings = Constant.Not_Strings_Ext;
-						}
-						else if (!leafAssoc.isNegated()) {
-							if (leafAssoc.getCls().equals(assoc.getCls()) ||
-									OWLutil.inst().moreSpecific(assoc.getCls(), leafAssoc.getCls())) {
-								positive_annots.add(leafAssoc);
-							}
-						}
-					}
-				}
-			}
-			if (!positive_annots.isEmpty()) {
-				ChallengeDialog override_dialog = new ChallengeDialog(GUIManager.getManager().getFrame(), positive_annots);
-				show_menu = override_dialog.challenge();
-			}
-			if (show_menu) {
-				extendNotMenu(flow_menu, assoc, notStrings, row, x, y, positive_annots);
-			}
-		}
-		if (show_menu)
-			flow_menu.show(this, x, y);
-	}
-
-	private void extendNotMenu(JPopupMenu flow_menu, 
-			GeneAnnotation assoc, 
-			String [] notStrings, 
-			int row, 
-			int x, int y,
-			List<GeneAnnotation> positive_annots) {
-		ActionListener checker = new notActionListener(assoc, row, notStrings, positive_annots);
-		JCheckBoxMenuItem [] qual_item = new JCheckBoxMenuItem[notStrings.length];
-		for (int i = 0; i < notStrings.length; i++) {
-			String not_str = notStrings[i];
-			qual_item[i] = new JCheckBoxMenuItem(not_str);
-			flow_menu.add(qual_item[i]);
-			qual_item[i].addActionListener(checker);
-		}
-	}
-
-	public class notActionListener implements ActionListener {
-
-		private GeneAnnotation assoc;
-		int row;
-		String [] menu_str;
-		List<GeneAnnotation> positive_annots;
-
-		public notActionListener(GeneAnnotation evidence, int row, String [] menu_str, List<GeneAnnotation> positive_annots) {
-			this.assoc = evidence;
-			this.row = row;
-			this.menu_str = menu_str;
-			this.positive_annots = positive_annots;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
-			String s = item.getText();
-			String ev_code = Constant.NOT_QUALIFIERS_TO_EVIDENCE_CODES.get(s);
-			if (!positive_annots.isEmpty()) {
-				GafRecorder.challengedPositive(positive_annots, PaintManager.inst().getFamily());
-				for (GeneAnnotation positive_annot : positive_annots) {
-					Bioentity leaf = positive_annot.getBioentityObject();
-					List<GeneAnnotation> experimental_annots = AnnotationUtil.getExperimentalAssociations(leaf);
-					experimental_annots.remove(positive_annot);
-					leaf.setAnnotations(experimental_annots);
-				}
-			}
-			PaintAction.inst().setNot(PaintManager.inst().getFamily(), node, assoc, ev_code, true);
-			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
 		}
 	}
 
@@ -421,6 +388,22 @@ AspectChangeListener
 		}
 	}
 
+	public void handleAspectChangeEvent(AspectChangeEvent event) {
+		repaint();
+	}
+
+	public void handleGeneSelectEvent (GeneSelectEvent e) {
+		if (e.getGenes().size() > 0)
+			setAnnotations((DisplayBioentity) e.getAncestor());
+		else
+			setAnnotations(null);
+		clearSelection();
+	}
+
+	public void handleChallengeEvent(ChallengeEvent event) {
+		setAnnotations(node);
+	}
+
 	class TermSelectionListener implements ListSelectionListener {
 		AssociationsTable table;
 
@@ -435,25 +418,21 @@ AspectChangeListener
 
 				if (!lsm.isSelectionEmpty() && min_index >= 0) {
 					// Find out which indexes are selected.
-//					int max_index = lsm.getMaxSelectionIndex();
-//					AssociationsTableModel assoc_model = (AssociationsTableModel) table.getModel();
-//					List<Term> terms = new LinkedList<Term>();
-//
-//					String message = "Selecting: ";
-//					for (int i = min_index; i <= max_index; i++) {
-//						Term t = assoc_model.getTermForRow(i);
-//						terms.add(t);
-//						message = message + t.getName();
-//					}
-//					log.debug(message);
-//					EventManager.inst().fireTermEvent(new TermSelectEvent(table, terms));
+					//					int max_index = lsm.getMaxSelectionIndex();
+					//					AssociationsTableModel assoc_model = (AssociationsTableModel) table.getModel();
+					//					List<Term> terms = new LinkedList<Term>();
+					//
+					//					String message = "Selecting: ";
+					//					for (int i = min_index; i <= max_index; i++) {
+					//						Term t = assoc_model.getTermForRow(i);
+					//						terms.add(t);
+					//						message = message + t.getName();
+					//					}
+					//					log.debug(message);
+					//					EventManager.inst().fireTermEvent(new TermSelectEvent(table, terms));
 				}
 			}
 		}
-	}
-
-	public void handleAspectChangeEvent(AspectChangeEvent event) {
-		repaint();
 	}
 
 }

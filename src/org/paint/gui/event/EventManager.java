@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Family;
@@ -44,20 +45,19 @@ public class EventManager {
 	 */
 	private static EventManager INSTANCE = null;
 
-	private static final long serialVersionUID = 1L;
-
 //	private static final Logger log = Logger.getLogger(EventManager.class);
 
-	private HashSet<NodeScrollListener> scroll_listeners;
-	private HashSet<GeneSelectListener> gene_listeners;
-	private HashSet<TermSelectionListener> term_listeners;
-	private HashSet<NodeReorderListener> node_listeners;
-	private HashSet<SubFamilyListener> subfamily_listeners;
-	private HashSet<ProgressListener> progressListeners;
-	private HashSet<AnnotationChangeListener> geneAnnotationChangeListeners;
-	private HashSet<AspectChangeListener> aspectChangeListeners;
-	private HashSet<CurationColorListener> colorChangeListeners;
-	private HashSet<AnnotationDragListener> annotationDragListeners;
+	private Set<NodeScrollListener> scroll_listeners;
+	private Set<GeneSelectListener> gene_listeners;
+	private Set<TermSelectionListener> term_listeners;
+	private Set<NodeReorderListener> node_listeners;
+	private Set<SubFamilyListener> subfamily_listeners;
+	private Set<ProgressListener> progressListeners;
+	private Set<AnnotationChangeListener> geneAnnotationChangeListeners;
+	private Set<AspectChangeListener> aspectChangeListeners;
+	private Set<CurationColorListener> colorChangeListeners;
+	private Set<AnnotationDragListener> annotationDragListeners;
+	private Set<ChallengeListener> challenge_listeners;
 
 	protected List<Bioentity> selectedNodes;
 	protected List<String> term_selection;
@@ -545,4 +545,23 @@ public class EventManager {
 	public boolean isAdjusting() {
 		return is_adjusting;
 	}
+
+	public void registerChallengeListener(ChallengeListener listener) {
+		if (challenge_listeners == null) 
+			challenge_listeners = new HashSet<ChallengeListener>();
+		if (!challenge_listeners.contains(listener))
+			challenge_listeners.add(listener);
+	}
+	
+	/**
+	 * Inform listeners that an experimental annotation has been challenged.
+	 */
+	public void fireChallengeEvent(ChallengeEvent event) {
+		if (challenge_listeners != null) {
+			for (ChallengeListener listener : challenge_listeners) {
+				listener.handleChallengeEvent(event);
+			}
+		}
+	}
+
 }

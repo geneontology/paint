@@ -28,10 +28,7 @@ import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.gaf.GafPropagator;
 import org.bbop.phylo.model.Family;
-import org.bbop.phylo.panther.IDmap;
 import org.bbop.phylo.panther.PantherAdapter;
-import org.bbop.phylo.tracking.LogAction;
-import org.bbop.phylo.tracking.LogAlert;
 import org.bbop.phylo.tracking.Logger;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayTree;
@@ -55,7 +52,7 @@ public class PaintManager {
 	 */
 	private static PaintManager INSTANCE = null;
 
-//	private static final long serialVersionUID = 1L;
+	//	private static final long serialVersionUID = 1L;
 
 	private TreePanel tree_pane;
 	private GeneTable genes_pane;
@@ -64,8 +61,8 @@ public class PaintManager {
 
 	private static Family family;
 
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
-	
+	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PaintManager.class);
+
 	private PaintManager() {
 		// Exists only to defeat instantiation.
 	}
@@ -97,11 +94,11 @@ public class PaintManager {
 	public void setTreePane(TreePanel tree) {
 		this.tree_pane = tree;
 	}
-	
+
 	public void setMSAPane(MSAPanel msa_pane) {
 		this.msa_pane = msa_pane;
 	}
-	
+
 	public GeneTable getGeneTable() {
 		return genes_pane;
 	}
@@ -135,20 +132,20 @@ public class PaintManager {
 	public void openNewFamily(String family_name) {
 		openFamily(family_name, false);
 	}
-	
+
 	public void openActiveFamily(String family_name) {
 		openFamily(family_name, true);
 	}
-	
+
 	private void openFamily(String family_name, boolean existing) {
 
 		int progress_increment = (PaintConfig.inst().collapse_no_exp) ? 15 : 20;
-		progress_increment += !existing? 5 : 0;
+		progress_increment += !existing? 6 : 0;
 		int progress = 0;
-		
+
 		fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", progress, ProgressEvent.Status.START);
 		progress += progress_increment;
-		
+
 		family = new Family(family_name);
 		DisplayTree tree = new DisplayTree(family_name);
 		PantherAdapter adapter = new PantherServerAdapter();
@@ -170,7 +167,7 @@ public class PaintManager {
 			try {
 				fireProgressChange("Fetching experimental annotations from GOLR", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
-				
+
 				success = AnnotationUtil.loadExperimental(family);
 				/*
 				 * Don't bother with looking for these if they don't exist yet
@@ -183,7 +180,19 @@ public class PaintManager {
 					progress += progress_increment;
 
 					GafPropagator.importAnnotations(family, family_dir);
-					
+
+					fireProgressChange("Clearing disputed annotations", progress, ProgressEvent.Status.START);
+					progress += progress_increment;
+
+					GafPropagator.importChallenges(family, family_dir);
+						/* 
+						 * Important to log the challenge first, otherwise it
+						 * is unavailable for display in the evidence/log panel.
+						 */
+//						String aspect_name = AspectSelector.inst().getAspectCode();
+//						ChallengeEvent challenge_event = new ChallengeEvent(aspect_name);
+//						EventManager.inst().fireChallengeEvent(challenge_event);
+//					}
 				} else if (!success) {
 					family = null;
 					fireProgressChange("Unable to retrieve experimental annotations " + family_name, 100, ProgressEvent.Status.END);
@@ -209,10 +218,10 @@ public class PaintManager {
 
 					tree_pane.collapseNonExperimental();
 				}
-			
+
 				fireProgressChange("Notifying displays of new family", progress, ProgressEvent.Status.START);
 				EventManager.inst().fireNewFamilyEvent(this, family);
-				
+
 				fireProgressChange(family_name + " is ready", 100, ProgressEvent.Status.END);
 
 			} else {
@@ -223,12 +232,12 @@ public class PaintManager {
 	}
 
 	public void saveFamily() {
-	    String username = System.getProperty("user.name");
+		String username = System.getProperty("user.name");
 		String program_name = PAINT.getAppID();
 		File family_dir = new File(PaintConfig.inst().gafdir);
 		family.save(family_dir, "Saved by " + username + " using " + program_name);
 	}
-	
+
 	private static void fireProgressChange(String message, int percentageDone,
 			ProgressEvent.Status status) {
 		ProgressEvent event = new ProgressEvent(PaintManager.class, message,

@@ -14,19 +14,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.config.CustomTermList;
-import org.paint.main.PaintManager;
 
 public class ColumnTermData extends JPopupMenu implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private AnnotMatrix matrix;
 	private ButtonGroup term_buttons;
 	private List<String>term_list;
 	private boolean odd_column = false;
 	private String narrower_term = null;
 	
-	private static final Logger log = Logger.getLogger(PaintManager.class);
+//	private static final Logger log = Logger.getLogger(PaintManager.class);
 
 	public ColumnTermData() {
 		super("");

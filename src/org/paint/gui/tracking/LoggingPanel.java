@@ -29,17 +29,22 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import org.bbop.phylo.tracking.LogAction;
+import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.Constant;
-import org.paint.config.IconResource;
-import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
+import org.paint.gui.event.ChallengeEvent;
+import org.paint.gui.event.ChallengeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 import org.paint.util.GuiConstant;
 
-public class LoggingPanel extends JPanel implements FamilyChangeListener, AnnotationChangeListener {
+public class LoggingPanel extends JPanel implements 
+FamilyChangeListener, 
+AnnotationChangeListener,
+ChallengeListener
+{
 	/**
 	 * 
 	 */
@@ -47,7 +52,7 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener, Annota
 	protected static LoggingPanel singleton;
 
 	private JTextArea annotation_log;
-	private String aspect;
+	private int aspect;
 
 	/*
 	 * Separated into sections by aspect ?
@@ -65,7 +70,7 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener, Annota
 	 * Challenge mechanism
 	 * 	
 	 */
-	public LoggingPanel(Border border, String aspect) {
+	public LoggingPanel(Border border, int aspect) {
 		super ();
 		this.aspect = aspect;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -83,22 +88,29 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener, Annota
 		setLogText();
 		EventManager.inst().registerFamilyListener(this);
 		EventManager.inst().registerGeneAnnotationChangeListener(this);
+		EventManager.inst().registerChallengeListener(this);
 	}
 
 	private void setLogText() {
 		annotation_log.setText("");
 		List<String> contents = new ArrayList<>();
-		if (aspect.equals(Aspect.MOLECULAR_FUNCTION.toString())) {
-			LogAction.reportMF(contents, Constant.MF);
-		}
-		else if (aspect.equals(Aspect.CELLULAR_COMPONENT.toString())) {
-			LogAction.reportCC(contents, Constant.CC);
-		}
-		else if (aspect.equals(Aspect.BIOLOGICAL_PROCESS.toString())) {
-			LogAction.reportBP(contents, Constant.BP);
-		}
-		else {
-			LogAction.reportPruned(contents);
+		switch (aspect) {
+        case GuiConstant.HIGHLIGHT_BP:
+			LogAction.inst().reportBP(contents, Constant.BP);
+			break;
+        case GuiConstant.HIGHLIGHT_CC:
+			LogAction.inst().reportCC(contents, Constant.CC);
+			break;
+        case GuiConstant.HIGHLIGHT_MF:
+			LogAction.inst().reportMF(contents, Constant.MF);
+ 			break;
+        case GuiConstant.HIGHLIGHT_PRUNE:
+			LogAction.inst().reportEntries(contents, LOG_ENTRY_TYPE.PRUNE);
+			break;
+        case GuiConstant.HIGHLIGHT_CHALLENGE:
+        	LogAction.inst().reportEntries(contents, LOG_ENTRY_TYPE.CHALLENGE);
+        	break;
+
 		}
 		StringBuffer text = new StringBuffer();
 		for (String entry : contents) {
@@ -121,5 +133,10 @@ public class LoggingPanel extends JPanel implements FamilyChangeListener, Annota
 	@Override
 	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
 		setLogText();
+	}
+
+	@Override
+	public void handleChallengeEvent(ChallengeEvent event) {
+		setLogText();		
 	}
 }

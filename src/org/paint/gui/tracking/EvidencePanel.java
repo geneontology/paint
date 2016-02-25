@@ -71,6 +71,8 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 	private LoggingPanel cc_panel;
 	private LoggingPanel bp_panel;
 	private LoggingPanel prune_panel;
+	private LoggingPanel challenge_panel;
+	
 	private boolean comment_set;
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EvidencePanel.class);
@@ -104,7 +106,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		pane.setOpaque(true);
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 
-		LogAction.clearLog();
+		LogAction.inst().clearLog();
 		LogAlert.clearLog();
 
 		initCommentPane();
@@ -116,11 +118,13 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		mf_panel = initLogPane(GuiConstant.HIGHLIGHT_MF, Aspect.MOLECULAR_FUNCTION.toString());
 		cc_panel = initLogPane(GuiConstant.HIGHLIGHT_CC, Aspect.CELLULAR_COMPONENT.toString());
 		bp_panel = initLogPane(GuiConstant.HIGHLIGHT_BP, Aspect.BIOLOGICAL_PROCESS.toString());
-		prune_panel = initLogPane(-1, "Pruned");
+		prune_panel = initLogPane(GuiConstant.HIGHLIGHT_PRUNE, "Pruned");
+		challenge_panel = initLogPane(GuiConstant.HIGHLIGHT_CHALLENGE, "Challenged");
 		pane.add(mf_panel);
 		pane.add(cc_panel);
 		pane.add(bp_panel);
 		pane.add(prune_panel);
+		pane.add(challenge_panel);
 
 		JScrollPane scrollPane = new JScrollPane(new OnlyVerticalScrollPanel(pane));
 		add(scrollPane, BorderLayout.CENTER);
@@ -173,13 +177,22 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 	}
 
 	private LoggingPanel initLogPane(int aspect, String log_category) {
-		Color border_color;
-		if (aspect >= 0)
-			border_color = PaintConfig.inst().getAspectColor(aspect).darker();
-		else
+		Color border_color = Color.black;
+		switch (aspect) {
+        case GuiConstant.HIGHLIGHT_BP:
+        case GuiConstant.HIGHLIGHT_CC:
+        case GuiConstant.HIGHLIGHT_MF:
+ 			border_color = PaintConfig.inst().getAspectColor(aspect).darker();
+ 			break;
+        case GuiConstant.HIGHLIGHT_PRUNE:
 			border_color = Color.GRAY;
+			break;
+        case GuiConstant.HIGHLIGHT_CHALLENGE:
+        	border_color = Color.yellow.darker();
+        	break;
+		}
 		Border border = loggerBorder(border_color, log_category);
-		return (new LoggingPanel(border, log_category));
+		return (new LoggingPanel(border, aspect));
 	}
 
 	private Border loggerBorder(Color border_color, String category) {

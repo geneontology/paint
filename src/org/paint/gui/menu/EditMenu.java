@@ -35,16 +35,24 @@ import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.swing.DynamicMenu;
 import org.paint.dialog.CurationStatusColorDialog;
 import org.paint.dialog.find.FindDialog;
+import org.paint.gui.AspectSelector;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
+import org.paint.gui.event.ChallengeEvent;
+import org.paint.gui.event.ChallengeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
 
-public class EditMenu extends DynamicMenu
-implements FamilyChangeListener, AnnotationChangeListener  {
+import owltools.gaf.GeneAnnotation;
+
+public class EditMenu extends DynamicMenu implements 
+FamilyChangeListener, 
+AnnotationChangeListener,
+ChallengeListener
+{
 	/**
 	 * 
 	 */
@@ -99,6 +107,7 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 		/* So we can hide and show this menu based on what data is available */
 		EventManager.inst().registerFamilyListener(this);
 		EventManager.inst().registerGeneAnnotationChangeListener(this);
+		EventManager.inst().registerChallengeListener(this);
 	}
 
 	/**
@@ -111,12 +120,18 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 	private class undoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			Family family = PaintManager.inst().getFamily();
-			LogEntry entry = LogAction.undo(family);
+			LogEntry entry = LogAction.inst().undo(family);
 			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(entry.getNode()));
 			if (entry.getAction() == LogEntry.LOG_ENTRY_TYPE.PRUNE) {
 				NodeReorderEvent event = new NodeReorderEvent(this);
 				event.setNodes(family.getTree().getTerminusNodes());
 				EventManager.inst().fireNodeReorderEvent(event);
+			} else if ((entry.getAction() == LogEntry.LOG_ENTRY_TYPE.CHALLENGE) ||
+					(entry.getAction() == LogEntry.LOG_ENTRY_TYPE.NOT && entry.getRemovedAssociations() != null)) {
+				GeneAnnotation restore_annot = entry.getLoggedAssociation();
+				String aspect_name = AspectSelector.inst().getAspectName4Code(restore_annot.getAspect());
+				ChallengeEvent challenge_event = new ChallengeEvent(aspect_name);
+				EventManager.inst().fireChallengeEvent(challenge_event);
 			}
 		}
 	}
@@ -124,12 +139,22 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 	private class redoActionListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			Family family = PaintManager.inst().getFamily();
-			LogEntry entry = LogAction.redo(family);
+			LogEntry entry = LogAction.inst().redo(family);
 			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(entry.getNode()));
 			if (entry.getAction() == LogEntry.LOG_ENTRY_TYPE.PRUNE) {
 				NodeReorderEvent event = new NodeReorderEvent(this);
 				event.setNodes(family.getTree().getTerminusNodes());
 				EventManager.inst().fireNodeReorderEvent(event);
+			} else if ((entry.getAction() == LogEntry.LOG_ENTRY_TYPE.CHALLENGE) ||
+					(entry.getAction() == LogEntry.LOG_ENTRY_TYPE.NOT && entry.getRemovedAssociations() != null)) {
+				/* 
+				 * Important to log the challenge first, otherwise it
+				 * is unavailable for display in the evidence/log panel.
+				 */
+				String aspect_name = AspectSelector.inst().getAspectName4Code(entry.getLoggedAssociation().getAspect());
+				ChallengeEvent challenge_event = new ChallengeEvent(aspect_name);
+				EventManager.inst().fireChallengeEvent(challenge_event);
+
 			}
 		}
 	}
@@ -154,13 +179,9 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 		}
 	}
 
-	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
-		updateLogItems();
-	}
-
 	private void updateLogItems() {
 		String item_label;
-		item_label = LogAction.doneString();
+		item_label = LogAction.inst().doneString();
 		if (item_label != null) {
 			undoItem.setText(undo + ' ' + item_label);
 			undoItem.setEnabled(true);
@@ -169,7 +190,7 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 			undoItem.setText(undo);
 			undoItem.setEnabled(false);
 		}
-		item_label = LogAction.undoneString();
+		item_label = LogAction.inst().undoneString();
 		if (item_label != null) {
 			redoItem.setText(redo + ' ' + item_label);
 			redoItem.setEnabled(true);
@@ -178,5 +199,13 @@ implements FamilyChangeListener, AnnotationChangeListener  {
 			redoItem.setText(redo);
 			redoItem.setEnabled(false);	
 		}
+	}
+
+	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
+		updateLogItems();
+	}
+
+	public void handleChallengeEvent(ChallengeEvent event) {
+		updateLogItems();		
 	}
 }
