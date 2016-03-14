@@ -6,7 +6,7 @@ collapse_no_exp: false
 curatedPaintColor: !color '255, 204, 0, 255'
 expPaintColor: !color '61, 153, 61, 255'
 full_msa: false
-gafdir: /Users/suzi/workspace/paint/test_resources/debugging/PTHR21297/
+gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR16675/
 inferPaintColor: !color '61, 100, 153, 255'
 mfPaintColor: !color '177, 204, 138, 255'
 msa_colors:
