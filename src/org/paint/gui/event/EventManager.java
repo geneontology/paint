@@ -31,6 +31,7 @@ import org.bbop.phylo.model.Family;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
+import org.paint.gui.DirtyIndicator;
 import org.paint.gui.table.GeneTable;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.tree.TreePanel;
@@ -446,6 +447,7 @@ public class EventManager {
 			for (AnnotationChangeListener listener : geneAnnotationChangeListeners) {
 				listener.handleAnnotationChangeEvent(event);
 			}
+			DirtyIndicator.inst().dirtyGenes(true);
 		}
 	}
 

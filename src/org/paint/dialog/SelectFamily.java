@@ -16,6 +16,9 @@ import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.model.Family;
@@ -24,17 +27,18 @@ import org.paint.config.PaintConfig;
 import org.paint.main.PaintManager;
 
 
-public class OpenActiveFamily {
+public class SelectFamily {
 	/**
 	 * 
 	 */
-	protected static Logger log = Logger.getLogger(OpenActiveFamily.class);
+	protected static Logger log = Logger.getLogger(SelectFamily.class);
 
 	private static final String USER_DIR = "user.dir";
 	private static final String DATA_DIR = "test_resources";
 
 	private FileDialog chooser;
 	private Frame frame;
+	private Pattern pthr;
 
 	/**
 	 * Constructor declaration
@@ -42,45 +46,59 @@ public class OpenActiveFamily {
 	 *
 	 * @see
 	 */
-	public OpenActiveFamily(Frame frame) {
+	public SelectFamily(Frame frame) {
 		super();
 		this.frame = frame;
+		pthr = Pattern.compile("PTHR\\d{5}");
 	}
 
-	public File getSelectedFile(boolean save) {
+	public String getSelectedDirectory(boolean save) {
 		chooser = new FileDialog(frame);
 		chooser.setMultipleMode(false);
-//		chooser.setFilenameFilter(new PAINTFileFilter());
 		chooser.setPreferredSize(new Dimension(400,400));
-		String suffix = Constant.GAF_SUFFIX;
-		Family family = PaintManager.inst().getFamily();
-
+		String family_dir = null;
 		setCurrentDirectory();
-		if (family != null && family.getFamily_name() != null) {
-			chooser.setFile(family.getFamily_name() + suffix);
-		} else {
-			chooser.setFile('*' + suffix);			
-		}
-
 		if (save) {
-			chooser.setMode(FileDialog.SAVE);
-			chooser.setTitle("Save family");
-			chooser.setVisible(true);
+			Family family = PaintManager.inst().getFamily();
+			if (family != null && family.getFamily_name() != null) {
+				chooser.setFile(family.getFamily_name());
+				chooser.setMode(FileDialog.SAVE);
+				chooser.setTitle("Save family");
+				chooser.setVisible(true);
+				if (chooser.getDirectory() != null ) {
+					String chosen = chooser.getDirectory();
+					Matcher matcher = pthr.matcher(chosen);
+					if (!matcher.find()) {
+						File dir = new File(new File(chosen), family.getFamily_name());
+						dir.mkdir();
+						try {
+							family_dir = dir.getCanonicalPath();
+						} catch (IOException e) {
+							log.error("Couldn't get directory path for " + family.getFamily_name());
+						}
+					} else {
+						family_dir = chosen;
+					}
+				}
+			}
 		}
 		else {
 			chooser.setMode(FileDialog.LOAD);
 			chooser.setTitle("Open family");
 			chooser.setVisible(true);
-		}
-		File gaf_file = null;
-		String filename = chooser.getFile();
-		if (filename != null) {
-			String gaf_dir = chooser.getDirectory();
-			gaf_file = new File(gaf_dir, filename);
-			PaintConfig.inst().gafdir = gaf_dir;
+			String chosen = chooser.getDirectory();
+			if (chosen != null) {
+				Matcher matcher = pthr.matcher(chosen);
+				if (matcher.find()) {
+					family_dir = chosen;
+				}
+			}
 		}
 		chooser.dispose();
-		return gaf_file;
+		if (family_dir != null) {
+			PaintConfig.inst().gafdir = family_dir;
+		}
+		return family_dir;
 	}
 
 	private void setCurrentDirectory() {

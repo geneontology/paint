@@ -236,6 +236,7 @@ public class PaintManager {
 		String program_name = PAINT.getAppID();
 		File family_dir = new File(PaintConfig.inst().gafdir);
 		family.save(family_dir, "Saved by " + username + " using " + program_name);
+		DirtyIndicator.inst().dirtyGenes(false);
 	}
 
 	private static void fireProgressChange(String message, int percentageDone,

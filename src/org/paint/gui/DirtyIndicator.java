@@ -9,7 +9,7 @@ import org.bbop.framework.GUIManager;
 import org.bbop.framework.VetoableShutdownListener;
 import org.bbop.phylo.model.Family;
 import org.bbop.phylo.util.Constant;
-import org.paint.dialog.OpenActiveFamily;
+import org.paint.dialog.SelectFamily;
 import org.paint.main.PaintManager;
 
 /**
@@ -74,15 +74,15 @@ public class DirtyIndicator implements VetoableShutdownListener {
 			String cancel = "Cancel";
 			String dontSave = "Don't Save";
 			final String[] options = {save, cancel, dontSave};
-			String m = "You have unsaved GO annotations.  Would you like to export a GAF file before " + prompt;
+			String m = "You have unsaved changes.  Would you like to save before " + prompt;
 			final int result = 
 				JOptionPane.showOptionDialog(GUIManager.getManager().getFrame(),m, "",
 						JOptionPane.YES_NO_CANCEL_OPTION,
 						JOptionPane.WARNING_MESSAGE, null, options, "Save");
 			if (options[result] == save) {
-				OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
-				File f = dlg.getSelectedFile(true);
-				if (null != f){
+				SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
+				String f = dlg.getSelectedDirectory(true);
+				if (null != f) {
 					PaintManager.inst().saveFamily();
 				}	
 			}

@@ -34,7 +34,7 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.util.Constant;
-import org.paint.dialog.OpenActiveFamily;
+import org.paint.dialog.SelectFamily;
 import org.paint.dialog.OpenNewFamily;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.event.AnnotationChangeEvent;
@@ -100,9 +100,9 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	private static class SaveToFileActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
+			SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
 
-			File f = dlg.getSelectedFile(true);
+			String f = dlg.getSelectedDirectory(true);
 			if (f != null) {
 				PaintManager.inst().saveFamily();
 			}
@@ -166,17 +166,13 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 						if (!LoginUtil.getLoggedIn()) {
 							LoginUtil.login();
 						}
-						OpenActiveFamily dlg = new OpenActiveFamily(GUIManager.getManager().getFrame());
-						File f = dlg.getSelectedFile(false);
-						if ((null != f) && (f.isFile())){
-							String full_file_name = "";
-							try {
-								full_file_name = f.getCanonicalPath();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
+						SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
+						String full_file_name = dlg.getSelectedDirectory(false);
+						if (full_file_name != null) {
+							if (full_file_name.charAt(full_file_name.length() - 1) == '/') {
+								full_file_name = full_file_name.substring(0, full_file_name.length() - 1);
 							}
-							String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1, full_file_name.lastIndexOf('.'));
+							String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1);
 							PaintManager.inst().openActiveFamily(familyID);
 							updateMenu();
 						}
