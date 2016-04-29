@@ -16,14 +16,14 @@ public class EvidenceComparator implements Comparator<GeneAnnotation> {
 		String term_a = fa.getCls();
 		String term_b = fb.getCls();
 
-		String aspect_a = OWLutil.inst().getAspect(term_a);
-		String aspect_b = OWLutil.inst().getAspect(term_b);
+		String aspect_a = getAspect(term_a);
+		String aspect_b = getAspect(term_b);
 
 		/* 
-		 * Want the ordering to be MF, CC, BP, so reverse the sign by
-		 * multiplying by negative 1
+		 * Want the ordering to be MF, CC, BP, convert the aspect
+		 * according to this order
 		 */
-		int comparison = compareStrings(aspect_a, aspect_b) * -1;
+		int comparison = compareStrings(aspect_a, aspect_b);
 
 		if (comparison == EQUAL_TO) {
 			/*
@@ -41,6 +41,16 @@ public class EvidenceComparator implements Comparator<GeneAnnotation> {
 		return comparison;
 	}
 
+	private String getAspect(String term) {
+		String aspect = OWLutil.inst().getAspect(term);
+		if (aspect.charAt(0) == 'F')
+			return "A";
+		else if (aspect.charAt(0) == 'C')
+			return "B";
+		else
+			return "C";
+	}
+	
 	private int compareStrings(String a, String b) {
 		int comparison = a.compareTo(b);
 		if (comparison < 0)
