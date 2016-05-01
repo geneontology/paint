@@ -169,31 +169,26 @@ public class PaintManager {
 				progress += progress_increment;
 
 				success = AnnotationUtil.loadExperimental(family);
-				/*
-				 * Don't bother with looking for these if they don't exist yet
-				 */
-				if (success && existing) {
-					File family_dir = new File(PaintConfig.inst().gafdir);
-					Logger.importPrior(family.getFamily_name(), family_dir);
+				if (success)
+					/*
+					 * Don't bother with looking for these if they don't exist yet
+					 */
+					if (existing) {
+						File family_dir = new File(PaintConfig.inst().gafdir);
+						Logger.importUserLog(family.getFamily_name(), family_dir);
 
-					fireProgressChange("Loading PAINT annotations from GAF file", progress, ProgressEvent.Status.START);
-					progress += progress_increment;
+						fireProgressChange("Clearing disputed annotations", progress, ProgressEvent.Status.START);
+						progress += progress_increment;
+						GafPropagator.importChallenges(family, family_dir);
 
-					GafPropagator.importAnnotations(family, family_dir);
+						fireProgressChange("Loading PAINT annotations from GAF file", progress, ProgressEvent.Status.START);
+						progress += progress_increment;
+						GafPropagator.importAnnotations(family, family_dir);
 
-					fireProgressChange("Clearing disputed annotations", progress, ProgressEvent.Status.START);
-					progress += progress_increment;
-
-					GafPropagator.importChallenges(family, family_dir);
-						/* 
-						 * Important to log the challenge first, otherwise it
-						 * is unavailable for display in the evidence/log panel.
-						 */
-//						String aspect_name = AspectSelector.inst().getAspectCode();
-//						ChallengeEvent challenge_event = new ChallengeEvent(aspect_name);
-//						EventManager.inst().fireChallengeEvent(challenge_event);
-//					}
-				} else if (!success) {
+					} else {
+						Logger.clearUserLog();
+					}
+				else {
 					family = null;
 					fireProgressChange("Unable to retrieve experimental annotations " + family_name, 100, ProgressEvent.Status.END);
 				}
