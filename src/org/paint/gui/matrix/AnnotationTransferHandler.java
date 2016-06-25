@@ -262,7 +262,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 			QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
 			qualifiers = qual_dialog.getQualifiers();
 		}
-		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers); 
+		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers);
 
 		clearVisitedNodes(tree);
 		

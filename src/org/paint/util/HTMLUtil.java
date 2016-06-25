@@ -172,15 +172,6 @@ public class HTMLUtil {
 			if (label_txt.equals(GeneTableModel.ACC_COL_NAME)) {
 				id = node.getSeqId();
 				db = node.getSeqDb();
-				if (id != null && id.length() > 0) {
-//					if (id.startsWith("ENS")) {
-//						db = "ENSEMBL";
-//					} else if (id.indexOf('_') >= 0) {
-//						db = "ENTREZ";
-//					} else {
-//						db = "uniprot";
-//					}
-				}
 			} else if (label_txt.equals(GeneTableModel.PERMNODEID_COL_NAME)) {
 				id = node.getPersistantNodeID();
 				db = "pantree";
@@ -188,6 +179,13 @@ public class HTMLUtil {
 			else {
 				id = node.getLocalId();
 				db = node.getDb();
+				if (db.contains("ENSEMBL") && !id.startsWith("ENS")) {
+					db = node.getSeqDb();
+					id = node.getSeqId();
+				}
+				if (db.contains("TAIR")) {
+					id = node.getFullName();
+				}
 			}
 		}
 		if ((id != null && id.length() > 0) && (db != null && db.length() > 0)) {
