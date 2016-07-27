@@ -94,6 +94,8 @@ public class AnnotationTransferHandler extends TransferHandler {
 	public boolean canImport(TransferHandler.TransferSupport support) {
 		boolean canImport = false;
 		LOG_ENTRY_TYPE because = null;
+		String drop_label = "";
+		Color drop_color = Color.gray;
 		TreePanel tree_panel = null;
 
 		if (support.isDrop() 
@@ -117,9 +119,25 @@ public class AnnotationTransferHandler extends TransferHandler {
 				else {
 					try {
 						Tree tree = PaintManager.inst().getFamily().getTree();
-						because = PaintAction.inst().isValidTerm((String)support.getTransferable().getTransferData(TERM_FLAVOR), node, tree);
+						String go_id = (String)support.getTransferable().getTransferData(TERM_FLAVOR);
+						because = PaintAction.inst().isValidTerm(go_id, node, tree);
 						if (because != null)  {
 							canImport = false;
+							if (because != LogEntry.LOG_ENTRY_TYPE.WRONG_TAXA)
+								drop_label = node.getLocalId() + " " + because;
+							else
+								drop_label = TaxonChecker.getTaxonError();
+							drop_color = Color.red;
+						} else {
+							// see what other implications there may be
+							boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree, node, go_id, false);
+							if (valid_for_all_descendents) {
+								drop_label = node.getLocalId();
+								drop_color = Color.black;
+							} else {
+								drop_label = node.getLocalId() + ", but not found in all descendents";
+								drop_color = Color.yellow;
+							}
 						}
 					} catch (UnsupportedFlavorException e) {
 						canImport = false;
@@ -132,25 +150,11 @@ public class AnnotationTransferHandler extends TransferHandler {
 		clearVisitedNodes(tree_panel);
 
 		if (tree_panel != null) {
-			String drop_label = null;
 			if (node != null) {
 				visitedNodes.add(node);
-				if (canImport) {
-					node.setDropColor(Color.BLACK);
-					drop_label = node.getLocalId();
-				}
-				else {
-					node.setDropColor(Color.RED);
-					if (because != null) {
-						if (because != LogEntry.LOG_ENTRY_TYPE.WRONG_TAXA)
-							drop_label = node.getLocalId() + " " + because;
-						else
-							drop_label = TaxonChecker.getTaxonError();
-					}
-				}
+				node.setDropColor(drop_color);
 				tree_panel.repaint();
 			}
-
 			Point dropPoint = support.getDropLocation().getDropPoint();
 			dropPoint.x += 10;
 			dropPoint.y += 2;

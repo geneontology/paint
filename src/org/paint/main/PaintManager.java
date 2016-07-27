@@ -223,6 +223,9 @@ public class PaintManager {
 				family = null;
 				fireProgressChange("Unable to open " + family_name, 100, ProgressEvent.Status.END);
 			}
+		} else {
+			family = null;
+			fireProgressChange("Unable to open " + family_name, 100, ProgressEvent.Status.END);			
 		}
 	}
 

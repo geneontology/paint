@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
@@ -166,15 +167,19 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 						if (!LoginUtil.getLoggedIn()) {
 							LoginUtil.login();
 						}
-						SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
-						String full_file_name = dlg.getSelectedDirectory(false);
-						if (full_file_name != null) {
-							if (full_file_name.charAt(full_file_name.length() - 1) == '/') {
-								full_file_name = full_file_name.substring(0, full_file_name.length() - 1);
+						if (LoginUtil.getLoggedIn()) {
+							SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
+							String full_file_name = dlg.getSelectedDirectory(false);
+							if (full_file_name != null) {
+								if (full_file_name.charAt(full_file_name.length() - 1) == '/') {
+									full_file_name = full_file_name.substring(0, full_file_name.length() - 1);
+								}
+								String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1);
+								PaintManager.inst().openActiveFamily(familyID);
+								updateMenu();
 							}
-							String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1);
-							PaintManager.inst().openActiveFamily(familyID);
-							updateMenu();
+						} else {
+							JOptionPane.showMessageDialog(GUIManager.getManager().getFrame(), "Unable to login to PANTHER\nCheck the servers are running");
 						}
 					}
 					return null;
