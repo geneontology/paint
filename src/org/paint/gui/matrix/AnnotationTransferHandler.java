@@ -135,7 +135,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 								drop_label = node.getLocalId();
 								drop_color = Color.black;
 							} else {
-								drop_label = node.getLocalId() + ", but not found in all descendents";
+								drop_label = "Not found in all descendents: " + node.getLocalId();
 								drop_color = Color.yellow;
 							}
 						}
