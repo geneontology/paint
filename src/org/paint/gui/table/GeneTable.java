@@ -155,7 +155,7 @@ AspectChangeListener {
 		else if (InputEvent.BUTTON3_MASK == (modifiers & InputEvent.BUTTON3_MASK) ||
 				(((modifiers & InputEvent.BUTTON1_MASK) != 0 &&
 				(modifiers & InputEvent.BUTTON3_MASK) == 0) &&
-				(true == e.isMetaDown()))) {
+						(true == e.isMetaDown()))) {
 
 			ListSelectionModel lsm = this.getSelectionModel();
 			int min = lsm.getMinSelectionIndex();
@@ -342,9 +342,11 @@ AspectChangeListener {
 	}
 
 	public void handleNodeReorderEvent(NodeReorderEvent e) {
-		GeneTableModel model = (GeneTableModel) this.getModel();
-		model.reorderRows(e.getNodes());
-		model.fireTableDataChanged();
+		if (this.getModel().getClass() == GeneTableModel.class) {
+			GeneTableModel model = (GeneTableModel) this.getModel();
+			model.reorderRows(e.getNodes());
+			model.fireTableDataChanged();
+		}
 	}
 
 	public void handleAspectChangeEvent(AspectChangeEvent event) {
@@ -392,7 +394,7 @@ AspectChangeListener {
 		d.height += pad;
 		return d;
 	}
-	
+
 	private void setColumnWidths(PaintTable grid, int col_count, FontMetrics fm, TableColumnModel colModel) {
 		Insets insets = new DefaultTableCellRenderer().getInsets();
 		for (int i = 0; i < col_count; i++) {
@@ -404,7 +406,7 @@ AspectChangeListener {
 			if (grid.isSquare(i)) {
 				optimalColumnWidth = fm.getHeight();
 			}
-//			Set column width to max size required to fit text                        
+			//			Set column width to max size required to fit text                        
 			else {
 				for (int j = 0; j < grid.getRowCount(); j++) {
 					String value = grid.getTextAt(j, i);

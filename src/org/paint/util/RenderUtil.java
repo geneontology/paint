@@ -21,13 +21,20 @@
 package org.paint.util;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
@@ -229,5 +236,40 @@ public class RenderUtil {
 		}
 		return color;
 	}
+	
+	public static void showPopup(JPopupMenu popup, Component comp, Point position){
+
+		// Get root frame
+		Component root = comp;
+
+		while ((root != null) && (false == (root instanceof JFrame))){
+			root = root.getParent();
+		}
+		if (root != null){
+			SwingUtilities.convertPointToScreen(position, comp);
+			Point     rootPos = root.getLocationOnScreen();
+			Dimension rootSize = root.getSize();
+			Dimension popSize = popup.getPreferredSize();
+			int       x = position.x;
+			int       y = position.y;
+			Insets    insets = popup.getInsets();
+
+			if (position.x + popSize.width + (insets.left + insets.right) > rootPos.x + rootSize.width){
+				x = rootPos.x + rootSize.width - popSize.width - insets.left;
+			}
+			if (position.y + popSize.height + (insets.top + insets.bottom) > rootPos.y + rootSize.height){
+				y = rootPos.y + rootSize.height - popSize.height - insets.top;
+			}
+			if (x >= rootPos.x + insets.left && y >= rootPos.y + insets.top){
+				position.setLocation(x, y);
+			}
+			SwingUtilities.convertPointFromScreen(position, comp);
+		}
+
+		// Show popup menu.
+		popup.show(comp, position.x, position.y);
+	}
+
+
 
 }

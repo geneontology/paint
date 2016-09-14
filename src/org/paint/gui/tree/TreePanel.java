@@ -21,13 +21,11 @@
 package org.paint.gui.tree;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -49,14 +47,12 @@ import java.util.Vector;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
@@ -82,11 +78,13 @@ import org.paint.gui.event.CurationColorListener;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
 import org.paint.gui.event.GeneSelectListener;
+import org.paint.gui.event.NodeReorderEvent;
 import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.table.GeneTable;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
+import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;
 
@@ -159,9 +157,12 @@ ChallengeListener
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}
 
-	public void setTreeModel(DisplayTree tree2) {
-		this.tree = tree2;
-		setNeedPositionUpdate();
+	public void setTreeModel(DisplayTree tree) {
+		this.tree = tree;
+		// set the dang rectangle now!
+		boolean use_distances = PaintConfig.inst().use_distances;
+		updateNodePositions(tree.getRoot(), this.getGraphics(), PaintManager.inst().getRowHeight(), use_distances);
+//		setNeedPositionUpdate(false);
 	}
 
 	public DisplayTree getTreeModel() {
@@ -192,7 +193,7 @@ ChallengeListener
 	public void scaleTree(double scale){
 		if (this.getDistanceScaling() != scale) {
 			this.setDistance(scale);
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(true);
 			PaintConfig.inst().tree_distance_scaling = scale;
 		}
 	}
@@ -200,14 +201,14 @@ ChallengeListener
 	public void speciesOrder() {
 		if (tree != null) {
 			tree.speciesOrder();
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(true);
 		}
 	}
 
 	public void descendentCountLadder(boolean most_leaves_at_top) {
 		if (tree != null) {
 			tree.descendentCountLadder(most_leaves_at_top);
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(true);
 		}
 	}
 
@@ -230,28 +231,28 @@ ChallengeListener
 		}
 	}
 
-	public void adjustTree() {
-		setNeedPositionUpdate();
+	public void rescaleTree() {
+		setNeedPositionUpdate(false);
 	}
 
 	public void expandAllNodes() {
 		if (tree != null) {
 			tree.expandAllNodes();
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(true);
 		}
 	}
 
-	public void collapseNonExperimental() {
+	public void collapseNonExperimental(boolean notify) {
 		if (tree != null) {
 			tree.collapseNonExperimental();
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(notify);
 		}
 	}
 
 	public void resetRootToMain() {
 		if (tree != null) {
 			if (tree.resetRootToMain())
-				setNeedPositionUpdate();
+				setNeedPositionUpdate(true);
 		}
 	}
 
@@ -279,7 +280,7 @@ ChallengeListener
 	public void handlePruning(DisplayBioentity node) {
 		boolean shift = tree.handlePruning(node);
 		if (shift) {
-			setNeedPositionUpdate();
+			setNeedPositionUpdate(true);
 		}
 	}
 
@@ -380,13 +381,19 @@ ChallengeListener
 		int x = TreePanel.LEFTMARGIN + getNodeWidth(g, current_root);
 		setNodeRectangle(current_root, row_height, x, 0, use_distances, g);
 		tree_rect = calcTreeSize(g);
-//		revalidate();
-//		repaint();
 		need_update = false;
 	}
 
-	protected void setNeedPositionUpdate() {
+	protected void setNeedPositionUpdate(boolean notify) {
+		// Method to set number of leaves in tree
 		need_update = true;
+		revalidate();
+		repaint();
+		if (notify) {
+			NodeReorderEvent event = new NodeReorderEvent(this);
+			event.setNodes(getTerminusNodes());
+			EventManager.inst().fireNodeReorderEvent(event);
+		}
 	}
 
 	/**
@@ -420,12 +427,12 @@ ChallengeListener
 	}
 
 	private Rectangle getTreeSize(Graphics g) {
-		if (tree != null) {
-			if (need_update) {
-				tree.nodesReordered();
-				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
-			}
-		}
+//		if (tree != null) {
+//			if (need_update) {
+//				tree.nodesReordered();
+//				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
+//			}
+//		}
 		return tree_rect;
 	}
 
@@ -584,54 +591,13 @@ ChallengeListener
 			}
 		}
 		if (InputEvent.BUTTON3_MASK == (modifiers & InputEvent.BUTTON3_MASK) || 
-				(((modifiers & InputEvent.BUTTON1_MASK) != 0 && (modifiers      & InputEvent.BUTTON3_MASK) == 0) && (true == e.isMetaDown())) ){
+				(((modifiers & InputEvent.BUTTON1_MASK) != 0 && 
+				(modifiers & InputEvent.BUTTON3_MASK) == 0) && 
+						(e.isMetaDown()))) {
 			JPopupMenu popup = createPopupMenu(e);
 			if (popup != null)
-				showPopup(popup, e.getComponent(), new Point(e.getX(), e.getY()));
+				RenderUtil.showPopup(popup, e.getComponent(), new Point(e.getX(), e.getY()));
 		}
-	}
-
-	/**
-	 * Method declaration
-	 *
-	 *
-	 * @param popup
-	 * @param comp
-	 * @param position
-	 *
-	 * @see
-	 */
-	private void showPopup(JPopupMenu popup, Component comp, Point position){
-
-		// Get root frame
-		Component root = comp;
-
-		while ((root != null) && (false == (root instanceof JFrame))){
-			root = root.getParent();
-		}
-		if (root != null){
-			SwingUtilities.convertPointToScreen(position, comp);
-			Point     rootPos = root.getLocationOnScreen();
-			Dimension rootSize = root.getSize();
-			Dimension popSize = popup.getPreferredSize();
-			int       x = position.x;
-			int       y = position.y;
-			Insets    insets = popup.getInsets();
-
-			if (position.x + popSize.width + (insets.left + insets.right) > rootPos.x + rootSize.width){
-				x = rootPos.x + rootSize.width - popSize.width - insets.left;
-			}
-			if (position.y + popSize.height + (insets.top + insets.bottom) > rootPos.y + rootSize.height){
-				y = rootPos.y + rootSize.height - popSize.height - insets.top;
-			}
-			if (x >= rootPos.x + insets.left && y >= rootPos.y + insets.top){
-				position.setLocation(x, y);
-			}
-			SwingUtilities.convertPointFromScreen(position, comp);
-		}
-
-		// Show popup menu.
-		popup.show(comp, position.x, position.y);
 	}
 
 	private DisplayBioentity getPopupNode(MouseEvent e) {
@@ -804,9 +770,7 @@ ChallengeListener
 		 */
 		public void actionPerformed(ActionEvent e) {
 			tree.nodeReroot(node);
-			setNeedPositionUpdate();
-			revalidate();
-			repaint();
+			setNeedPositionUpdate(true);
 		}
 
 	}
@@ -836,9 +800,7 @@ ChallengeListener
 		 */
 		public void actionPerformed(ActionEvent e){
 			tree.handleCollapseExpand(node);
-			setNeedPositionUpdate();
-			revalidate();
-			repaint();
+			setNeedPositionUpdate(true);
 		}
 
 	}

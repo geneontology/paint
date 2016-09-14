@@ -53,7 +53,7 @@ public class TrashCellRenderer extends JLabel implements TableCellRenderer {
 			text = "";
 			break;
 		case DEPENDENCIES:
-			text = "Loss is contraindicated by exp. annotations";
+			text = "Loss would be contraindicated by exp. annotations";
 			break;
 		}
 		setText(text);

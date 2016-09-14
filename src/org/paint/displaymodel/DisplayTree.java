@@ -31,8 +31,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Tree;
-import org.paint.gui.event.EventManager;
-import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
 import org.paint.util.DuplicationColor;
 
@@ -147,13 +145,13 @@ public class DisplayTree extends Tree implements Serializable {
 	 */
 	private void expandAllNodes(Bioentity dsn){
 		resetExpansion(dsn);
-		nodesReordered();
+		initCurrentNodes();
 	}
 
 	public void collapseNonExperimental() {
 		resetExpansion(root);
 		collapseMRC (root);
-		nodesReordered();
+		initCurrentNodes();
 	}
 
 	private void collapseMRC(Bioentity mrc) {
@@ -180,14 +178,6 @@ public class DisplayTree extends Tree implements Serializable {
     public Bioentity getCurrentRoot(){
         return currentRoot;
     }
-
-	// Method to set number of leaves in tree
-	public void nodesReordered() {
-		initCurrentNodes();
-		NodeReorderEvent event = new NodeReorderEvent(this);
-		event.setNodes(getTerminusNodes());
-		EventManager.inst().fireNodeReorderEvent(event);
-	}
 
 	private void setDupColorIndex(Bioentity node, int color_index) {
 		((DisplayBioentity) node).setDupColorIndex(color_index);
@@ -246,7 +236,7 @@ public class DisplayTree extends Tree implements Serializable {
 		boolean change = (node != null && !node.isLeaf() && !node.isPruned());
 		if (change) {
 			setNodeExpanded(node);
-			nodesReordered();
+			initCurrentNodes();
 		}
 	}
 	
@@ -264,7 +254,7 @@ public class DisplayTree extends Tree implements Serializable {
 	public boolean handlePruning(DisplayBioentity node) {
 		boolean change = (node != null && !node.isLeaf());
 		if (change) {
-			nodesReordered();
+			initCurrentNodes();
 		}
 		return change;
 	}
@@ -277,7 +267,7 @@ public class DisplayTree extends Tree implements Serializable {
 		// If it is not the current root, make it the current root
 		if (currentRoot != dsn){
 			currentRoot =  dsn;
-			nodesReordered();
+			initCurrentNodes();
 			return true;
 		} else 
 			return false;
@@ -299,7 +289,7 @@ public class DisplayTree extends Tree implements Serializable {
 		bioentities.clear();
 		addChildNodesInOrder(currentRoot, bioentities);
 		// Save new ordering that are visible as well
-		nodesReordered();
+		initCurrentNodes();
 	}
 
 	public void descendentCountLadder(boolean most_leaves_at_top) {
@@ -315,7 +305,7 @@ public class DisplayTree extends Tree implements Serializable {
 		bioentities.clear();
 		addChildNodesInOrder(currentRoot, bioentities);
 		// Save new ordering that are visible as well
-		nodesReordered();
+		initCurrentNodes();
 	}
 
 	/**

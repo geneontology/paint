@@ -23,6 +23,9 @@ package org.paint.gui.matrix;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
@@ -30,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
@@ -38,6 +43,15 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
+import org.bbop.framework.GUIManager;
+import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.annotate.WithEvidence;
+import org.bbop.phylo.model.Tree;
+import org.bbop.phylo.tracking.LogEntry;
+import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.util.TaxonChecker;
+import org.paint.dialog.QualifierDialog;
+import org.paint.dialog.TaxonDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
 import org.paint.gui.FamilyViews;
@@ -60,6 +74,7 @@ import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
+import org.paint.util.RenderUtil;
 
 import owltools.gaf.Bioentity;
 import owltools.gaf.GeneAnnotation;
@@ -231,7 +246,7 @@ ChallengeListener
 		models.put(aspect_name, annot_model);
 		setModel(annot_model);
 		annot_model.fireTableStructureChanged();
-//		repaint();
+		//		repaint();
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
@@ -355,57 +370,60 @@ ChallengeListener
 		Point point = event.getPoint();
 		int row = rowAtPoint(point);
 		if (row >= 0 && row < getRowCount()) {
-			List<Bioentity> previous_genes = EventManager.inst().getCurrentGeneSelection();
-			List<Bioentity> selected_genes = null;
-			if (!event.isMetaDown() && !event.isShiftDown() && !event.isAltDown() && !event.isControlDown()) {
-				int column = columnAtPoint(point);
-				String term = ((AnnotMatrixModel)getModel()).getTermForColumn(column);
+			int modifiers = event.getModifiers();
+			/* 
+			 * Left mouse button selects the column/term and all genes annotated to that term
+			 */
+			if ((InputEvent.BUTTON1_MASK == (modifiers & InputEvent.BUTTON1_MASK)) &&
+					(!event.isMetaDown() && !event.isShiftDown() && !event.isAltDown() && !event.isControlDown())) {
+				String term = getTermAtPoint(event.getPoint());
 				if (term != null) {
-					AnnotMatrixModel model = (AnnotMatrixModel) this.getModel();
-					TermSelectEvent term_event = new TermSelectEvent (this, term, model.getNode(row));
+					List<Bioentity> selected_genes = null;
+					List<Bioentity> previous_genes = EventManager.inst().getCurrentGeneSelection();	
+					TermSelectEvent term_event = new TermSelectEvent (this, term);
 					selected_genes = EventManager.inst().fireTermEvent(term_event);
-					setSelectedColumn(column);
+					setSelectedColumn(columnAtPoint(event.getPoint()));
 					if (previous_genes != null) {
 						for (Bioentity node : previous_genes) {
 							((DisplayBioentity) node).setSelected(false);
 						}
 					}
+					if (selected_genes != null) {
+						if (previous_genes == null) {
+							updateRows(selected_genes);
+						}
+						else if (previous_genes.size() != selected_genes.size()) {
+							updateRows(previous_genes);
+							updateRows(selected_genes);
+						}
+						else {
+							boolean need_update = false;
+							for (Bioentity node : previous_genes) {
+								need_update |= !selected_genes.contains(node);
+							}
+							if (need_update) {
+								updateRows(previous_genes);
+								updateRows(selected_genes);						
+							}
+						}
+						GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, EventManager.inst().getAncestralSelection());
+						EventManager.inst().fireGeneEvent(ge);
+					}
+					annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 				}
 			}
-
-			if (event.isMetaDown() && !event.isShiftDown() && !event.isAltDown() && !event.isControlDown()) {
-				int col = columnAtPoint(point);
-				setSelectedColumn(col);
-				String term = ((AnnotMatrixModel)getModel()).getTermForColumn(col);
-				if (term != null) {
-					TermSelectEvent term_event = new TermSelectEvent (this, term);
-					selected_genes = EventManager.inst().fireTermEvent(term_event);
+			/*
+			 * Right mouse button or left mouse button and the meta-key then show popup to make an annotation
+			 */
+			else if (InputEvent.BUTTON3_MASK == (modifiers & InputEvent.BUTTON3_MASK) || 
+					((InputEvent.BUTTON1_MASK == (modifiers & InputEvent.BUTTON1_MASK)) && 
+							(event.isMetaDown()))) {
+				JPopupMenu popup = createPopupMenu(event);
+				if (popup != null) {
+					RenderUtil.showPopup(popup, event.getComponent(), new Point(event.getX(), event.getY()));
 				}
-			}
-
-			if (selected_genes != null) {
-				if (previous_genes == null) {
-					updateRows(selected_genes);
-				}
-				else if (previous_genes.size() != selected_genes.size()) {
-					updateRows(previous_genes);
-					updateRows(selected_genes);
-				}
-				else {
-					boolean need_update = false;
-					for (Bioentity gene : previous_genes) {
-						need_update |= !selected_genes.contains(gene);
-					}
-					if (need_update) {
-						updateRows(previous_genes);
-						updateRows(selected_genes);						
-					}
-				}
-				GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, EventManager.inst().getAncestralSelection());
-				EventManager.inst().fireGeneEvent(ge);
 			}
 		}
-		annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
@@ -447,5 +465,67 @@ ChallengeListener
 			if (!found)
 				log.debug("Annotated to " + term + ", but can't find original evidence");
 		}
+	}
+
+	private JPopupMenu createPopupMenu(MouseEvent e) {
+		JPopupMenu  popup = null;
+		Bioentity ancestor = EventManager.inst().getAncestralSelection();	
+		String term = getTermAtPoint(e.getPoint());
+		Tree tree = PaintManager.inst().getTree().getTreeModel();
+		if (ancestor != null && !ancestor.isLeaf() && !ancestor.isPruned() && term != null) {
+			popup = new JPopupMenu();
+			LogEntry.LOG_ENTRY_TYPE because = PaintAction.inst().isValidTerm(term, ancestor, tree);
+			if (because != null)  {
+				String invalid_item;
+				if (because != LogEntry.LOG_ENTRY_TYPE.WRONG_TAXA)
+					invalid_item = "Annotation of " + ancestor.getSymbol() + " to " + OWLutil.inst().getTermLabel(term) + " " + because;
+				else
+					invalid_item = TaxonChecker.getTaxonError();
+				popup.add(new JMenuItem(invalid_item));                            
+			} else {
+				JMenuItem menuItem;
+				menuItem = new JMenuItem("Annotate " + ancestor.getSymbol() + " to " + OWLutil.inst().getTermLabel(term));
+				menuItem.addActionListener(new AnnotateActionListener(ancestor, term));
+				popup.add(menuItem);                            
+			}
+		}
+		return popup;
+	}
+
+	private class AnnotateActionListener implements ActionListener{
+		Bioentity  ancestor;
+		String term;
+
+		AnnotateActionListener(Bioentity node, String term){
+			this.ancestor = node;
+			this.term = term;
+		}
+
+		public void actionPerformed(ActionEvent e){
+			Tree tree = PaintManager.inst().getTree().getTreeModel();
+			boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree, ancestor, term, false);
+			if (!valid_for_all_descendents) {
+				List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(ancestor, term);
+				TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
+				valid_for_all_descendents = taxon_dialog.isLost();
+			}
+			if (valid_for_all_descendents) {
+				WithEvidence withs = new WithEvidence(tree, ancestor, term);
+				int qualifiers = withs.getWithQualifiers();
+				if (qualifiers > 0) {
+					QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
+					qualifiers = qual_dialog.getQualifiers();
+				}
+				PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), ancestor, term, withs, null, qualifiers);
+				EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(ancestor));
+			}
+		}
+
+	}
+
+	private String getTermAtPoint(Point point) {
+		int column = columnAtPoint(point);
+		String term = ((AnnotMatrixModel)getModel()).getTermForColumn(column);
+		return term;
 	}
 }

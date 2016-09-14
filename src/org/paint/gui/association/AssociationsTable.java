@@ -263,7 +263,7 @@ ChallengeListener
 					/*
 					 * This ought to be a regain
 					 */
-					log.debug("Association table value = " + value.toString());
+					log.info("Association table value = " + value.toString());
 				}
 			} else if (GeneAnnotation.class == assoc_model.getColumnClass(column)) {
 				GeneAnnotation assoc = (GeneAnnotation) assoc_model.getValueAt(row, column);

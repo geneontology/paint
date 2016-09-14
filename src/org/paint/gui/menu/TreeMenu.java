@@ -160,7 +160,7 @@ implements FamilyChangeListener, NodeReorderListener {
 				switch (action) {
 				case TREE_USE_DISTANCES:
 					PaintConfig.inst().use_distances = ((JCheckBoxMenuItem) e.getSource()).isSelected();
-					tree.adjustTree();
+					tree.rescaleTree();
 					break;
 				case TREE_EXPAND_ALL_NODES:
 					PaintConfig.inst().collapse_no_exp = false;
@@ -170,7 +170,7 @@ implements FamilyChangeListener, NodeReorderListener {
 				case TREE_COLLAPSE_NONEXP_NODES:
 					PaintConfig.inst().collapse_no_exp = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 					if (PaintConfig.inst().collapse_no_exp) {
-						tree.collapseNonExperimental();
+						tree.collapseNonExperimental(true);
 					} else {
 						tree.expandAllNodes();
 					}

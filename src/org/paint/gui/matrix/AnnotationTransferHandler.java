@@ -44,6 +44,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Icon;
@@ -60,6 +61,7 @@ import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.phylo.util.TaxonChecker;
 import org.paint.dialog.QualifierDialog;
+import org.paint.dialog.TaxonDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.EventManager;
@@ -130,14 +132,8 @@ public class AnnotationTransferHandler extends TransferHandler {
 							drop_color = Color.red;
 						} else {
 							// see what other implications there may be
-							boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree, node, go_id, false);
-							if (valid_for_all_descendents) {
-								drop_label = node.getLocalId();
-								drop_color = Color.black;
-							} else {
-								drop_label = "Not found in all descendents: " + node.getLocalId();
-								drop_color = Color.yellow;
-							}
+							drop_label = node.getLocalId();
+							drop_color = Color.black;
 						}
 					} catch (UnsupportedFlavorException e) {
 						canImport = false;
@@ -260,18 +256,23 @@ public class AnnotationTransferHandler extends TransferHandler {
 		Point p = support.getDropLocation().getDropPoint();
 		DisplayBioentity node = tree.getClickedInNodeArea(p);
 
-		WithEvidence withs = new WithEvidence(tree.getTreeModel(), node, term);
-		int qualifiers = withs.getWithQualifiers();
-		if (qualifiers > 0) {
-			QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
-			qualifiers = qual_dialog.getQualifiers();
+		boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree.getTreeModel(), node, term, false);
+		if (!valid_for_all_descendents) {
+			List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(node, term);
+			TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
+			valid_for_all_descendents = taxon_dialog.isLost();
 		}
-		PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers);
-
+		if (valid_for_all_descendents) {
+			WithEvidence withs = new WithEvidence(tree.getTreeModel(), node, term);
+			int qualifiers = withs.getWithQualifiers();
+			if (qualifiers > 0) {
+				QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
+				qualifiers = qual_dialog.getQualifiers();
+			}
+			PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers);
+			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+		}
 		clearVisitedNodes(tree);
-		
-		EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
-
 		return true;
 	}
 
@@ -380,7 +381,7 @@ public class AnnotationTransferHandler extends TransferHandler {
 					log.error("Unable to get term name, io problem");
 				} catch (Exception e) {
 					th.exportDone(c, t, TransferHandler.NONE);
-//					log.error(e.getMessage());
+					//					log.error(e.getMessage());
 				}
 			} else
 			{
