@@ -162,14 +162,35 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		 * Then sort by the number of genes annotated to each term
 		 * The more genes annotated the higher in the list the term will be
 		 */
-		Collections.sort(cellular_list, new TermCountComparator(nodes));
-		Collections.sort(temp_list, new TermCountComparator(nodes));
+		SortByCount(nodes, cellular_list);
+		SortByCount(nodes, temp_list);
+		
 		/*
-		 * But then insert the related terms immediately after their child
+		 * But then insert the related terms immediately afterwards
 		 */
 		boolean odd_column = true;
 		odd_column = groupParentTerms(cellular_list, odd_column);
 		groupParentTerms(temp_list, odd_column);
+	}
+	
+	private void SortByCount(List<Bioentity> nodes, List<String> terms) {
+		Map<String, List<Bioentity>> term2node = new HashMap<>();
+		for (Bioentity node : nodes) {
+			for (String term : terms) {
+				GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term);
+				if (assoc != null && AnnotationUtil.isExpAnnotation(assoc)) {
+					List<Bioentity> annotated_nodes = term2node.get(term);
+					if (annotated_nodes == null) {
+						annotated_nodes = new ArrayList<Bioentity>();
+						term2node.put(term, annotated_nodes);
+					}
+					if (!annotated_nodes.contains(node)) {
+						annotated_nodes.add(node);
+					}
+				}
+			}
+		}
+		Collections.sort(terms, new TermCountComparator(term2node));
 	}
 
 	private boolean groupParentTerms(List<String> orig_termlist, boolean odd_column) {

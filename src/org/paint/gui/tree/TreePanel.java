@@ -110,7 +110,7 @@ ChallengeListener
 	private double tree_distance_scaling = -1;
 
 	protected static Logger logger = Logger.getLogger(TreePanel.class.getName());
-	
+
 	protected static final String TOOLTIP_FOREGROUND = "ToolTip.foreground";
 
 	public static final String POPUP_MENU_COLLAPSE = "Collapse node";
@@ -134,7 +134,7 @@ ChallengeListener
 
 	private DisplayTree tree;
 
-//	private static Logger log = Logger.getLogger(TreePanel.class);
+	//	private static Logger log = Logger.getLogger(TreePanel.class);
 
 	/**
 	 * Constructor declaration
@@ -162,7 +162,6 @@ ChallengeListener
 		// set the dang rectangle now!
 		boolean use_distances = PaintConfig.inst().use_distances;
 		updateNodePositions(tree.getRoot(), this.getGraphics(), PaintManager.inst().getRowHeight(), use_distances);
-//		setNeedPositionUpdate(false);
 	}
 
 	public DisplayTree getTreeModel() {
@@ -193,7 +192,7 @@ ChallengeListener
 	public void scaleTree(double scale){
 		if (this.getDistanceScaling() != scale) {
 			this.setDistance(scale);
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 			PaintConfig.inst().tree_distance_scaling = scale;
 		}
 	}
@@ -201,14 +200,14 @@ ChallengeListener
 	public void speciesOrder() {
 		if (tree != null) {
 			tree.speciesOrder();
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 	}
 
 	public void descendentCountLadder(boolean most_leaves_at_top) {
 		if (tree != null) {
 			tree.descendentCountLadder(most_leaves_at_top);
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 	}
 
@@ -232,27 +231,27 @@ ChallengeListener
 	}
 
 	public void rescaleTree() {
-		setNeedPositionUpdate(false);
+		setNeedPositionUpdate();
 	}
 
 	public void expandAllNodes() {
 		if (tree != null) {
 			tree.expandAllNodes();
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 	}
 
-	public void collapseNonExperimental(boolean notify) {
+	public void collapseNonExperimental() {
 		if (tree != null) {
 			tree.collapseNonExperimental();
-			setNeedPositionUpdate(notify);
+			setNeedPositionUpdate();
 		}
 	}
 
 	public void resetRootToMain() {
 		if (tree != null) {
 			if (tree.resetRootToMain())
-				setNeedPositionUpdate(true);
+				setNeedPositionUpdate();
 		}
 	}
 
@@ -280,7 +279,7 @@ ChallengeListener
 	public void handlePruning(DisplayBioentity node) {
 		boolean shift = tree.handlePruning(node);
 		if (shift) {
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 	}
 
@@ -384,16 +383,14 @@ ChallengeListener
 		need_update = false;
 	}
 
-	protected void setNeedPositionUpdate(boolean notify) {
+	protected void setNeedPositionUpdate() {
 		// Method to set number of leaves in tree
 		need_update = true;
 		revalidate();
 		repaint();
-		if (notify) {
-			NodeReorderEvent event = new NodeReorderEvent(this);
-			event.setNodes(getTerminusNodes());
-			EventManager.inst().fireNodeReorderEvent(event);
-		}
+		NodeReorderEvent event = new NodeReorderEvent(this);
+		event.setNodes(getTerminusNodes());
+		EventManager.inst().fireNodeReorderEvent(event);
 	}
 
 	/**
@@ -427,12 +424,12 @@ ChallengeListener
 	}
 
 	private Rectangle getTreeSize(Graphics g) {
-//		if (tree != null) {
-//			if (need_update) {
-//				tree.nodesReordered();
-//				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
-//			}
-//		}
+		//		if (tree != null) {
+		//			if (need_update) {
+		//				tree.nodesReordered();
+		//				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
+		//			}
+		//		}
 		return tree_rect;
 	}
 
@@ -770,7 +767,7 @@ ChallengeListener
 		 */
 		public void actionPerformed(ActionEvent e) {
 			tree.nodeReroot(node);
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 
 	}
@@ -800,7 +797,7 @@ ChallengeListener
 		 */
 		public void actionPerformed(ActionEvent e){
 			tree.handleCollapseExpand(node);
-			setNeedPositionUpdate(true);
+			setNeedPositionUpdate();
 		}
 
 	}
@@ -1086,89 +1083,89 @@ ChallengeListener
 	 *
 	 * @see
 	 */
-	 protected DisplayBioentity getClicked(Point p){
+	protected DisplayBioentity getClicked(Point p){
 		DisplayBioentity current_root = (DisplayBioentity) getCurrentRoot();
 		return getClicked(current_root, p);
-	 }
+	}
 
-	 public DisplayBioentity getClickedInNodeArea(Point p) {
-		 DisplayBioentity current_root = (DisplayBioentity) getCurrentRoot();
-		 return getClickedInNodeArea(current_root, p);
-	 }
+	public DisplayBioentity getClickedInNodeArea(Point p) {
+		DisplayBioentity current_root = (DisplayBioentity) getCurrentRoot();
+		return getClickedInNodeArea(current_root, p);
+	}
 
-	 /**
-	  * Method declaration
-	  *
-	  *
-	  * @param dsn
-	  * @param p
-	  *
-	  * @return
-	  *
-	  * @see
-	  */
-	 private DisplayBioentity getClicked(DisplayBioentity dsn, Point p){
-		 if (null == dsn || dsn.getScreenRectangle() == null){
-			 return null;
-		 }
-		 if (dsn.getScreenRectangle().contains(p)){
-			 return dsn;
-		 }
-		 List<Bioentity> children = dsn.getChildren();
+	/**
+	 * Method declaration
+	 *
+	 *
+	 * @param dsn
+	 * @param p
+	 *
+	 * @return
+	 *
+	 * @see
+	 */
+	private DisplayBioentity getClicked(DisplayBioentity dsn, Point p){
+		if (null == dsn || dsn.getScreenRectangle() == null){
+			return null;
+		}
+		if (dsn.getScreenRectangle().contains(p)){
+			return dsn;
+		}
+		List<Bioentity> children = dsn.getChildren();
 
-		 if (null == children){
-			 return null;
-		 }
-		 if (dsn.isTerminus()){
-			 return null;
-		 }
-		 for (int i = 0; i < children.size(); i++){
-			 DisplayBioentity  gnHit = null;
-			 DisplayBioentity child = (DisplayBioentity) children.get(i);
-			 gnHit = getClicked(child, p);
-			 if (null != gnHit){
-				 return gnHit;
-			 }
-		 }
-		 return null;
-	 }
+		if (null == children){
+			return null;
+		}
+		if (dsn.isTerminus()){
+			return null;
+		}
+		for (int i = 0; i < children.size(); i++){
+			DisplayBioentity  gnHit = null;
+			DisplayBioentity child = (DisplayBioentity) children.get(i);
+			gnHit = getClicked(child, p);
+			if (null != gnHit){
+				return gnHit;
+			}
+		}
+		return null;
+	}
 
-	 public DisplayBioentity getClickedInNodeArea(DisplayBioentity dsn, Point p) {
-		 if (null == dsn || dsn.getScreenRectangle() == null){
-			 return null;
-		 }
-		 if (dsn.getScreenRectangle().contains(p)){
-			 return dsn;
-		 }
+	public DisplayBioentity getClickedInNodeArea(DisplayBioentity dsn, Point p) {
+		if (null == dsn || dsn.getScreenRectangle() == null){
+			return null;
+		}
+		if (dsn.getScreenRectangle().contains(p)){
+			return dsn;
+		}
 
-		 List<Bioentity>  children = dsn.getChildren();
+		List<Bioentity>  children = dsn.getChildren();
 
-		 if (children != null && !dsn.isTerminus()){
-			 DisplayBioentity  dsnHit = null;
-			 for (int i = 0; i < children.size(); i++){
-				 DisplayBioentity child = (DisplayBioentity) children.get(i);
-				 dsnHit = getClickedInNodeArea(child, p);
-				 if (null != dsnHit){
-					 return dsnHit;
-				 }
-			 }
-		 }
-		 return null;
-	 }
+		if (children != null && !dsn.isTerminus()){
+			DisplayBioentity  dsnHit = null;
+			for (int i = 0; i < children.size(); i++){
+				DisplayBioentity child = (DisplayBioentity) children.get(i);
+				dsnHit = getClickedInNodeArea(child, p);
+				if (null != dsnHit){
+					return dsnHit;
+				}
+			}
+		}
+		return null;
+	}
 
-	 /**
-	  * Method declaration
-	  *
-	  *
-	  * @param dsn
-	  *
-	  * @return
-	  *
-	  * @see
-	  */
-	 protected String getToolTipInfo(DisplayBioentity node){
-		 return node.getNodeLabel();
-	 }
+	/**
+	 * Method declaration
+	 *
+	 *
+	 * @param dsn
+	 *
+	 * @return
+	 *
+	 * @see
+	 */
+	protected String getToolTipInfo(DisplayBioentity node){
+		return node.getNodeLabel();
+	}
 
 	public boolean ensureExpansion(List<Bioentity> genes) {
 		List<DisplayBioentity> nodes_to_make_visible = new ArrayList<>();

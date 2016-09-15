@@ -296,37 +296,6 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		}
 	}
 
-	//	private class CommentThread extends Thread {
-	//		private JTextArea text_area;
-	//		private String comment;
-	//
-	//		public CommentThread (JTextArea text_area) {
-	//			this.text_area = text_area;
-	//			comment = getLoggedComment();
-	//		}
-	//
-	//		public void run() {
-	//			if (SwingUtilities.isEventDispatchThread()) {
-	//				text_area.setText(comment);
-	//			} else {
-	//				try {
-	////					SwingUtilities.invokeAndWait(new Runnable() {
-	//					while (true) {
-	////						public void run() {
-	//							comment = text_area.getText();
-	//							Logger.updateNotes(comment);
-	//							Thread.sleep(1000);
-	////						};
-	//					}
-	//				} catch (InterruptedException ex) {
-	//					log.error(ex.toString());
-	////				} catch (InvocationTargetException ex) {
-	////					log.error(ex.toString());
-	//				}
-	//			}
-	//		}
-	//	}
-	//
 	@Override
 	public void newFamilyData(FamilyChangeEvent e) {
 		comment_set = false;

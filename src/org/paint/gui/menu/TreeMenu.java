@@ -170,7 +170,7 @@ implements FamilyChangeListener, NodeReorderListener {
 				case TREE_COLLAPSE_NONEXP_NODES:
 					PaintConfig.inst().collapse_no_exp = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 					if (PaintConfig.inst().collapse_no_exp) {
-						tree.collapseNonExperimental(true);
+						tree.collapseNonExperimental();
 					} else {
 						tree.expandAllNodes();
 					}

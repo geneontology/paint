@@ -211,7 +211,7 @@ public class PaintManager {
 					fireProgressChange("Collapsing branches lacking experimental data", progress, ProgressEvent.Status.START);
 					progress += progress_increment;
 
-					tree_pane.collapseNonExperimental(false);
+					tree_pane.collapseNonExperimental();
 				}
 
 				fireProgressChange("Notifying displays of new family", progress, ProgressEvent.Status.START);

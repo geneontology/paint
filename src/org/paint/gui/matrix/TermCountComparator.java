@@ -1,11 +1,11 @@
 package org.paint.gui.matrix;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bbop.phylo.annotate.AnnotationUtil;
-import org.bbop.phylo.util.OWLutil;
-import org.paint.displaymodel.DisplayBioentity;
 
 import owltools.gaf.Bioentity;
 import owltools.gaf.GeneAnnotation;
@@ -17,24 +17,23 @@ public class TermCountComparator implements Comparator<String> {
 	private static final int GREATER_THAN = 1;
 	private static final int EQUAL_TO = 0;
 
-	private List<Bioentity> nodes;
-	
-	public TermCountComparator (List<Bioentity> nodes2) {
-		this.nodes = nodes2;
+	private Map<String, List<Bioentity>> term2nodes;
+
+	public TermCountComparator (Map<String, List<Bioentity>> term2nodes) {
+		this.term2nodes = term2nodes;
 	}
-	
+
 	public int compare(String term_a, String term_b) {
 		int count_a = 0;
 		int count_b = 0;
-		
-		if (nodes != null) {
-			for (Bioentity node : nodes) {
-				GeneAnnotation assoc_a = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term_a);
-				GeneAnnotation assoc_b = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term_b);
-				count_a += assoc_a != null && AnnotationUtil.isExpAnnotation(assoc_a) ? 1 : 0;
-				count_b += assoc_b != null && AnnotationUtil.isExpAnnotation(assoc_b) ? 1 : 0;
-			}
-		}		
+
+		if (term2nodes.get(term_a) != null) {
+			count_a = term2nodes.get(term_a).size();
+		}
+		if (term2nodes.get(term_b) != null) {
+			count_b = term2nodes.get(term_b).size();
+		}
+
 		if (count_b > count_a)
 			return GREATER_THAN;
 		else if (count_b < count_a)
