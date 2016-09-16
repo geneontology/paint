@@ -127,7 +127,7 @@ ChallengeListener
 	private static final String OUTPUT_SEQ_INFO_COLUMNS = "#Database id" + OUTPUT_SEQ_DELIM + "Sequence id";
 
 	// indicates whether or not the y values need to be recalculated on next draw
-	private boolean need_update = true;
+//	private boolean need_update = true;
 	private Rectangle tree_rect = new Rectangle(0, 0, 0, 0);
 
 	protected static final int LEFTMARGIN = 20;
@@ -317,9 +317,6 @@ ChallengeListener
 			return;
 		}
 		boolean use_distances = PaintConfig.inst().use_distances;
-		if (need_update) {
-			updateNodePositions(current_root, g, PaintManager.inst().getRowHeight(), use_distances);
-		}
 		Font  f = g.getFont();
 		paintBranch(current_root, current_root, g, r, use_distances);
 		g.setFont(f);
@@ -380,12 +377,12 @@ ChallengeListener
 		int x = TreePanel.LEFTMARGIN + getNodeWidth(g, current_root);
 		setNodeRectangle(current_root, row_height, x, 0, use_distances, g);
 		tree_rect = calcTreeSize(g);
-		need_update = false;
+//		need_update = false;
 	}
 
 	protected void setNeedPositionUpdate() {
 		// Method to set number of leaves in tree
-		need_update = true;
+		updateNodePositions(tree.getCurrentRoot(), this.getGraphics(), PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
 		revalidate();
 		repaint();
 		NodeReorderEvent event = new NodeReorderEvent(this);

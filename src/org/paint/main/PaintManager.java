@@ -153,12 +153,13 @@ public class PaintManager {
 		if (success) {
 			setTitle();
 
-			// Parse file and create tree
-			tree_pane.setTreeModel(tree);
-
 			// Load the attr file to obtain the PTN #s
 			GeneTableModel genes = new GeneTableModel(tree.getTerminusNodes());
 			genes_pane.setModel(genes);
+
+			// Need to do this after the attr table is set
+			// because the tree node positions depends on the respective row positions
+			tree_pane.setTreeModel(tree);
 
 			if (family.getMsaContent() != null) {
 				MSA msa = new MSA(family.getMsaContent(), family.getWtsContent());
