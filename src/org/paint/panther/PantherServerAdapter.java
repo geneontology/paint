@@ -303,19 +303,21 @@ public class PantherServerAdapter extends PantherAdapter {
 		}
 		catch (MalformedURLException muex){
 			message = ("MalformedURLException " + muex.getMessage()
-					+ " has been returned while sending and receiving information from server");
+					+ " has been returned while sending and receiving information from Panther server");
 			System.out.println(message);
 			muex.printStackTrace();
 		}
 		catch (IOException ioex){
 			message = ("IOException " + ioex.getMessage()
-					+ " has been returned while sending and receiving information from server");
+					+ " has been returned while sending and receiving information from Panther server");
 			System.out.println(message);
+			ioex.printStackTrace();
 		}
 		catch (Exception e){
 			message = ("Exception " + e.getMessage()
-					+ " has been returned while sending and receiving information from server");
+					+ " has been returned while sending and receiving information from Panther server");
 			System.out.println(message);
+			e.printStackTrace();			
 		}      
 		if (message != null) {
 			// Oh dear
