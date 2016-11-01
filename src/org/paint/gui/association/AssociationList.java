@@ -8,6 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.bbop.phylo.model.Bioentity;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
@@ -18,8 +19,6 @@ import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.event.TermSelectionListener;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
 
 public class AssociationList extends JPanel 
 implements GeneSelectListener, FamilyChangeListener, TermSelectionListener {

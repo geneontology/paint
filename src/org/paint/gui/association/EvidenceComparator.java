@@ -2,9 +2,8 @@ package org.paint.gui.association;
 
 import java.util.Comparator;
 
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
-
-import owltools.gaf.GeneAnnotation;
 
 public class EvidenceComparator implements Comparator<GeneAnnotation> {
 

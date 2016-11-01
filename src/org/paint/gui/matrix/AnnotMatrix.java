@@ -46,6 +46,8 @@ import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
 import org.bbop.phylo.annotate.WithEvidence;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.phylo.util.OWLutil;
@@ -75,9 +77,6 @@ import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class AnnotMatrix extends JTable 
 implements 
@@ -142,17 +141,17 @@ ChallengeListener
 		header_renderer = new MatrixHeaderRenderer(getTableHeader());
 	}
 
-	public void setModels(List<Bioentity> orderedNodes) {
+	public void setModels(List<Bioentity> list) {
 		if (models == null) {
 			models = new HashMap<String, AnnotMatrixModel>();
 		}
 		models.clear();
 		AnnotMatrixModel annot_model;
-		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString());
+		annot_model = new AnnotMatrixModel(list, AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString());
 		models.put(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString(), annot_model);
-		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.CELLULAR_COMPONENT.toString());
+		annot_model = new AnnotMatrixModel(list, AspectSelector.Aspect.CELLULAR_COMPONENT.toString());
 		models.put(AspectSelector.Aspect.CELLULAR_COMPONENT.toString(), annot_model);
-		annot_model = new AnnotMatrixModel(orderedNodes, AspectSelector.Aspect.MOLECULAR_FUNCTION.toString());
+		annot_model = new AnnotMatrixModel(list, AspectSelector.Aspect.MOLECULAR_FUNCTION.toString());
 		models.put(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString(), annot_model);
 
 		String go_aspect = AspectSelector.inst().getAspectName();

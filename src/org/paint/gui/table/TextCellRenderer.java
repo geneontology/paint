@@ -31,13 +31,10 @@ import java.awt.Rectangle;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.paint.config.IconResource;
+import org.bbop.phylo.model.Bioentity;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.Bioentity;
-
 
 public class TextCellRenderer extends DefaultTableCellRenderer {
 	/**

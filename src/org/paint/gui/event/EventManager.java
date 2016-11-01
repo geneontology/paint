@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
@@ -36,9 +38,6 @@ import org.paint.gui.table.GeneTable;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class EventManager {
 	/**
@@ -316,7 +315,7 @@ public class EventManager {
 		 */
 		Collection<String> old_terms = term_selection;
 		Collection<String> new_terms = e.getTermSelection();
-		List<Bioentity> new_nodes = new ArrayList<Bioentity>();
+		List<Bioentity> new_nodes = new ArrayList<>();
 		/*
 		 * This reads weird, but the event has a TermSelection object which holds a collection of terms
 		 * include all of the currently selected terms for this go aspect
@@ -340,11 +339,11 @@ public class EventManager {
 			top_node = e.selectNode();
 			if (top_node == null) {
 				TreePanel tree = PaintManager.inst().getTree();
-				List<Bioentity> genes = tree.getAllNodes();
+				List<Bioentity> genes = tree.getBioentities();
 				Bioentity min_node = null;
 				Bioentity max_node = null;
 				for (int i = 0; i < genes.size(); i++) {
-					Bioentity node = genes.get(i);
+					Bioentity node = (Bioentity) genes.get(i);
 					((DisplayBioentity) node).setSelected(false);
 					for (String term : new_terms) {
 						GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term);

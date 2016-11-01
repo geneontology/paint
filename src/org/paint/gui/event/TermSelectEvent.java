@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import owltools.gaf.Bioentity;
+import org.bbop.phylo.model.Bioentity;
 
 public class TermSelectEvent extends EventObject {
 
@@ -16,7 +14,6 @@ public class TermSelectEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	
 	//initialize logger
-	private final static Logger logger = Logger.getLogger(TermSelectEvent.class);
 	private List<String> terms;
 	private Bioentity select_node;
 	

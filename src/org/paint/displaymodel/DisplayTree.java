@@ -30,12 +30,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.model.Tree;
 import org.paint.main.PaintManager;
 import org.paint.util.DuplicationColor;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class DisplayTree extends Tree implements Serializable {
 	/**
@@ -88,27 +87,27 @@ public class DisplayTree extends Tree implements Serializable {
 	 * Method declaration
 	 *
 	 *
-	 * @param dsn
+	 * @param node
 	 * @param c
 	 *
 	 * @see
 	 */
-	private void setSubtreeColor(Bioentity dsn, Color c){
-		if (null == dsn){
+	private void setSubtreeColor(DisplayBioentity node, Color c){
+		if (null == node){
 			return;
 		}
 
 		// Set values for node
-		((DisplayBioentity) dsn).setSubFamilyColor(c);
+		node.setSubFamilyColor(c);
 
 		// Set values for children
-		List<Bioentity>  children = dsn.getChildren();
+		List<Bioentity>  children = node.getChildren();
 
 		if (null == children){
 			return;
 		}
 		for (Bioentity kid : children) {
-			setSubtreeColor(kid, c);
+			setSubtreeColor(((DisplayBioentity) kid), c);
 		}
 	}
 
@@ -189,7 +188,7 @@ public class DisplayTree extends Tree implements Serializable {
 					only_leaves &= child.isLeaf();;
 				}
 				if (!only_leaves) {
-					List<Bioentity> ordered_by_distance = new ArrayList<Bioentity>();
+					List<Bioentity> ordered_by_distance = new ArrayList<>();
 					ordered_by_distance.addAll(children);
 					Collections.sort(ordered_by_distance, new DistanceSort());				
 					for (Bioentity child : ordered_by_distance) {
@@ -325,7 +324,7 @@ public class DisplayTree extends Tree implements Serializable {
 		// start at the bottom and work the way back up
 		for (Iterator<Bioentity> it = children.iterator(); it.hasNext();) {
 			Bioentity child = it.next();
-			ladder(child, comp);
+			ladder((Bioentity) child, comp);
 		}
 
 		// Sort the children

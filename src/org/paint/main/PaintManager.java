@@ -27,9 +27,14 @@ import java.util.Map;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.gaf.GafPropagator;
+import org.bbop.phylo.io.panther.PantherAdapter;
+import org.bbop.phylo.io.panther.PantherDbInfo;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.Family;
-import org.bbop.phylo.panther.PantherAdapter;
+import org.bbop.phylo.tracking.LogUtil;
 import org.bbop.phylo.tracking.Logger;
+import org.bbop.phylo.util.Constant;
+import org.bbop.phylo.util.TimerUtil;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayTree;
 import org.paint.gui.DirtyIndicator;
@@ -42,9 +47,7 @@ import org.paint.gui.msa.MSAPanel;
 import org.paint.gui.table.GeneTable;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.tree.TreePanel;
-import org.paint.panther.PantherServerAdapter;
-
-import owltools.gaf.Bioentity;
+import org.paint.panther.PantherPaintAdapter;
 
 public class PaintManager {
 	/**
@@ -148,7 +151,7 @@ public class PaintManager {
 
 		family = new Family(family_name);
 		DisplayTree tree = new DisplayTree(family_name);
-		PantherAdapter adapter = new PantherServerAdapter();
+		PantherAdapter adapter = new PantherPaintAdapter();
 		boolean success = family.fetch(tree, adapter);
 		if (success) {
 			setTitle();
@@ -169,6 +172,8 @@ public class PaintManager {
 				fireProgressChange("Fetching experimental annotations from GOLR", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
 
+				TimerUtil timer = new TimerUtil();
+				log.info("Fetching experimental annotations from GOLR");
 				success = AnnotationUtil.loadExperimental(family);
 				if (success)
 					/*
@@ -193,6 +198,7 @@ public class PaintManager {
 					family = null;
 					fireProgressChange("Unable to retrieve experimental annotations " + family_name, 100, ProgressEvent.Status.END);
 				}
+				log.info("Retrieval of experimental annotations took " + timer.reportElapsedTime());
 
 			} catch (Exception e) {
 				success = false;
@@ -201,9 +207,11 @@ public class PaintManager {
 			}
 
 			if (success) {
+				TimerUtil timer = new TimerUtil();
 				fireProgressChange("Initializing annotation matrix", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
 
+				log.info("Initializing annotation matrix");
 				annot_matrix.setModels(getTree().getTerminusNodes());
 
 				DirtyIndicator.inst().dirtyGenes(false);
@@ -214,11 +222,12 @@ public class PaintManager {
 
 					tree_pane.collapseNonExperimental();
 				}
-
 				fireProgressChange("Notifying displays of new family", progress, ProgressEvent.Status.START);
 				EventManager.inst().fireNewFamilyEvent(this, family);
 
 				fireProgressChange(family_name + " is ready", 100, ProgressEvent.Status.END);
+				
+				log.info("Completed initialization of annotation matrix " + timer.reportElapsedTime());
 
 			} else {
 				family = null;
@@ -234,7 +243,9 @@ public class PaintManager {
 		String username = System.getProperty("user.name");
 		String program_name = PAINT.getAppID();
 		File family_dir = new File(PaintConfig.inst().gafdir);
-		family.save(family_dir, "Saved by " + username + " using " + program_name);
+		String comment = "Saved by " + username + " using " + program_name + " on " + LogUtil.dateNow() + 
+				" using " + Constant.PANTHER_VERSION + PantherDbInfo.getCurrentVersionName();
+		family.save(family_dir, comment);
 		DirtyIndicator.inst().dirtyGenes(false);
 	}
 

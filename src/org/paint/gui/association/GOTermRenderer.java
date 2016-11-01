@@ -33,15 +33,13 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
 import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.GeneAnnotation;
-
 
 public class GOTermRenderer extends DefaultTableCellRenderer {
 	/**

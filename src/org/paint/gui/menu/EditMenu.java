@@ -30,6 +30,7 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.swing.DynamicMenu;
@@ -45,8 +46,6 @@ import org.paint.gui.event.FamilyChangeEvent;
 import org.paint.gui.event.FamilyChangeListener;
 import org.paint.gui.event.NodeReorderEvent;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.GeneAnnotation;
 
 public class EditMenu extends DynamicMenu implements 
 FamilyChangeListener, 

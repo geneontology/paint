@@ -42,6 +42,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.FamilyViews;
@@ -61,8 +62,6 @@ import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
-
-import owltools.gaf.Bioentity;
 
 public class GeneTable extends JTable 
 implements 
@@ -282,7 +281,7 @@ AspectChangeListener {
 						Bioentity gene = genes.getNode(min_index);
 						if (gene != null) {
 							setSelectedRows(lsm, PaintManager.inst().getTree(), gene);
-							ArrayList<Bioentity> selection = new ArrayList<Bioentity>();
+							ArrayList<Bioentity> selection = new ArrayList<>();
 							selection.add(gene);
 							GeneSelectEvent ge = new GeneSelectEvent (table, selection, gene);
 							EventManager.inst().fireGeneEvent(ge);
@@ -303,7 +302,7 @@ AspectChangeListener {
 							log.error("Couldn't find ancestor of " + min_gene.getSeqId() + " and " + max_gene.getSeqId());
 						}
 						setSelectedRows(lsm, tree, mrca);
-						List<Bioentity> selection = new ArrayList<Bioentity> ();
+						List<Bioentity> selection = new ArrayList<> ();
 						tree.getDescendentList(mrca, selection);
 						GeneSelectEvent ge = new GeneSelectEvent (table, selection, mrca);
 						EventManager.inst().fireGeneEvent(ge);

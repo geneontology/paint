@@ -6,12 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.table.GeneTable;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
-
 
 public class GeneSearch {
 
@@ -30,7 +28,7 @@ public class GeneSearch {
 	}
 
 	public List<Bioentity> search(List<Bioentity> list, String searchStr) {
-		List<Bioentity> matches = new ArrayList<Bioentity> ();
+		List<Bioentity> matches = new ArrayList<> ();
 		if (list != null && searchStr != null && !searchStr.equals("")) {
 			if (searchStr.charAt(0) == '*')
 				searchStr = searchStr.length() > 1 ? searchStr.substring(1) : "";

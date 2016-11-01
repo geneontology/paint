@@ -49,10 +49,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.io.panther.PantherDbInfo;
+import org.bbop.phylo.io.panther.PantherServerAdapter;
+import org.bbop.phylo.util.LoginUtil;
 import org.bbop.swing.SpringUtilities;
-import org.paint.panther.PantherDbInfo;
-import org.paint.panther.PantherServerAdapter;
-import org.paint.util.LoginUtil;
 
 import com.sri.panther.paintCommon.Book;
 

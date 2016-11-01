@@ -11,15 +11,13 @@ import javax.swing.plaf.basic.BasicHTML;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ExtensibleLabelUI.Renderer;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.gui.AspectSelector;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.GeneAnnotation;
-
 
 public class WithCellRenderer extends DefaultTableCellRenderer {
 

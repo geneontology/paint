@@ -24,11 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.bbop.phylo.panther.IDmap;
-import org.bbop.phylo.panther.ParsingHack;
+import org.bbop.phylo.io.panther.IDmap;
+import org.bbop.phylo.io.panther.ParsingHack;
+import org.bbop.phylo.model.Bioentity;
 import org.paint.displaymodel.DisplayBioentity;
-
-import owltools.gaf.Bioentity;
 
 public class MSAParser{
 	private static final String PREFIX_SEQ_START = ">";

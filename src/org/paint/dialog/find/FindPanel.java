@@ -20,9 +20,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
 
 /**
  * A ControlledPanel which displays the find dialog 
@@ -197,7 +196,7 @@ public class FindPanel extends JPanel implements ActionListener {
 			if (!text.equals("")) {
 				if (search_type == SEARCH_TYPE.GENE) {
 					gene_search = text;
-					gene_results = GeneSearch.inst().search(PaintManager.inst().getTree().getAllNodes(), text);
+					gene_results = GeneSearch.inst().search(PaintManager.inst().getTree().getBioentities(), text);
 					showResults();
 				} else if (search_type == SEARCH_TYPE.TERM) {
 					term_search = text;

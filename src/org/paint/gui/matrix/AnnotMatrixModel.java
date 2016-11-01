@@ -31,13 +31,12 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.config.CustomTermList;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class AnnotMatrixModel extends AbstractTableModel {
 
@@ -64,7 +63,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 
 		this.aspect_name = aspect_name;
 
-		nodes = new ArrayList<Bioentity>();
+		nodes = new ArrayList<>();
 		term_list = new ArrayList<String> ();
 		added_term_list = new ArrayList<String []> ();	
 		term2menu = new HashMap<String, ColumnTermData> ();

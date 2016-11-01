@@ -19,15 +19,14 @@
  */
 package org.paint.gui.table;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.ProgressEvent;
-
-import owltools.gaf.Bioentity;
 
 public class GeneTableModel extends AbstractGeneTableModel {
 
@@ -36,7 +35,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 	 */
 	private static final long serialVersionUID = 1L;
 	protected int currentRow;
-	protected Vector<Bioentity> contents;
+	protected List<Bioentity> contents;
 
 	public static final String ACC_COL_NAME = "Accession";
 	public static final String ORTHO_COL_NAME = "O";
@@ -66,7 +65,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 	}
 
 	public GeneTableModel(List<Bioentity> rows) {
-		contents = new Vector<Bioentity>();
+		contents = new ArrayList<>();
 
 		if (rows == null) {
 			return;
@@ -123,7 +122,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 		if (null == contents) {
 			return null;
 		}
-		Bioentity node = contents.elementAt(rowIndex);
+		Bioentity node = contents.get(rowIndex);
 		String tag = column_headings[columnIndex];
 
 		if (tag.equals(ORTHO_COL_NAME)) {
@@ -151,7 +150,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 			return null;
 		}
 		String tag = column_headings[columnIndex];
-		DisplayBioentity node = (DisplayBioentity) contents.elementAt(rowIndex);
+		DisplayBioentity node = (DisplayBioentity) contents.get(rowIndex);
 		if (tag.equals(ACC_COL_NAME)) {
 			return node.getAccLabel();
 		} else if (tag.equals(DBID_COL_NAME)) {
@@ -167,7 +166,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 
 	public void resetHiddenRows() {
 		for (int i = 0; i < contents.size(); i++) {
-			DisplayBioentity row = (DisplayBioentity) contents.elementAt(i);
+			DisplayBioentity row = (DisplayBioentity) contents.get(i);
 			row.setVisible(false);
 		}
 	}
@@ -194,7 +193,7 @@ public class GeneTableModel extends AbstractGeneTableModel {
 			System.out.println("Asking for row " + row + " which is > than the number of rows (" + contents.size() + ")");
 			return null;
 		} else {
-			Bioentity node = contents.elementAt(row);
+			Bioentity node = contents.get(row);
 			return node;
 		}
 

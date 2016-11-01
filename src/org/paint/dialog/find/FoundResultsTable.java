@@ -9,15 +9,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.dialog.find.FindPanel.SEARCH_TYPE;
-import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
 import org.paint.gui.event.TermSelectEvent;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
 
 public class FoundResultsTable extends JTable {
 	/**
@@ -47,7 +45,7 @@ public class FoundResultsTable extends JTable {
 			if (gene_results2 != null && gene_results2.size() > 0) {
 				getSelectionModel().addSelectionInterval(0, 0);
 				Bioentity node = gene_results2.get(0);
-				ArrayList<Bioentity> selection = new ArrayList<Bioentity> ();
+				ArrayList<Bioentity> selection = new ArrayList<> ();
 				selection.add(node);
 				PaintManager.inst().getTree().getDescendentList(node, selection);
 				GeneSelectEvent event = new GeneSelectEvent(this, selection, node);
@@ -90,7 +88,7 @@ public class FoundResultsTable extends JTable {
 			if (row >= 0 && !e.getValueIsAdjusting() ) {
 				if (search_type == SEARCH_TYPE.GENE) {
 					Bioentity node = gene_results.get(row);
-					ArrayList<Bioentity> selection = new ArrayList<Bioentity> ();
+					ArrayList<Bioentity> selection = new ArrayList<> ();
 					selection.add(node);
 					PaintManager.inst().getTree().getDescendentList(node, selection);
 					GeneSelectEvent event = new GeneSelectEvent(this, selection, node);

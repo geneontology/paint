@@ -38,11 +38,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
-
-import owltools.gaf.GeneAnnotation;
 
 public class RenderUtil {
 

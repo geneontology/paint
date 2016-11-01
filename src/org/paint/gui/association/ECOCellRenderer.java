@@ -11,14 +11,13 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.ScaledIcon;
 import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class ECOCellRenderer extends JLabel implements TableCellRenderer {
 	/**

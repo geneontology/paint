@@ -35,6 +35,8 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.util.Constant;
+import org.bbop.phylo.util.InternetChecker;
+import org.bbop.phylo.util.LoginUtil;
 import org.paint.dialog.SelectFamily;
 import org.paint.dialog.OpenNewFamily;
 import org.paint.gui.DirtyIndicator;
@@ -42,8 +44,6 @@ import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
 import org.paint.gui.event.EventManager;
 import org.paint.main.PaintManager;
-import org.paint.util.InternetChecker;
-import org.paint.util.LoginUtil;
 
 public class FileMenu extends JMenu implements AnnotationChangeListener { // DynamicMenu {
 	/**
@@ -55,10 +55,12 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	private JMenuItem newFamItem;
 	private JMenuItem openFamItem;
 	private JMenuItem saveFamItem;
+	private JMenuItem exportFamItem;
 
 	private static final String new_fam = "New ... ";
 	private static final String open_fam = "Open ... ";
 	private static final String save_annots = "Save ... ";
+	private static final String export_annots = "Export ... ";
 
 	private static List<FileMenu> instances = new ArrayList<FileMenu>();
 
@@ -81,6 +83,10 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 		saveFamItem = new JMenuItem(save_annots);
 		saveFamItem.addActionListener(new SaveToFileActionListener());
 		this.add(saveFamItem);
+		
+		exportFamItem = new JMenuItem(export_annots);
+		exportFamItem.addActionListener(new ExportToFileActionListener());
+		this.add(exportFamItem);
 
 		this.addSeparator();
 
@@ -110,6 +116,19 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 		}
 	}
 
+	private static class ExportToFileActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+
+			SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
+
+			String f = dlg.getSelectedDirectory(true);
+			if (f != null) {
+				PaintManager.inst().saveFamily();
+			}
+		}
+	}
+
+
 	/** Opens book from database
 	 * 
 	 */
@@ -123,7 +142,9 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 						proceed = DirtyIndicator.inst().runDirtyDialog("opening a new family?");
 					if (proceed) {
 						if (!LoginUtil.getLoggedIn()) {
-							if (!LoginUtil.login()) {
+							String status = LoginUtil.login();
+							if (status.length() > 0) {
+								JOptionPane.showMessageDialog(GUIManager.getManager().getFrame(), status);
 								return null;
 							}
 						}
@@ -164,8 +185,9 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 					if (dirty)
 						proceed = DirtyIndicator.inst().runDirtyDialog("opening a family?");
 					if (proceed) {
+						String status = "";
 						if (!LoginUtil.getLoggedIn()) {
-							LoginUtil.login();
+							status = LoginUtil.login();
 						}
 						if (LoginUtil.getLoggedIn()) {
 							SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
@@ -179,7 +201,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 								updateMenu();
 							}
 						} else {
-							JOptionPane.showMessageDialog(GUIManager.getManager().getFrame(), "Unable to login to PANTHER\nCheck the servers are running");
+							JOptionPane.showMessageDialog(GUIManager.getManager().getFrame(), status);
 						}
 					}
 					return null;

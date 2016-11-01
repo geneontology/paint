@@ -37,6 +37,9 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
+import org.bbop.phylo.species.TaxonFinder;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.config.PaintConfig;
 import org.paint.gui.event.TermHyperlinkListener;
@@ -46,10 +49,6 @@ import org.paint.util.DuplicationColor;
 import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
-import owltools.gaf.species.TaxonFinder;
 
 public class DisplayBioentity extends Bioentity {
 	/**
@@ -64,9 +63,7 @@ public class DisplayBioentity extends Bioentity {
 
 	private static final String STR_EMPTY = "";
 
-	private String sequence;
 	private String nodeNote;
-	private String description;
 	/*
 	 * Use one variable for all of the different possible programs 
 	 * and just use the appropriate bit mask to determine whether it belongs or not
@@ -87,7 +84,7 @@ public class DisplayBioentity extends Bioentity {
 	private static Logger log = Logger.getLogger(DisplayBioentity.class);
 
 	private String subFamilyName;
-	private   Color	subFamilyColor = Color.black;
+	private Color  subFamilyColor = Color.black;
 
 	//	private int depthInTree;
 	private int dupColorIndex;
@@ -444,14 +441,6 @@ public class DisplayBioentity extends Bioentity {
 		return terminus || (!is_expanded);
 	}
 
-	public String getSequence() {
-		return sequence;
-	}
-
-	public void setSequence(String sequence) {
-		this.sequence = sequence;
-	}
-
 	public void setSequenceWt(double sequenceWt) {
 		this.sequenceWt = sequenceWt;
 	}
@@ -510,32 +499,6 @@ public class DisplayBioentity extends Bioentity {
 
 	public String getOrthoMCL() {
 		return this.ortho_mcl;
-	}
-
-	public String getDescription() {
-		if (!isLeaf() && description == null) {
-			StringBuffer about_me = new StringBuffer();
-			myChildren(this, about_me);
-			description = about_me.toString();
-		}
-		if (description == null)
-			description = "";
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	private void myChildren(Bioentity node, StringBuffer about_me) {
-		List<Bioentity> children = node.getChildren();
-		for (Bioentity child : children) {
-			if (child.isLeaf()) {
-				about_me.append(child.getDBID() + " ");
-			} else {
-				myChildren(child, about_me);
-			}
-		}
 	}
 
 	public void setAttrLookup(String type, String value) {

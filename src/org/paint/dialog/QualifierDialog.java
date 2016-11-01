@@ -39,9 +39,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import org.bbop.phylo.model.GeneAnnotation;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.GeneAnnotation;
 
 public class QualifierDialog extends JDialog implements ActionListener {
 	/**

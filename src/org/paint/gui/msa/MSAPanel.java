@@ -36,6 +36,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
+import org.bbop.phylo.model.Bioentity;
 import org.paint.gui.FamilyViews;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
@@ -43,8 +44,6 @@ import org.paint.gui.event.GeneSelectListener;
 import org.paint.gui.event.NodeReorderEvent;
 import org.paint.gui.event.NodeReorderListener;
 import org.paint.main.PaintManager;
-
-import owltools.gaf.Bioentity;
 
 public class MSAPanel extends JPanel 
 implements 
@@ -104,7 +103,7 @@ NodeReorderListener
 		if (InputEvent.BUTTON3_MASK != (e.getModifiers() & InputEvent.BUTTON3_MASK)){
 			Bioentity node = msa.getSelectedGene(p, g);
 			if (node != null) {
-				ArrayList<Bioentity> selection = new ArrayList<Bioentity> ();
+				ArrayList<Bioentity> selection = new ArrayList<> ();
 				selection.add(node);
 				GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
 				EventManager.inst().fireGeneEvent(ge);
@@ -210,7 +209,7 @@ NodeReorderListener
 	}
 
 	public void handlePruning (Bioentity node) {
-		List<Bioentity> temp = new ArrayList<Bioentity>();
+		List<Bioentity> temp = new ArrayList<>();
 		temp.add(node);
 		repaintSelection(temp);
 	}

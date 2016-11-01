@@ -4,9 +4,7 @@ import java.util.EventObject;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-
-import owltools.gaf.Bioentity;
-
+import org.bbop.phylo.model.Bioentity;
 
 public class GeneSelectEvent extends EventObject {
 

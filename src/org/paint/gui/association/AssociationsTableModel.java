@@ -32,6 +32,8 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.gui.PaintTable;
@@ -39,10 +41,6 @@ import org.paint.gui.association.AssociationsTable.PHYLO_ACTION;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.main.PaintManager;
 import org.paint.util.HTMLUtil;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
-
 
 public class AssociationsTableModel extends AbstractTableModel 
 implements PaintTable {
@@ -288,7 +286,7 @@ implements PaintTable {
 		 * 
 		 */
 		org.paint.gui.tree.TreePanel tree = PaintManager.inst().getTree();
-		List<Bioentity> leaf_list = new ArrayList<Bioentity>();
+		List<Bioentity> leaf_list = new ArrayList<>();
 		tree.getLeafDescendants(node, leaf_list);
 
 		List<GeneAnnotation> positive_annots = new ArrayList<>();

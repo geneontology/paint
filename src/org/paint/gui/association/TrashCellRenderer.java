@@ -9,11 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.gui.AspectSelector;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.GeneAnnotation;
 
 public class TrashCellRenderer extends JLabel implements TableCellRenderer {
 	/**

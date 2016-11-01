@@ -40,10 +40,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -60,6 +58,7 @@ import javax.swing.plaf.ColorUIResource;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.tracking.LogAction;
 import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
@@ -85,8 +84,6 @@ import org.paint.gui.table.GeneTable;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.Bioentity;
 
 public class TreePanel extends JPanel 
 implements MouseListener, 
@@ -182,9 +179,9 @@ ChallengeListener
 			return null;
 	}
 
-	public List<Bioentity> getAllNodes() {
+	public List<Bioentity> getBioentities() {
 		if (tree != null) {
-			return tree.getAllNodes();
+			return tree.getBioentities();
 		} else
 			return null;
 	}
@@ -354,9 +351,9 @@ ChallengeListener
 
 		// Repeat for last half
 		if (!dsn.isTerminus()){
-			if (null != bottomChildren){
-				for (Iterator<Bioentity> it = bottomChildren.iterator(); it.hasNext();) {
-					paintBranch(current_root, it.next(), g, r, use_distances);
+			if (null != bottomChildren) {
+				for (Bioentity bottom : bottomChildren) {
+					paintBranch(current_root, bottom, g, r, use_distances);
 				}
 			}
 		}
@@ -571,13 +568,13 @@ ChallengeListener
 						new_select |= node.isSelected() && ((DisplayBioentity)node.getParent()).isSelected();
 
 					if (new_select) {
-						ArrayList<Bioentity> selection = new ArrayList<Bioentity>();
+						ArrayList<Bioentity> selection = new ArrayList<>();
 						selection.add(node);
 						tree.getDescendentList(node, selection);
 						GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
 						EventManager.inst().fireGeneEvent(ge);
 					} else {
-						ArrayList<Bioentity> selection = new ArrayList<Bioentity>();
+						ArrayList<Bioentity> selection = new ArrayList<>();
 						GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
 						EventManager.inst().fireGeneEvent(ge);						
 					}
@@ -823,7 +820,7 @@ ChallengeListener
 		 * @see
 		 */
 		public void actionPerformed(ActionEvent e){
-			Vector <Bioentity> leafList = new Vector<Bioentity>();
+			List <Bioentity> leafList = new ArrayList<>();
 			tree.getLeafDescendants(node, leafList);
 			outputInfo(node, leafList);
 		}
@@ -864,7 +861,7 @@ ChallengeListener
 		}
 	}
 
-	protected void outputInfo(Bioentity n, Vector<Bioentity> leafList) {
+	protected void outputInfo(Bioentity n, List<Bioentity> leafList) {
 		// Get the information
 		StringBuffer sb =
 				new StringBuffer(OUTPUT_SEQ_INFO_TITLE + n.getSeqId());
@@ -923,7 +920,7 @@ ChallengeListener
 		repaintNodes (tree.getCurrentNodes());
 	}
 
-	private void repaintNodes(Collection<Bioentity> genes) {
+	private void repaintNodes(List<Bioentity> genes) {
 		Rectangle r = null;
 		int width = 0;
 		int height = 0;
@@ -1164,9 +1161,9 @@ ChallengeListener
 		return node.getNodeLabel();
 	}
 
-	public boolean ensureExpansion(List<Bioentity> genes) {
+	public boolean ensureExpansion(List<Bioentity> selectedNodes) {
 		List<DisplayBioentity> nodes_to_make_visible = new ArrayList<>();
-		for (Bioentity kid : genes) {
+		for (Bioentity kid : selectedNodes) {
 			DisplayBioentity node = (DisplayBioentity) kid;
 			Rectangle node_rect = node.getScreenRectangle();
 			if (node_rect == null) {

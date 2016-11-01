@@ -39,10 +39,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import org.bbop.phylo.species.TaxonFinder;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.util.RenderUtil;
-
-import owltools.gaf.species.TaxonFinder;
 
 public class TaxonDialog extends JDialog {
 	/**
@@ -127,7 +126,7 @@ public class TaxonDialog extends JDialog {
 		box.add(label);
 
 		for (String taxon : invalids) {
-			label = new JLabel(TaxonFinder.getSpecies(taxon));
+			label = new JLabel(TaxonFinder.getLabel(taxon));
 			label.setBackground(Color.white);
 			label.setOpaque(true);
 			box.add(label);

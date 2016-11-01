@@ -43,7 +43,9 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.Family;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.util.Constant;
 import org.bbop.swing.HyperlinkLabel;
@@ -67,9 +69,6 @@ import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
-
-import owltools.gaf.Bioentity;
-import owltools.gaf.GeneAnnotation;
 
 public class AssociationsTable extends JTable
 implements GeneSelectListener, 
