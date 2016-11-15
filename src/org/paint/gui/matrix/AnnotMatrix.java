@@ -23,11 +23,13 @@ package org.paint.gui.matrix;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.table.DefaultTableColumnModel;
@@ -176,12 +179,13 @@ ChallengeListener
 			for (int i = 0; i < columns; i++) {
 				TableColumn col = new TableColumn(i);
 				col.setPreferredWidth(12);
+				col.setMaxWidth(12);
 				col.setHeaderRenderer(header_renderer);
 				col.setResizable(false);
 				column_model.addColumn(col);
 			}
 			setDefaultRenderer(GeneAnnotation.class, matrix_renderer);
-			this.setColumnModel(column_model);
+			setColumnModel(column_model);
 		}
 	}
 
@@ -262,11 +266,42 @@ ChallengeListener
 					}
 				}
 				AnnotMatrixModel model = (AnnotMatrixModel) getModel();
-				String term = e.getTermSelection().get(0);
+				String term = e.getSelectedTerm();
 				int column = model.getTermColumn(term);
 				setSelectedColumn(column);
 			}
 		}
+	}
+
+	// Assumes table is contained in a JScrollPane. Scrolls the 
+	// cell (rowIndex, vColIndex) so that it is visible within the viewport. 
+	public void scrollToColumn(int colIndex) {
+		Rectangle row_rect = getCellRect(0, colIndex, true); 
+		scrollToVisible(row_rect);
+	}
+
+	private void scrollToVisible(Rectangle rect) {
+		if (!(getParent() instanceof JViewport)) { 
+			return; 
+		} 
+		JViewport viewport = (JViewport)getParent(); 
+		// This rectangle is relative to the table where the 
+		// northwest corner of cell (0,0) is always (0,0).
+
+		// These are actual screen coordinates, not just relative to the matrix itself NOT
+		Rectangle visible = viewport.getViewRect();
+
+		if (visible.x <= rect.x && (visible.x + visible.width) >= (rect.x + rect.width))
+			return;
+
+		int focal_x = Math.max(0, rect.x - (visible.width / 2));
+		Point point_of_view = new Point(focal_x, visible.y);
+		//		log.info("Scrolling to pixel position " + point_of_view.x);
+
+		// Scroll the area into view, upper left hand part.
+		viewport.setViewPosition(point_of_view);		
+		repaint();
+
 	}
 
 	public void handleSubFamilyEvent (GeneDataEvent e) {
@@ -280,9 +315,19 @@ ChallengeListener
 		if (models != null) {
 			String go_aspect = AspectSelector.inst().getAspectName();
 			matrix = models.get(go_aspect);
+			String term = EventManager.inst().getCurrentTermSelection();
+			if (term != null) {
+				String term_aspect = OWLutil.inst().getAspect(term);
+				AspectSelector aspect_setter = AspectSelector.inst();
+				String current = aspect_setter.getAspectCode();
+				if (!term_aspect.equals(current)) {
+					selectedColumn = 0;
+				} else {
+					selectedColumn = matrix.getTermColumn(term);
+				}
+			}
 		}
 		setModel(matrix);
-		setSelectedColumn(0);
 		revalidate();
 		repaint();
 	}
@@ -339,11 +384,12 @@ ChallengeListener
 		updateColumn(selectedColumn);
 		selectedColumn = col;
 		updateColumn(selectedColumn);
+		scrollToColumn(selectedColumn); 
 	}
 
 	private void updateColumn (int col) {
-		for (int row = 0; row < this.getRowCount() && col >= 0; row++) {
-			AnnotMatrixModel model = (AnnotMatrixModel) this.getModel();
+		for (int row = 0; row < getRowCount() && col >= 0; row++) {
+			AnnotMatrixModel model = (AnnotMatrixModel) getModel();
 			model.fireTableCellUpdated(row, col);
 		}		
 	}
@@ -377,38 +423,33 @@ ChallengeListener
 					(!event.isMetaDown() && !event.isShiftDown() && !event.isAltDown() && !event.isControlDown())) {
 				String term = getTermAtPoint(event.getPoint());
 				if (term != null) {
-					List<Bioentity> selected_genes = null;
-					List<Bioentity> previous_genes = EventManager.inst().getCurrentGeneSelection();	
-					TermSelectEvent term_event = new TermSelectEvent (this, term);
-					selected_genes = EventManager.inst().fireTermEvent(term_event);
-					setSelectedColumn(columnAtPoint(event.getPoint()));
-					if (previous_genes != null) {
-						for (Bioentity node : previous_genes) {
-							((DisplayBioentity) node).setSelected(false);
-						}
-					}
-					if (selected_genes != null) {
-						if (previous_genes == null) {
-							updateRows(selected_genes);
-						}
-						else if (previous_genes.size() != selected_genes.size()) {
-							updateRows(previous_genes);
-							updateRows(selected_genes);
-						}
-						else {
-							boolean need_update = false;
+					if (getModel() instanceof AnnotMatrixModel) {
+						AnnotMatrixModel genes = (AnnotMatrixModel) this.getModel();
+						Bioentity selected_gene = genes.getNode(row);
+						List<Bioentity> previous_genes = EventManager.inst().getCurrentGeneSelection();	
+						TermSelectEvent term_event = new TermSelectEvent (this, term, false);
+						EventManager.inst().fireTermEvent(term_event);
+						setSelectedColumn(columnAtPoint(event.getPoint()));
+						if (previous_genes != null) {
 							for (Bioentity node : previous_genes) {
-								need_update |= !selected_genes.contains(node);
-							}
-							if (need_update) {
-								updateRows(previous_genes);
-								updateRows(selected_genes);						
+								((DisplayBioentity) node).setSelected(false);
 							}
 						}
-						GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, EventManager.inst().getAncestralSelection());
-						EventManager.inst().fireGeneEvent(ge);
+						if (selected_gene != null) {
+							if (previous_genes == null) {
+								updateRow(row);
+							}
+							else if (previous_genes.size() != 1) {
+								updateRows(previous_genes);
+								updateRow(row);
+							}
+							List<Bioentity> selected_genes = new ArrayList<>();
+							selected_genes.add(selected_gene);
+							GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, EventManager.inst().getCurrentSelectedNode());
+							EventManager.inst().fireGeneEvent(ge);
+						}
+						annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 					}
-					annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 				}
 			}
 			/*
@@ -468,7 +509,7 @@ ChallengeListener
 
 	private JPopupMenu createPopupMenu(MouseEvent e) {
 		JPopupMenu  popup = null;
-		Bioentity ancestor = EventManager.inst().getAncestralSelection();	
+		Bioentity ancestor = EventManager.inst().getCurrentSelectedNode();	
 		String term = getTermAtPoint(e.getPoint());
 		Tree tree = PaintManager.inst().getTree().getTreeModel();
 		if (ancestor != null && !ancestor.isLeaf() && !ancestor.isPruned() && term != null) {

@@ -25,7 +25,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -208,30 +206,41 @@ AspectChangeListener {
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
-		GeneTableModel genes = (GeneTableModel) this.getModel();
-		int total = genes.getRowCount();
-		if (total > 0) {
-			is_adjusting = true;
-			ListSelectionModel lsm = this.getSelectionModel();
-			lsm.clearSelection();
-			for (int i = 0; i < total; i++) {
-				DisplayBioentity node = (DisplayBioentity) genes.getNode(i);
-				if (node.isSelected()) {
-					lsm.addSelectionInterval(i, i);
-				}
-			}
-			Bioentity mrca = EventManager.inst().getAncestralSelection();
-			if (mrca.isLeaf()) {
-				int row = genes.getRow(mrca);
-				if (row >= 0)
-					scrollToVisible(row);
-				else
-					log.debug("Missing row for " + mrca.getSeqId());
-			} else {
-				scrollToVisible(((DisplayBioentity) mrca).getScreenRectangle());
-			}
-			is_adjusting = false;
-		}		
+//		GeneTableModel genes = (GeneTableModel) this.getModel();
+//		int total = genes.getRowCount();
+//		int min_row = -1;
+//		int max_row = -1;
+//		if (total > 0) {
+//			is_adjusting = true;
+//			ListSelectionModel lsm = this.getSelectionModel();
+//			lsm.clearSelection();
+//			for (int i = 0; i < total; i++) {
+//				DisplayBioentity node = (DisplayBioentity) genes.getNode(i);
+//				if (node.isSelected()) {
+//					lsm.addSelectionInterval(i, i);
+//					if (min_row < 0 || i < min_row) {
+//						min_row = i;
+//					}
+//					if (max_row < 0 || i > max_row) {
+//						max_row = i;
+//					}
+//				}
+//			}
+//			Bioentity mrca = EventManager.inst().getCurrentSelectedNode();
+//			if (mrca.isLeaf()) {
+//				if (min_row >= 0)
+//					scrollToRow(min_row);
+//				else
+//					scrollToRow(0);
+//			} else {
+//				if (min_row >= 0 && max_row >= 0) {
+//					scrollToRow((min_row + max_row) / 2);
+//				} else {
+//					scrollToRow(0);
+//				}
+//			}
+//			is_adjusting = false;
+//		}		
 	}
 
 	public void handleGeneSelectEvent (GeneSelectEvent e) {
@@ -320,18 +329,18 @@ AspectChangeListener {
 		if (current_rows.length > 0) {
 			removeRowSelectionInterval(current_rows[0], current_rows[current_rows.length - 1]);
 		}
-		if (((DisplayBioentity) node).isExpanded() && !node.isPruned()) {
+		if (!node.isLeaf() && ((DisplayBioentity) node).isExpanded() && !node.isPruned()) {
 			Bioentity low_gene = tree.getTopLeafNode(node);
 			int low_row = model.getRow(low_gene);
 			Bioentity high_gene = tree.getBottomLeafNode(node);
 			int high_row = model.getRow(high_gene);
 			setRowSelectionInterval(low_row, high_row);
-			scrollToVisible(((DisplayBioentity) node).getScreenRectangle());
+//			scrollToVisible(((DisplayBioentity) node).getScreenRectangle());
 		} else {
 			int row = model.getRow(node);
 			if (row >= 0 && row < getRowCount()) {
 				setRowSelectionInterval(row, row);
-				scrollToVisible(row);
+//				scrollToRow(row);
 			} else {
 				log.debug("Row out of bounds: " + row);
 			}
@@ -350,41 +359,6 @@ AspectChangeListener {
 
 	public void handleAspectChangeEvent(AspectChangeEvent event) {
 		repaint();
-	}
-
-	// Assumes table is contained in a JScrollPane. Scrolls the 
-	// cell (rowIndex, vColIndex) so that it is visible within the viewport. 
-	public void scrollToVisible(int rowIndex) { 
-		Rectangle row_rect = getCellRect(rowIndex, 0, true); 
-		scrollToVisible(row_rect);
-	}
-
-	private void scrollToVisible(Rectangle rect) {
-		if (!(getParent() instanceof JViewport)) { 
-			return; 
-		} 
-		JViewport viewport = (JViewport)getParent(); 
-		// This rectangle is relative to the table where the 
-		// northwest corner of cell (0,0) is always (0,0).
-
-		Rectangle visible = viewport.getViewRect();
-
-		if (visible.y <= rect.y && (visible.y + visible.height) >= (rect.y + rect.height))
-			return;
-
-		Point point_of_view;
-		if ((rect.y + rect.height) > (visible.y + visible.height)) {
-			int view_bottom = visible.y + visible.height;
-			int row_bottom = rect.y + rect.height;
-			int diff = row_bottom - view_bottom;
-			point_of_view = new Point(rect.x, visible.y + diff);
-		} else {
-			point_of_view = new Point(rect.x, rect.y);
-		}
-		//		log.debug("Scrolling to pixel position " + point_of_view.y);
-
-		// Scroll the area into view, upper left hand part.
-		viewport.setViewPosition(point_of_view);		
 	}
 
 	public Dimension getPreferredSize() {

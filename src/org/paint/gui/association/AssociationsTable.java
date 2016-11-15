@@ -90,21 +90,21 @@ ChallengeListener
 	private boolean is_adjusting;
 	private boolean widths_initialized;
 
-		private static Logger log = Logger.getLogger(AssociationsTable.class);
-	
+	private static Logger log = Logger.getLogger(AssociationsTable.class);
+
 	public enum PHYLO_ACTION {
-	    REMOVE, 
-	    RESTORE,
-	    CHALLENGE,
-	    LOST, 
-	    REGAIN,
-	    DEPENDENCIES;
-	    
-	    public String toString() {
+		REMOVE, 
+		RESTORE,
+		CHALLENGE,
+		LOST, 
+		REGAIN,
+		DEPENDENCIES;
+
+		public String toString() {
 			return super.toString().toUpperCase();
 		}
 	}
-	
+
 	public AssociationsTable() {
 		super();	
 
@@ -137,7 +137,7 @@ ChallengeListener
 
 		ListSelectionModel select_model = getSelectionModel();
 		select_model.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		select_model.addListSelectionListener(new TermSelectionListener (this));
+		select_model.addListSelectionListener(new AssocSelectionListener (this));
 		setSelectionModel(select_model);
 
 		widths_initialized = false;
@@ -202,20 +202,25 @@ ChallengeListener
 	public void mouseClicked(MouseEvent event) {
 		Point point = event.getPoint();
 		int row = rowAtPoint(point);
+		int column = columnAtPoint(point);
 		if (row >= 0 && row <= assoc_model.getRowCount()) {
-			int column = columnAtPoint(point);
 			if (HyperlinkLabel.class == assoc_model.getColumnClass(column)) {
 				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
 				List<String> evi = assoc.getReferenceIds();
 				String preferred_ref = HTMLUtil.getPMID(evi);
-				if (preferred_ref.length() > 0) {
+				if (preferred_ref.length() > 0 && !preferred_ref.startsWith(Constant.PAINT_REF)) {
 					String [] xref = preferred_ref.split(":");
 					String text = HTMLUtil.getURL(xref[0], xref[1], false);
 					HTMLUtil.bringUpInBrowser(text);
 				}
 			}
 			else if (String.class == assoc_model.getColumnClass(column)) {
-				// this event is handled on mouse press, not click (so menu will disappear)
+				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
+				TermSelectEvent term_event = new TermSelectEvent(this, assoc.getCls(), false);
+				EventManager.inst().fireTermEvent(term_event);		
+				ListSelectionModel lsm = getSelectionModel();
+				lsm.clearSelection();
+				lsm.addSelectionInterval(row, row);
 			} else if (PHYLO_ACTION.class == assoc_model.getColumnClass(column)) {
 				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
 				PHYLO_ACTION value = (PHYLO_ACTION) assoc_model.getValueAt(row, column);
@@ -233,11 +238,12 @@ ChallengeListener
 					/**
 					 * Now unselect this term, if it was selected.
 					 */
-					List<String> terms = EventManager.inst().getCurrentTermSelection();
-					if (terms != null && terms.contains(deleted_term)) {
-						terms.remove(deleted_term);
-						TermSelectEvent term_event = new TermSelectEvent (this, terms);
+					String term = EventManager.inst().getCurrentTermSelection();
+					if (term != null && term.equals(deleted_term)) {
+						TermSelectEvent term_event = new TermSelectEvent (this, null, false);
 						EventManager.inst().fireTermEvent(term_event);
+						ListSelectionModel lsm = getSelectionModel();
+						lsm.clearSelection();
 					}
 					// Notify listeners that the gene data has changed too
 					EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
@@ -352,27 +358,25 @@ ChallengeListener
 	public void mouseReleased(MouseEvent arg0) {		
 	}
 
-	private void refreshTermSelection(Collection<String> terms) {
+	private void refreshTermSelection(String term) {
 		ListSelectionModel lsm = this.getSelectionModel();
 		lsm.clearSelection();
-		if (terms != null && !terms.isEmpty()) {
-			for (String go_term : terms) {
-				int row = assoc_model.getRowForTerm(go_term);
-				lsm.addSelectionInterval(row, row);
-			} 
+		if (term != null) {
+			int row = assoc_model.getRowForTerm(term);
+			lsm.addSelectionInterval(row, row);
 		} else {
 			clearSelection();
 		}
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
-		if (e.getSource().getClass() != this.getClass()) {
+		if (e.getSource() != this) {
 			is_adjusting = true;
-			Bioentity mrca = EventManager.inst().getAncestralSelection();
+			Bioentity mrca = EventManager.inst().getCurrentSelectedNode();
 			if (node != mrca) {
 				setAnnotations(mrca);
 			}
-			List<String> term_selection = e.getTermSelection();
+			String term_selection = e.getSelectedTerm();
 			if (term_selection != null) {
 				refreshTermSelection(term_selection);
 			}
@@ -403,10 +407,10 @@ ChallengeListener
 		setAnnotations(node);
 	}
 
-	class TermSelectionListener implements ListSelectionListener {
+	class AssocSelectionListener implements ListSelectionListener {
 		AssociationsTable table;
 
-		public TermSelectionListener (AssociationsTable table) {
+		public AssocSelectionListener (AssociationsTable table) {
 			this.table = table;
 		}
 

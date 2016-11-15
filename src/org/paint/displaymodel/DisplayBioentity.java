@@ -86,7 +86,6 @@ public class DisplayBioentity extends Bioentity {
 	private String subFamilyName;
 	private Color  subFamilyColor = Color.black;
 
-	//	private int depthInTree;
 	private int dupColorIndex;
 
 	private double sequenceWt = 0;
@@ -109,14 +108,6 @@ public class DisplayBioentity extends Bioentity {
 		this.ortho_mcl = STR_EMPTY;
 	}
 
-	//	public void setDepthInTree (int depth) {
-	//		depthInTree = depth;
-	//	}
-	//
-	//	public int getDepthInTree() {
-	//		return depthInTree;
-	//	}
-	//
 	/**
 	 * Method declaration
 	 *

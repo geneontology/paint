@@ -1,10 +1,6 @@
 package org.paint.gui.event;
 
-import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.List;
-
-import org.bbop.phylo.model.Bioentity;
 
 public class TermSelectEvent extends EventObject {
 
@@ -14,36 +10,21 @@ public class TermSelectEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	
 	//initialize logger
-	private List<String> terms;
-	private Bioentity select_node;
+	private String term;
+	private boolean select_mrca;
 	
-	public TermSelectEvent(Object source, List<String> terms) {
+	public TermSelectEvent(Object source, String term, boolean select_mrca) {
 		super(source);
-		this.terms = terms;
-		this.select_node = null;
+		this.term = term;
+		this.select_mrca = select_mrca;
 	}
 
-	public TermSelectEvent(Object source, String term) {
-		super(source);
-		terms = new ArrayList<String>();
-		terms.add(term);
-		this.select_node = null;
+	public String getSelectedTerm() {
+		return term;
 	}
 
-	public TermSelectEvent(Object source, String term, Bioentity node) {
-		super(source);
-		terms = new ArrayList<String>();
-		terms.add(term);
-		this.select_node = node;
+	public boolean selectMRCA() {
+		return select_mrca;
 	}
-
-	public List<String> getTermSelection() {
-		return terms;
-	}
-
-	public Bioentity selectNode() {
-		return select_node;
-	}
-
 }
 

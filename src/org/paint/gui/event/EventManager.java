@@ -20,7 +20,6 @@
 package org.paint.gui.event;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,12 +29,10 @@ import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.Family;
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
 import org.paint.displaymodel.DisplayBioentity;
-import org.paint.gui.AspectSelector;
+import org.paint.gui.AspectSelectorPanel;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.table.GeneTable;
-import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 
@@ -45,11 +42,12 @@ public class EventManager {
 	 */
 	private static EventManager INSTANCE = null;
 
-//	private static final Logger log = Logger.getLogger(EventManager.class);
+	//	private static final Logger log = Logger.getLogger(EventManager.class);
 
 	private Set<NodeScrollListener> scroll_listeners;
 	private Set<GeneSelectListener> gene_listeners;
 	private Set<TermSelectionListener> term_listeners;
+	private TermSelectionListener aspect_listener;
 	private Set<NodeReorderListener> node_listeners;
 	private Set<SubFamilyListener> subfamily_listeners;
 	private Set<ProgressListener> progressListeners;
@@ -60,7 +58,7 @@ public class EventManager {
 	private Set<ChallengeListener> challenge_listeners;
 
 	protected List<Bioentity> selectedNodes;
-	protected List<String> term_selection;
+	protected String term_selection;
 	protected Bioentity top_node;
 
 	private List<FamilyChangeListener> family_listeners = new ArrayList<FamilyChangeListener>(6);
@@ -129,8 +127,12 @@ public class EventManager {
 		if (term_listeners == null) 
 			term_listeners = new HashSet<TermSelectionListener>();
 
-		if (!term_listeners.contains(listener))
-			this.term_listeners.add(listener);
+		if (listener.getClass() == AspectSelectorPanel.class) {
+			aspect_listener =  listener;
+		} else {
+			if (!term_listeners.contains(listener))
+				this.term_listeners.add(listener);
+		}
 	}
 
 	/*
@@ -273,7 +275,7 @@ public class EventManager {
 		// first turn all of the currently selected genes off
 		selectNodes(false);
 		e.setPrevious(selectedNodes);
-		top_node = e.getAncestor();
+		setCurrentSelectedNode(e.getAncestor());
 		selectedNodes = e.getGenes();
 		// then turn on the newly selected genes
 		selectNodes(true);
@@ -313,31 +315,15 @@ public class EventManager {
 		/*
 		 * Hold onto current terms, but replace current term_selection object with the event's new term selection
 		 */
-		Collection<String> old_terms = term_selection;
-		Collection<String> new_terms = e.getTermSelection();
+		String new_term = e.getSelectedTerm();
 		List<Bioentity> new_nodes = new ArrayList<>();
-		/*
-		 * This reads weird, but the event has a TermSelection object which holds a collection of terms
-		 * include all of the currently selected terms for this go aspect
-		 */
-		term_selection = null;
-		if ((new_terms != null && !new_terms.isEmpty()) && (old_terms != null && !old_terms.isEmpty())) {
-			/* 
-			 * Retain terms from the other GO aspects in the selection as well
-			 */
-			String aspect = AspectSelector.inst().getAspectCode();
-			for (String old_term : old_terms) {
-				String old_aspect = OWLutil.inst().getAspect(old_term);
-				if (!old_aspect.equals(aspect) && !new_terms.contains(old_term)) {
-					new_terms.add(old_term);
-				}
-			}
-		}
 
-		if (new_terms != null && new_terms.size() > 0) {
-			Bioentity mrca = null;
-			top_node = e.selectNode();
-			if (top_node == null) {
+		if ((term_selection == null && new_term != null) ||
+				(term_selection != null && new_term == null) ||
+				(term_selection != null && !term_selection.equals(new_term))) {
+			term_selection = new_term;
+			if (new_term != null && e.selectMRCA()) {
+				Bioentity mrca = null;
 				TreePanel tree = PaintManager.inst().getTree();
 				List<Bioentity> genes = tree.getBioentities();
 				Bioentity min_node = null;
@@ -345,15 +331,13 @@ public class EventManager {
 				for (int i = 0; i < genes.size(); i++) {
 					Bioentity node = (Bioentity) genes.get(i);
 					((DisplayBioentity) node).setSelected(false);
-					for (String term : new_terms) {
-						GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term);
-						if (assoc != null && AnnotationUtil.isExpAnnotation(assoc) && node.isLeaf()) {
-							((DisplayBioentity) node).setSelected(true);
-							new_nodes.add(node);
-							if (min_node == null)
-								min_node = node;
-							max_node = node;
-						}
+					GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), new_term);
+					if (assoc != null && AnnotationUtil.isExpAnnotation(assoc) && node.isLeaf()) {
+						((DisplayBioentity) node).setSelected(true);
+						new_nodes.add(node);
+						if (min_node == null)
+							min_node = node;
+						max_node = node;
 					}
 				}
 				/* 
@@ -367,11 +351,11 @@ public class EventManager {
 				} else {
 					mrca = min_node;
 				}
-				top_node = mrca;
+				setCurrentSelectedNode(mrca);
 			} else {
-				new_nodes.add(top_node);
+				new_nodes.add(getCurrentSelectedNode());
 			}
-			((DisplayBioentity) top_node).setSelected(true);
+			aspect_listener.handleTermEvent(e);
 			for (Iterator<TermSelectionListener> it = term_listeners.iterator(); it.hasNext();) {
 				TermSelectionListener listener = it.next();
 				listener.handleTermEvent(e);
@@ -391,9 +375,6 @@ public class EventManager {
 			NodeReorderListener listener = it.next();
 			listener.handleNodeReorderEvent(e);
 		}
-		GeneTable table = PaintManager.inst().getGeneTable();
-		int row_index = ((GeneTableModel) table.getModel()).getRow(top_node);
-		table.scrollToVisible(row_index);
 	}
 
 	/*
@@ -461,12 +442,12 @@ public class EventManager {
 				listener.handleAspectChangeEvent(event);
 			}
 		}
-		if (term_selection == null)
-			term_selection = new ArrayList<String>();
-		else
-			term_selection.clear();
-		TermSelectEvent term_event = new TermSelectEvent (event.getSource(), term_selection);
-		fireTermEvent(term_event);
+		//		if (term_selection == null)
+		//			term_selection = new ArrayList<String>();
+		//		else
+		//			term_selection.clear();
+		//		TermSelectEvent term_event = new TermSelectEvent (event.getSource(), term_selection, false);
+		//		fireTermEvent(term_event);
 	}
 
 	/**
@@ -499,12 +480,21 @@ public class EventManager {
 		return this.selectedNodes;		
 	}
 
-	public List<String> getCurrentTermSelection() {
+	public String getCurrentTermSelection() {
 		return term_selection;
 	}
 
-	public Bioentity getAncestralSelection() {
+	public Bioentity getCurrentSelectedNode() {
+		if (top_node == null) {
+			TreePanel tree = PaintManager.inst().getTree();
+			Bioentity root = tree.getRoot();
+			top_node = tree.getTopLeafNode(root);
+		}
 		return top_node;
+	}
+
+	public void setCurrentSelectedNode(Bioentity node) {
+		top_node = node;
 	}
 
 	public void fireNewFamilyEvent(Object source, Family data_bag) {
@@ -513,13 +503,12 @@ public class EventManager {
 			for (FamilyChangeListener l : family_listeners)
 				l.newFamilyData(e);
 		}
-		GeneTable table = PaintManager.inst().getGeneTable();
-		table.scrollToVisible(0);
+		TreePanel tree = PaintManager.inst().getTree();
+		tree.scrollToTop();
 		if (selectedNodes != null)
 			selectedNodes = null;
-		if (term_selection != null)
-			term_selection.clear();
-		top_node = null;
+		term_selection = null;
+		setCurrentSelectedNode(null);
 	}
 
 	/*
@@ -553,7 +542,7 @@ public class EventManager {
 		if (!challenge_listeners.contains(listener))
 			challenge_listeners.add(listener);
 	}
-	
+
 	/**
 	 * Inform listeners that an experimental annotation has been challenged.
 	 */

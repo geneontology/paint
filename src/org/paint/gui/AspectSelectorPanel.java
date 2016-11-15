@@ -97,7 +97,7 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		mfButton.setBorder(plainBorder);
 		ccButton.setBorder(plainBorder);
 		bpButton.setBorder(plainBorder);
-		
+
 		EventManager.inst().registerAspectChangeListener(this);
 		EventManager.inst().registerTermListener(this);
 	}
@@ -132,21 +132,23 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
-		List<String> terms = e.getTermSelection();
-		if (terms != null && !terms.isEmpty()) {
-			String term = terms.get(0);
-			String aspect_str = OWLutil.inst().getAspect(term);
-			if (aspect_str.equals(Aspect.BIOLOGICAL_PROCESS.toString()) && !bpButton.isSelected()) {
-				bpButton.setSelected(true);
-				switchAspect(bpButton);
-			}
-			else if (aspect_str.equals(Aspect.MOLECULAR_FUNCTION.toString()) && !mfButton.isSelected()) {
-				mfButton.setSelected(true);
-				switchAspect(mfButton);
-			}
-			else if (aspect_str.equals(Aspect.CELLULAR_COMPONENT.toString()) && !ccButton.isSelected()) {
-				ccButton.setSelected(true);
-				switchAspect(ccButton);
+		String term = e.getSelectedTerm();
+		if (term != null) {
+			String term_aspect = OWLutil.inst().getAspect(term);
+			AspectSelector aspect_setter = AspectSelector.inst();
+			String current = aspect_setter.getAspectCode();
+			if (!term_aspect.equals(current)) {
+				aspect_setter.setAspect(term_aspect);
+				String aspect_name = aspect_setter.getAspectName4Code(term_aspect);
+				if (aspect_name.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString())) {
+					bpButton.setSelected(true);
+				}
+				else if (aspect_name.equals(AspectSelector.Aspect.CELLULAR_COMPONENT.toString())) {
+					ccButton.setSelected(true);
+				}
+				if (aspect_name.equals(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString())) {
+					mfButton.setSelected(true);
+				}
 			}
 		}
 	}

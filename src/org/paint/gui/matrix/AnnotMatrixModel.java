@@ -72,8 +72,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		if (orderedNodes != null) {
 			nodes.clear();
 			nodes.addAll(orderedNodes);
-		}
-		
+		}		
 		buildMenus();
 	}
 
@@ -155,8 +154,8 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		/*
 		 * First an alphabetic sort
 		 */
-		Collections.sort(cellular_list, new TermComparator());
-		Collections.sort(temp_list, new TermComparator());
+//		Collections.sort(cellular_list, new TermComparator());
+//		Collections.sort(temp_list, new TermComparator());
 		/*
 		 * Then sort by the number of genes annotated to each term
 		 * The more genes annotated the higher in the list the term will be

@@ -213,7 +213,7 @@ NodeReorderListener
 		temp.add(node);
 		repaintSelection(temp);
 	}
-	
+
 	public void handleNodeReorderEvent(NodeReorderEvent e) {
 		if (null == msa) {
 			return;
@@ -228,12 +228,16 @@ NodeReorderListener
 			repaint();
 		}
 	}
-	
+
 	public void setModel(MSA msa) {
 		this.msa = msa;
 		revalidate();
 	}
 
+	public boolean haveMSA() {
+		return msa != null;
+	}
+	
 	public boolean isWeighted() {
 		if (msa != null)
 			return msa.isWeighted();
@@ -242,16 +246,16 @@ NodeReorderListener
 	}
 
 	public boolean haveWeights() {
-		return msa.haveWeights();
+		if (msa != null) {
+			return msa.haveWeights();
+		} else {
+			return false;
+		}
 	}
 
 	public void updateColors() {
 		msa.updateColors();
 		repaint();
-	}
-
-	public boolean isFullLength() {
-		return msa.isFullLength();
 	}
 
 	public void setFullLength(boolean full) {

@@ -22,8 +22,6 @@ package org.paint.gui.menu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +32,10 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
-import org.bbop.phylo.util.Constant;
 import org.bbop.phylo.util.InternetChecker;
 import org.bbop.phylo.util.LoginUtil;
-import org.paint.dialog.SelectFamily;
 import org.paint.dialog.OpenNewFamily;
+import org.paint.dialog.SelectFamily;
 import org.paint.gui.DirtyIndicator;
 import org.paint.gui.event.AnnotationChangeEvent;
 import org.paint.gui.event.AnnotationChangeListener;
@@ -53,12 +50,14 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	protected static Logger log = Logger.getLogger(FileMenu.class);
 
 	private JMenuItem newFamItem;
-	private JMenuItem openFamItem;
+	private JMenuItem openFamLocalItem;
+	private JMenuItem openFamServerItem;
 	private JMenuItem saveFamItem;
 	private JMenuItem exportFamItem;
 
 	private static final String new_fam = "New ... ";
-	private static final String open_fam = "Open ... ";
+	private static final String open_local = "Open using files... ";
+	private static final String open_server = "Open using server... ";
 	private static final String save_annots = "Save ... ";
 	private static final String export_annots = "Export ... ";
 
@@ -74,9 +73,13 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 
 		this.addSeparator();
 
-		openFamItem = new JMenuItem(open_fam);
-		openFamItem.addActionListener(new OpenFamilyActionListener());
-		this.add(openFamItem);
+		openFamLocalItem = new JMenuItem(open_local);
+		openFamLocalItem.addActionListener(new OpenFamilyActionListener(false));
+		this.add(openFamLocalItem);
+
+		openFamServerItem = new JMenuItem(open_server);
+		openFamServerItem.addActionListener(new OpenFamilyActionListener(true));
+		this.add(openFamServerItem);
 
 		this.addSeparator();
 
@@ -176,6 +179,12 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	 * @version %I%, %G%
 	 */
 	private class OpenFamilyActionListener implements ActionListener{
+		private boolean use_server;
+		
+		public OpenFamilyActionListener(boolean use_server) {
+			this.use_server = use_server;
+		}
+		
 		public void actionPerformed(ActionEvent e){
 			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 				protected Void doInBackground() throws Exception {
@@ -197,7 +206,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 									full_file_name = full_file_name.substring(0, full_file_name.length() - 1);
 								}
 								String familyID = full_file_name.substring(full_file_name.lastIndexOf('/') + 1);
-								PaintManager.inst().openActiveFamily(familyID);
+								PaintManager.inst().openActiveFamily(familyID, use_server);
 								updateMenu();
 							}
 						} else {

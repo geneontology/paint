@@ -27,7 +27,7 @@ import java.util.Map;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.gaf.GafPropagator;
-import org.bbop.phylo.io.panther.PantherAdapter;
+import org.bbop.phylo.io.panther.PantherAdapterI;
 import org.bbop.phylo.io.panther.PantherDbInfo;
 import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.Family;
@@ -47,7 +47,7 @@ import org.paint.gui.msa.MSAPanel;
 import org.paint.gui.table.GeneTable;
 import org.paint.gui.table.GeneTableModel;
 import org.paint.gui.tree.TreePanel;
-import org.paint.panther.PantherPaintAdapter;
+import org.paint.panther.PaintPantherAdapter;
 
 public class PaintManager {
 	/**
@@ -133,25 +133,32 @@ public class PaintManager {
 	 * @see
 	 */
 	public void openNewFamily(String family_name) {
-		openFamily(family_name, false);
+		openFamily(family_name, false, true);
 	}
 
-	public void openActiveFamily(String family_name) {
-		openFamily(family_name, true);
+	public void openActiveFamily(String family_name, boolean use_server) {
+		openFamily(family_name, true, use_server);
 	}
 
-	private void openFamily(String family_name, boolean existing) {
+	private void openFamily(String family_name, boolean existing, boolean use_server) {
 
+		TimerUtil timer = new TimerUtil();
 		int progress_increment = (PaintConfig.inst().collapse_no_exp) ? 15 : 20;
 		progress_increment += !existing? 6 : 0;
 		int progress = 0;
 
-		fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", progress, ProgressEvent.Status.START);
+		if (use_server) {
+			fireProgressChange("Fetching " + family_name + " tree & MSA from PANTHERDB", progress, ProgressEvent.Status.START);
+		} else {
+			fireProgressChange("Loading " + family_name + " tree & MSA from local disk", progress, ProgressEvent.Status.START);
+		}
 		progress += progress_increment;
 
 		family = new Family(family_name);
 		DisplayTree tree = new DisplayTree(family_name);
-		PantherAdapter adapter = new PantherPaintAdapter();
+		
+		PantherAdapterI adapter = new PaintPantherAdapter(family_name, existing);
+
 		boolean success = family.fetch(tree, adapter);
 		if (success) {
 			setTitle();
@@ -172,7 +179,6 @@ public class PaintManager {
 				fireProgressChange("Fetching experimental annotations from GOLR", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
 
-				TimerUtil timer = new TimerUtil();
 				log.info("Fetching experimental annotations from GOLR");
 				success = AnnotationUtil.loadExperimental(family);
 				if (success)
@@ -207,7 +213,6 @@ public class PaintManager {
 			}
 
 			if (success) {
-				TimerUtil timer = new TimerUtil();
 				fireProgressChange("Initializing annotation matrix", progress, ProgressEvent.Status.START);
 				progress += progress_increment;
 
@@ -237,6 +242,7 @@ public class PaintManager {
 			family = null;
 			fireProgressChange("Unable to open " + family_name, 100, ProgressEvent.Status.END);			
 		}
+		log.info("Completed loading and initializing all data for " + family_name + " in "+ timer.reportElapsedTime());
 	}
 
 	public void saveFamily() {

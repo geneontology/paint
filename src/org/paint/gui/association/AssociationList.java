@@ -21,7 +21,7 @@ import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 
 public class AssociationList extends JPanel 
-implements GeneSelectListener, FamilyChangeListener, TermSelectionListener {
+implements GeneSelectListener, FamilyChangeListener {
 
 	/**
 	 * 
@@ -56,7 +56,6 @@ implements GeneSelectListener, FamilyChangeListener, TermSelectionListener {
 				
 		EventManager.inst().registerGeneListener(this);
 		EventManager.inst().registerFamilyListener(this);
-		EventManager.inst().registerTermListener(this);
 	}
 
 	private TitledBorder createBorder(String title) {
@@ -81,12 +80,6 @@ implements GeneSelectListener, FamilyChangeListener, TermSelectionListener {
 		setNode(tree.getTopLeafNode(root));
 	}
 	
-	public void handleTermEvent(TermSelectEvent e) {
-		Bioentity mrca = EventManager.inst().getAncestralSelection();
-		if (!mrca.equals(node) && !e.getSource().equals(assoc_table))
-			this.setNode(mrca);
-	}
-	
 	private void setNode(Bioentity node) {
 		this.node = node;
 		if (node == null)
@@ -97,7 +90,5 @@ implements GeneSelectListener, FamilyChangeListener, TermSelectionListener {
 		}
 		repaint();
 	}
-	
-	
 }
 

@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 
 import org.bbop.framework.GUIManager;
 import org.bbop.swing.DynamicMenu;
+import org.paint.config.PaintConfig;
 import org.paint.dialog.MSAColorDialog;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.FamilyChangeEvent;
@@ -58,7 +59,7 @@ implements FamilyChangeListener {
 
 		MSAPanel msa = PaintManager.inst().getMSA();
 		if (msa != null) {
-			full_length = msa.isFullLength();
+			full_length = PaintConfig.inst().full_msa;
 			use_weight = msa.haveWeights();
 			weighted = msa.isWeighted();
 		}
@@ -92,15 +93,12 @@ implements FamilyChangeListener {
 	}
 
 	public void updateMenu(MSAPanel msa) {
-		if (msa != null) {
-			boolean full_length = msa.isFullLength();
-			fullItem.setSelected(full_length);
-			// Only add this menu item, if sequence weights information is available
-			//			sfConHMMItem.setVisible(show);
-			weightedItem.setEnabled(msa.haveWeights());
-			weightedItem.setSelected(msa.isWeighted());			
-			// Allow saving of msa information, if book was opened locally
-		}
+		fullItem.setSelected(PaintConfig.inst().full_msa);
+		// Only add this menu item, if sequence weights information is available
+		//			sfConHMMItem.setVisible(show);
+		weightedItem.setEnabled(msa.haveWeights());
+		weightedItem.setSelected(msa.isWeighted());			
+		// Allow saving of msa information, if book was opened locally
 	}
 
 	/**
@@ -143,7 +141,7 @@ implements FamilyChangeListener {
 
 	public void newFamilyData(FamilyChangeEvent e) {
 		MSAPanel msa = PaintManager.inst().getMSA();
-		if (msa != null) {
+		if (msa != null && msa.haveMSA()) {
 			setVisible(true);
 			updateMenu(msa);
 		} else {

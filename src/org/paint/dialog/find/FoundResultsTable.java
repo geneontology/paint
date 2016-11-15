@@ -10,7 +10,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.bbop.phylo.model.Bioentity;
-import org.bbop.phylo.util.OWLutil;
 import org.paint.dialog.find.FindPanel.SEARCH_TYPE;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
@@ -37,11 +36,13 @@ public class FoundResultsTable extends JTable {
 		super.setModel(model);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		getSelectionModel().addListSelectionListener(new TableSelector());
+		setDefaultRenderer(String.class, new ResultRenderer());
 	}
 
 	public void setGeneResults(List<Bioentity> gene_results2) {
 		if (search_type == SEARCH_TYPE.GENE) {
 			this.gene_results = gene_results2;
+			model.fireTableDataChanged();
 			if (gene_results2 != null && gene_results2.size() > 0) {
 				getSelectionModel().addSelectionInterval(0, 0);
 				Bioentity node = gene_results2.get(0);
@@ -52,22 +53,18 @@ public class FoundResultsTable extends JTable {
 				EventManager.inst().fireGeneEvent(event);
 			}
 		}
-		model.fireTableDataChanged();
 	}
 
 	public void setTermResults(List<String> term_results) {
 		if (search_type == SEARCH_TYPE.TERM) {
 			this.term_results = term_results;
+			model.fireTableDataChanged();
 			if (term_results != null && term_results.size() > 0) {
 				setRowSelectionInterval(0, 0);
 				String selected_term = term_results.get(0);
-				TermSelectEvent term_event = new TermSelectEvent (this, selected_term);
-				List<Bioentity> selection = EventManager.inst().fireTermEvent(term_event);	
-				GeneSelectEvent gene_event = new GeneSelectEvent(this, selection, EventManager.inst().getAncestralSelection());
-				EventManager.inst().fireGeneEvent(gene_event);
+				setSelectedTerm(selected_term);
 			}
 		}
-		model.fireTableDataChanged();
 	}
 
 	public void setType(SEARCH_TYPE search_type) {
@@ -75,7 +72,14 @@ public class FoundResultsTable extends JTable {
 		setGeneResults(gene_results);
 		setTermResults(term_results);
 	}
-
+	
+	public void setSelectedTerm(String selected_term) {
+		TermSelectEvent term_event = new TermSelectEvent (this, selected_term, true);
+		List<Bioentity> selection = EventManager.inst().fireTermEvent(term_event);	
+		GeneSelectEvent gene_event = new GeneSelectEvent(this, selection, EventManager.inst().getCurrentSelectedNode());
+		EventManager.inst().fireGeneEvent(gene_event);		
+	}
+	
 	private class TableSelector implements ListSelectionListener {
 
 		public TableSelector() {
@@ -96,10 +100,7 @@ public class FoundResultsTable extends JTable {
 					// zoom in on new selection (with some padding)
 				} else if (search_type == SEARCH_TYPE.TERM) {
 					String selected_term = term_results.get(row);
-					TermSelectEvent term_event = new TermSelectEvent (this, selected_term);
-					List<Bioentity> selection = EventManager.inst().fireTermEvent(term_event);	
-					GeneSelectEvent gene_event = new GeneSelectEvent(this, selection, EventManager.inst().getAncestralSelection());
-					EventManager.inst().fireGeneEvent(gene_event);
+					setSelectedTerm(selected_term);
 				}
 			}
 		}
@@ -141,8 +142,9 @@ public class FoundResultsTable extends JTable {
 				Bioentity match = gene_results.get(row);
 				return match.getDBID();
 			} else if (search_type == SEARCH_TYPE.TERM) {
-				String match = term_results.get(row);
-				return OWLutil.inst().getTermLabel(match);
+//				String match = term_results.get(row);
+//				return OWLutil.inst().getTermLabel(match);
+				return term_results.get(row);
 			} else {
 				return "";
 			}
@@ -150,6 +152,10 @@ public class FoundResultsTable extends JTable {
 
 		public Class getColumnClass(int c) {
 			return getValueAt(0, 0).getClass();
+		}
+
+		public SEARCH_TYPE getType() {
+			return search_type;
 		}
 
 	} // end GeneMatchModel inner class

@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 
 import org.paint.gui.AbstractPaintGUIComponent;
 
-public class AssociationsPanel extends AbstractPaintGUIComponent { //, FamilyChangeListener, GeneSelectListener, TermSelectionListener {
+public class AssociationsPanel extends AbstractPaintGUIComponent {
 
 	private static final long serialVersionUID = 1L;
 	private static AssociationsPanel singleton;

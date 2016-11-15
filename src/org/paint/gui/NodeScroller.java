@@ -69,11 +69,11 @@ NodeScrollListener {
 				NodeScrollEvent event = new NodeScrollEvent(e, percent);
 				EventManager.inst().fireNodeScrollEvent(event);
 			}
-		} else {
-			scroller = getHorizontalScrollBar();
-//			if (e.getSource() == scroller) {
-				repaint();
-//			}
+//		} else {
+//			scroller = getHorizontalScrollBar();
+////			if (e.getSource() == scroller) {
+//				repaint();
+////			}
 		}
 	}
 

@@ -9,7 +9,6 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -30,10 +29,12 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private boolean selected;
+	private boolean gene_selected;
+	private boolean term_selected;
 	private GeneAnnotation assoc;
 	private boolean isAncestor;
 	private boolean isNot;
+	private static final Color select_color = Color.yellow; // new Color(244, 208, 63);
 
 	protected static Logger log = Logger.getLogger("MatrixCellRenderer");
 
@@ -57,7 +58,7 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 		isAncestor = associationData.isAncestor();
 		isNot = associationData.isNot();
 		DisplayBioentity node = (DisplayBioentity) matrix.getNode(row);
-		selected = node.isSelected();
+		gene_selected = node.isSelected();
 		
 		Color c;
 		Color color;
@@ -99,15 +100,11 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 
 		setIcon(scaledIcon);
 
-		color = RenderUtil.selectedColor(selected, color, c);
+		color = RenderUtil.selectedColor(gene_selected, color, c);
 
 		setBackground(color);
 
-		if (annot_table.getSelectedColumn() == column) {
-			this.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.black));
-		} else {
-			this.setBorder(null);
-		}
+		term_selected = annot_table.getSelectedColumn() == column;
 
 		return this;
 	}
@@ -131,7 +128,17 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 				g.drawRect((getWidth()/2) - 2, (getHeight()/2)-2, 4, 4);
 			}
 		}
-		RenderUtil.paintBorder(g, new Rectangle(0, 0, this.getWidth(), this.getHeight()), null, selected);
+		int width = this.getWidth();
+		int height = this.getHeight();
+		RenderUtil.paintBorder(g, new Rectangle(0, 0, width, height), null, gene_selected);
+		if (term_selected) {
+			g.setColor(select_color);
+			// line to the left and right of the cell
+			g.drawLine(0, 0, 0, height);
+			g.drawLine(1, 0, 1, height);
+			g.drawLine(width, 0, width, height);
+			g.drawLine(width-1, 0, width-1, height);
+		}		
 	}
 
 }

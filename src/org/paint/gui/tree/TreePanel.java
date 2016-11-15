@@ -40,7 +40,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -378,13 +377,14 @@ ChallengeListener
 	}
 
 	protected void setNeedPositionUpdate() {
+		// Do this first so that the gene table rows are in position
+		NodeReorderEvent event = new NodeReorderEvent(this);
+		event.setNodes(getTerminusNodes());
+		EventManager.inst().fireNodeReorderEvent(event);
 		// Method to set number of leaves in tree
 		updateNodePositions(tree.getCurrentRoot(), this.getGraphics(), PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
 		revalidate();
 		repaint();
-		NodeReorderEvent event = new NodeReorderEvent(this);
-		event.setNodes(getTerminusNodes());
-		EventManager.inst().fireNodeReorderEvent(event);
 	}
 
 	/**
@@ -400,7 +400,7 @@ ChallengeListener
 	private Rectangle calcTreeSize(Graphics g) {
 		tree_rect.setBounds(0, 0, 0, 0);
 		List<Bioentity> terminus_nodes = tree.getTerminusNodes();
-		DisplayBioentity bottom_node =  (DisplayBioentity) terminus_nodes.get(terminus_nodes.size() - 1);
+		DisplayBioentity bottom_node = (DisplayBioentity) tree.getBottomLeafNode(getCurrentRoot()); //(DisplayBioentity) terminus_nodes.get(terminus_nodes.size() - 1);
 		Rectangle bottomRect = bottom_node.getScreenRectangle();
 		// Set the height
 		tree_rect.height = bottomRect.y;
@@ -418,12 +418,6 @@ ChallengeListener
 	}
 
 	private Rectangle getTreeSize(Graphics g) {
-		//		if (tree != null) {
-		//			if (need_update) {
-		//				tree.nodesReordered();
-		//				updateNodePositions(getCurrentRoot(), g, PaintManager.inst().getRowHeight(), PaintConfig.inst().use_distances);
-		//			}
-		//		}
 		return tree_rect;
 	}
 
@@ -909,6 +903,7 @@ ChallengeListener
 		List<Bioentity> selection = event.getPrevious();
 		repaintNodes(selection);
 		selection = event.getGenes();
+		scrollToNode(event.getAncestor());
 		repaintNodes(selection);
 	}
 
@@ -1189,6 +1184,34 @@ ChallengeListener
 		} else {
 			return false;
 		}
+	}
+
+	// Assumes table is contained in a JScrollPane. Scrolls the 
+	// cell (rowIndex, vColIndex) so that it is visible within the viewport. 
+	public void scrollToTop() { 
+		scrollToNode(tree.getTopLeafNode(tree.getCurrentRoot()));
+	}
+
+	private void scrollToNode(Bioentity node) {
+		if (!(getParent() instanceof JViewport)) { 
+			return; 
+		} 
+		JViewport viewport = (JViewport)getParent(); 
+		// This rectangle is relative to the table where the 
+		// northwest corner of cell (0,0) is always (0,0).
+
+		Rectangle visible = viewport.getViewRect();
+		Rectangle rect = ((DisplayBioentity) node).getScreenRectangle();
+
+		if (visible.y <= rect.y && (visible.y + visible.height) >= (rect.y + rect.height))
+			return;
+
+		int focal_y = Math.max(0, rect.y - (visible.height / 2));
+		Point point_of_view = new Point(visible.x, focal_y);
+		//		log.debug("Scrolling to pixel position " + point_of_view.y);
+
+		// Scroll the area into view, upper left hand part.
+		viewport.setViewPosition(point_of_view);		
 	}
 
 }
