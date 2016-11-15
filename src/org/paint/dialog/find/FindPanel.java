@@ -69,9 +69,7 @@ public class FindPanel extends JPanel implements ActionListener {
 	private FindStatusPane resultsPane;
 
 	private static String gene_search;
-	private static List<Bioentity> gene_results;
 	private static String term_search;
-	private static List<String> term_results;
 
 	public enum SEARCH_TYPE {
 		GENE,
@@ -138,7 +136,6 @@ public class FindPanel extends JPanel implements ActionListener {
 
 		search_type = SEARCH_TYPE.GENE;
 		resultTable.setType(search_type);
-
 		resultBox = new Box(BoxLayout.Y_AXIS);
 		resultBox.add(resultsPane);
 		resultBox.add(Box.createVerticalStrut(10));
@@ -196,22 +193,23 @@ public class FindPanel extends JPanel implements ActionListener {
 			if (!text.equals("")) {
 				if (search_type == SEARCH_TYPE.GENE) {
 					gene_search = text;
-					gene_results = GeneSearch.inst().search(PaintManager.inst().getTree().getBioentities(), text);
-					showResults();
+					List<Bioentity> gene_results = GeneSearch.inst().search(PaintManager.inst().getTree().getBioentities(), text);
+					resultTable.setGeneResults(gene_results);
 				} else if (search_type == SEARCH_TYPE.TERM) {
 					term_search = text;
-					term_results = PaintManager.inst().findTerm(text);
-					showResults();
+					List<String> term_results = PaintManager.inst().findTerm(text);
+					resultTable.setTermResults(term_results);
 				}
+				showResults();
 			}
 		} else if (evt.getSource() == clearButton) {
 			findField.setText("");
 			if (search_type == SEARCH_TYPE.GENE) {
 				gene_search = "";
-				gene_results = null;
+				showResults();
 			} else {
 				term_search = "";
-				term_results = null;
+				showResults();
 			}
 			showResults();
 		} else if (evt.getSource() == closeButton) {
@@ -222,11 +220,6 @@ public class FindPanel extends JPanel implements ActionListener {
 	}
 
 	private void showResults() {
-		if (search_type == SEARCH_TYPE.GENE) {
-			resultTable.setGeneResults(gene_results);
-		} else {
-			resultTable.setTermResults(term_results);			
-		}
 		resultBox.setVisible(true);
 		int count = resultTable.getRowCount();
 		if (count == 0) {

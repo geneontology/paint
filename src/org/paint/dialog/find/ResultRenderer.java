@@ -22,8 +22,6 @@ package org.paint.dialog.find;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Rectangle;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -69,7 +67,8 @@ public class ResultRenderer extends DefaultTableCellRenderer {
 			if (isSelected) {
 				bg_color = bg_color.darker();
 			}
-			setText(OWLutil.inst().getTermLabel(selected_value));
+			int count = model.getTermUsage(selected_value);
+			setText(OWLutil.inst().getTermLabel(selected_value) + " [" + count + "]");
 		}
 		setBackground(bg_color);
 		return this;

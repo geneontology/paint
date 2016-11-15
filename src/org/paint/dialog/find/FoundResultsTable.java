@@ -1,7 +1,10 @@
 package org.paint.dialog.find;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -9,11 +12,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.GeneAnnotation;
 import org.paint.dialog.find.FindPanel.SEARCH_TYPE;
 import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
 import org.paint.gui.event.TermSelectEvent;
+import org.paint.gui.matrix.TermCountComparator;
 import org.paint.main.PaintManager;
 
 public class FoundResultsTable extends JTable {
@@ -27,6 +33,7 @@ public class FoundResultsTable extends JTable {
 	private String [] columns = {"ID"};
 	List<Bioentity> gene_results;
 	List<String> term_results;
+	Map<String, List<Bioentity>> term2node;
 	MatchModel model;
 	private SEARCH_TYPE search_type;	
 
@@ -55,9 +62,10 @@ public class FoundResultsTable extends JTable {
 		}
 	}
 
-	public void setTermResults(List<String> term_results) {
+	public void setTermResults(List<String> results) {
 		if (search_type == SEARCH_TYPE.TERM) {
-			this.term_results = term_results;
+			term_results = results;
+			SortByCount();
 			model.fireTableDataChanged();
 			if (term_results != null && term_results.size() > 0) {
 				setRowSelectionInterval(0, 0);
@@ -66,11 +74,30 @@ public class FoundResultsTable extends JTable {
 			}
 		}
 	}
+	
+	private void SortByCount() {
+		List<Bioentity> nodes = PaintManager.inst().getTree().getTerminusNodes();
+		term2node = new HashMap<>();
+		for (Bioentity node : nodes) {
+			for (String term : term_results) {
+				GeneAnnotation assoc = AnnotationUtil.isAnnotatedToTerm(node.getAnnotations(), term);
+				if (assoc != null && AnnotationUtil.isExpAnnotation(assoc)) {
+					List<Bioentity> annotated_nodes = term2node.get(term);
+					if (annotated_nodes == null) {
+						annotated_nodes = new ArrayList<Bioentity>();
+						term2node.put(term, annotated_nodes);
+					}
+					if (!annotated_nodes.contains(node)) {
+						annotated_nodes.add(node);
+					}
+				}
+			}
+		}
+		Collections.sort(term_results, new TermCountComparator(term2node));
+	}
 
 	public void setType(SEARCH_TYPE search_type) {
 		this.search_type = search_type;
-		setGeneResults(gene_results);
-		setTermResults(term_results);
 	}
 	
 	public void setSelectedTerm(String selected_term) {
@@ -142,8 +169,6 @@ public class FoundResultsTable extends JTable {
 				Bioentity match = gene_results.get(row);
 				return match.getDBID();
 			} else if (search_type == SEARCH_TYPE.TERM) {
-//				String match = term_results.get(row);
-//				return OWLutil.inst().getTermLabel(match);
 				return term_results.get(row);
 			} else {
 				return "";
@@ -156,6 +181,10 @@ public class FoundResultsTable extends JTable {
 
 		public SEARCH_TYPE getType() {
 			return search_type;
+		}
+
+		public int getTermUsage(String term) {
+			return term2node.get(term).size();
 		}
 
 	} // end GeneMatchModel inner class
