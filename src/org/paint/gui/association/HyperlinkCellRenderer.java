@@ -57,8 +57,11 @@ public class HyperlinkCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	public void paint(Graphics g) {
 		Rectangle bounds = getBounds();
-		Rectangle local_bounds = new Rectangle(0, 0, bounds.width, bounds.height);
-		RenderUtil.paintBorder(g, local_bounds, bg_color, selected);
+		RenderUtil.paintBorder(g, new Rectangle(0, 0, bounds.width, bounds.height), bg_color, selected);
+		g.setColor(bg_color);
+		g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		int y = (bounds.height / 2) - 6;
+		Rectangle local_bounds = new Rectangle(0, y, bounds.width, 14);
 		if (label != null) {
 			Renderer r = (Renderer) label.getClientProperty(BasicHTML.propertyKey);
 			r.paint(g, local_bounds);

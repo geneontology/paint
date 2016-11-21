@@ -60,22 +60,29 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 		DisplayBioentity node = (DisplayBioentity) matrix.getNode(row);
 		gene_selected = node.isSelected();
 		
-		Color c;
-		Color color;
+		Color column_color;
+		Color assoc_color;
 		ColumnTermData td = matrix.getTermData(column);
 		if (td == null) 
 			return this;
 		
-		if (!td.isOddColumn())
-			c = GuiConstant.BACKGROUND_COLOR;
-		else
-			c = new Color(224, 224, 224);
+		if (td.isCellular()) {
+			if (!td.isOddColumn()) 
+				column_color = GuiConstant.BACKGROUND_COLOR;
+			else
+				column_color = new Color(224, 224, 224);
+		} else {
+			if (!td.isOddColumn())
+				column_color = new Color(255, 255, 153);
+			else
+				column_color = new Color(255, 255, 204);
+		}
 		ScaledIcon scaledIcon = null;
 		if (assoc != null) {
 			if (AnnotationUtil.isExpAnnotation(assoc)) {
-				color = PaintConfig.inst().expPaintColor;
+				assoc_color = PaintConfig.inst().expPaintColor;
 			} else {
-				color = PaintConfig.inst().inferPaintColor;				
+				assoc_color = PaintConfig.inst().inferPaintColor;				
 			}
 			if (isNot) {
 				scaledIcon = new ScaledIcon(null);
@@ -83,7 +90,7 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 				scaledIcon.setDimension(15);
 			}
 		} else {
-			color = c;
+			assoc_color = column_color;
 		}
 		
 		String col_term = OWLutil.inst().getTermLabel(matrix.getTermForColumn(column));
@@ -100,9 +107,15 @@ public class MatrixCellRenderer extends JLabel implements TableCellRenderer {
 
 		setIcon(scaledIcon);
 
-		color = RenderUtil.selectedColor(gene_selected, color, c);
+		if (isSelected) {
+			if (assoc_color.equals(column_color)) {
+				setBackground(assoc_color.darker());
+			} else {
+				setBackground(assoc_color.brighter());
+			}
+		}
 
-		setBackground(color);
+		setBackground(RenderUtil.selectedColor(gene_selected, assoc_color, column_color));
 
 		term_selected = annot_table.getSelectedColumn() == column;
 

@@ -430,25 +430,28 @@ ChallengeListener
 						TermSelectEvent term_event = new TermSelectEvent (this, term, false);
 						EventManager.inst().fireTermEvent(term_event);
 						setSelectedColumn(columnAtPoint(event.getPoint()));
-						if (previous_genes != null) {
-							for (Bioentity node : previous_genes) {
-								((DisplayBioentity) node).setSelected(false);
-							}
-						}
-						if (selected_gene != null) {
-							if (previous_genes == null) {
-								updateRow(row);
-							}
-							else if (previous_genes.size() != 1) {
+						boolean change = !(previous_genes.isEmpty() && selected_gene == null) ||
+								(!previous_genes.isEmpty() && selected_gene == null) ||
+								(previous_genes.isEmpty() && selected_gene != null) ||
+								(previous_genes.size() == 1 && selected_gene != null && 
+								 previous_genes.contains(selected_gene));
+						if (change) {
+							if (!previous_genes.isEmpty()) {
+								for (Bioentity node : previous_genes) {
+									((DisplayBioentity) node).setSelected(false);
+								}
 								updateRows(previous_genes);
-								updateRow(row);
 							}
-							List<Bioentity> selected_genes = new ArrayList<>();
-							selected_genes.add(selected_gene);
-							GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, EventManager.inst().getCurrentSelectedNode());
-							EventManager.inst().fireGeneEvent(ge);
+							if (selected_gene != null) {
+								((DisplayBioentity) selected_gene).setSelected(true);
+								updateRow(row);
+								List<Bioentity> selected_genes = new ArrayList<>();
+								selected_genes.add(selected_gene);
+								GeneSelectEvent ge = new GeneSelectEvent (this, selected_genes, selected_gene);
+								EventManager.inst().fireGeneEvent(ge);
+							}
+							annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 						}
-						annot_handler.exportAsDrag(this, event, TransferHandler.COPY);
 					}
 				}
 			}
@@ -460,7 +463,12 @@ ChallengeListener
 							(event.isMetaDown()))) {
 				JPopupMenu popup = createPopupMenu(event);
 				if (popup != null) {
-					RenderUtil.showPopup(popup, event.getComponent(), new Point(event.getX(), event.getY()));
+					TreePanel tree = PaintManager.inst().getTree();
+					Bioentity gene = EventManager.inst().getCurrentSelectedNode();
+					int y = tree.scrollToNode(gene);
+					if (y < 0)
+						y = event.getY();
+					RenderUtil.showPopup(popup, event.getComponent(), new Point(event.getX(), y));
 				}
 			}
 		}

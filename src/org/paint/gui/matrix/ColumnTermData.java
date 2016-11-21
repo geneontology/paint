@@ -26,6 +26,7 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 	private ButtonGroup term_buttons;
 	private List<String>term_list;
 	private boolean odd_column = false;
+	private boolean cellular = true;
 	private String narrower_term = null;
 	
 //	private static final Logger log = Logger.getLogger(PaintManager.class);
@@ -129,6 +130,15 @@ public class ColumnTermData extends JPopupMenu implements ActionListener {
 		}
 		setVisible(false);
 	}
+	
+	public boolean isCellular() {
+		return cellular;
+	}
+
+	public void setCellular(boolean cellular) {
+		this.cellular = cellular;
+	}
+
 }
 
 

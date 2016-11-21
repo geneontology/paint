@@ -28,14 +28,10 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -87,7 +83,6 @@ ChallengeListener
 	AssociationsTableModel assoc_model;
 
 	private Bioentity node;
-	private boolean is_adjusting;
 	private boolean widths_initialized;
 
 	private static Logger log = Logger.getLogger(AssociationsTable.class);
@@ -119,10 +114,15 @@ ChallengeListener
 
 		setDefaultRenderer(GeneAnnotation.class, new GOTermRenderer());
 		setDefaultRenderer(HyperlinkLabel.class, new HyperlinkCellRenderer());
-		WithCellRenderer with_cell_renderer = new WithCellRenderer();
-		setDefaultRenderer(HashSet.class, with_cell_renderer);
+		WithCellRenderer with_renderer = new WithCellRenderer();
+		setDefaultRenderer(WithCellModel.class, with_renderer);
 		setDefaultRenderer(String.class, new ECOCellRenderer());
 		setDefaultRenderer(PHYLO_ACTION.class, new TrashCellRenderer());
+
+		TableColumn withcol = getColumn(AssociationsTableModel.WITH_COL_NAME);
+		WithCellController edit = new WithCellController();
+		withcol.setCellEditor(edit);
+		setEditingColumn(AssociationsTableModel.WITH_COLUMN);
 
 		setShowGrid(false);
 		setIntercellSpacing(new Dimension(1, 1));
@@ -134,11 +134,6 @@ ChallengeListener
 		EventManager.inst().registerGeneAnnotationChangeListener(this);
 		EventManager.inst().registerAspectChangeListener(this);
 		EventManager.inst().registerChallengeListener(this);
-
-		ListSelectionModel select_model = getSelectionModel();
-		select_model.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		select_model.addListSelectionListener(new AssocSelectionListener (this));
-		setSelectionModel(select_model);
 
 		widths_initialized = false;
 	}
@@ -161,6 +156,10 @@ ChallengeListener
 		repaint();
 	}
 
+	public boolean isCellEditable(int row, int column) {
+		return assoc_model.isCellEditable(row, column);
+	}
+
 	private void setColumnWidths() {
 		if (!widths_initialized) {
 			Insets insets = new DefaultTableCellRenderer().getInsets();
@@ -175,9 +174,9 @@ ChallengeListener
 				if (col_name.equals(AssociationsTableModel.CODE_COL_NAME)) {
 					col_width = fm.stringWidth("IDAXXX") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.TRASH_COL_NAME)) {
-					col_width = fm.stringWidth("CHALLENGE") + insets.left + insets.right + 2;
+					col_width = fm.stringWidth("CHALLENGE  ") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.REFERENCE_COL_NAME)) {
-					col_width = fm.stringWidth("PUBMED:0000000000 PUBMED:0000000000 ") + insets.left + insets.right + 2;
+					col_width = fm.stringWidth("PUBMED:0000000000 ") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.WITH_COL_NAME)) {
 					col_width = fm.stringWidth("XXXX0000000000 XXXX0000000000 ") + insets.left + insets.right + 2;
 				} else if (col_name.equals(AssociationsTableModel.TERM_COL_NAME)) {
@@ -194,7 +193,23 @@ ChallengeListener
 			//Get the column at index columnIndex, and set its preferred width.
 			term_col.setPreferredWidth(remainder);
 			term_col.setWidth(remainder);
+
+			initRowHeights();
 			widths_initialized = true;
+		}
+	}
+
+	private void initRowHeights() {
+		int rows = assoc_model.getRowCount();
+		int row_height = getRowHeight() + 6;
+
+		for (int row = 0; row < rows; row++) {
+			WithCellModel with_model = (WithCellModel) assoc_model.getValueAt(row, AssociationsTableModel.WITH_COLUMN);
+			int with_count = with_model.getSize();
+			if (with_count == 0)
+				with_count = 1;
+			int with_height = Math.min(row_height * 4, row_height * with_count);
+			setRowHeight(row, with_height);
 		}
 	}
 
@@ -275,16 +290,22 @@ ChallengeListener
 				String term = assoc.getCls();
 				String text = HTMLUtil.getURL("AMIGO", term, true);
 				HTMLUtil.bringUpInBrowser(text);
-			} else if (HashSet.class == assoc_model.getColumnClass(column)) {
-				GeneAnnotation assoc = assoc_model.getEvidenceForRow(row);
-				Collection<String> withs = assoc.getWithInfos();
-				if (withs != null && withs.size() == 1) {
-					String [] xref = withs.iterator().next().split(":");
-					String text = HTMLUtil.getURL(xref[0], xref[1], true);
-					HTMLUtil.bringUpInBrowser(text);
-				}
+				//			} else if (WithListModel.class == assoc_model.getColumnClass(column)) {
+				//                log.info("Association table mouse click in with column");
 			}
 		}
+	}
+
+	public void mouseEntered(MouseEvent arg0) {
+	}
+
+	public void mouseExited(MouseEvent arg0) {	
+	}
+
+	public void mousePressed(MouseEvent event) {		
+	}
+
+	public void mouseReleased(MouseEvent arg0) {		
 	}
 
 	private List<GeneAnnotation> challengeAnnotation(List<GeneAnnotation> challenged_assocs, String rationale, boolean log_it) {
@@ -346,18 +367,6 @@ ChallengeListener
 		}
 	}
 
-	public void mouseEntered(MouseEvent arg0) {
-	}
-
-	public void mouseExited(MouseEvent arg0) {	
-	}
-
-	public void mousePressed(MouseEvent event) {		
-	}
-
-	public void mouseReleased(MouseEvent arg0) {		
-	}
-
 	private void refreshTermSelection(String term) {
 		ListSelectionModel lsm = this.getSelectionModel();
 		lsm.clearSelection();
@@ -371,7 +380,6 @@ ChallengeListener
 
 	public void handleTermEvent(TermSelectEvent e) {
 		if (e.getSource() != this) {
-			is_adjusting = true;
 			Bioentity mrca = EventManager.inst().getCurrentSelectedNode();
 			if (node != mrca) {
 				setAnnotations(mrca);
@@ -380,13 +388,13 @@ ChallengeListener
 			if (term_selection != null) {
 				refreshTermSelection(term_selection);
 			}
-			is_adjusting = false;
 		}
 	}
 
 	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
 		if (node != null && event.getSource() != null) {
 			assoc_model.setNode(node);
+			initRowHeights();
 			assoc_model.fireTableDataChanged();		
 		}
 	}
@@ -396,48 +404,18 @@ ChallengeListener
 	}
 
 	public void handleGeneSelectEvent (GeneSelectEvent e) {
-		if (e.getGenes().size() > 0)
+		if (e.getGenes().size() > 0) {
 			setAnnotations((DisplayBioentity) e.getAncestor());
-		else
+		} else {
 			setAnnotations(null);
+		}
+		this.initRowHeights();
 		clearSelection();
 	}
 
 	public void handleChallengeEvent(ChallengeEvent event) {
 		setAnnotations(node);
 	}
-
-	class AssocSelectionListener implements ListSelectionListener {
-		AssociationsTable table;
-
-		public AssocSelectionListener (AssociationsTable table) {
-			this.table = table;
-		}
-
-		public void valueChanged(ListSelectionEvent e) {
-			if (!e.getValueIsAdjusting() && !is_adjusting) { 
-				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-				int min_index = lsm.getMinSelectionIndex();
-
-				if (!lsm.isSelectionEmpty() && min_index >= 0) {
-					// Find out which indexes are selected.
-					//					int max_index = lsm.getMaxSelectionIndex();
-					//					AssociationsTableModel assoc_model = (AssociationsTableModel) table.getModel();
-					//					List<Term> terms = new LinkedList<Term>();
-					//
-					//					String message = "Selecting: ";
-					//					for (int i = min_index; i <= max_index; i++) {
-					//						Term t = assoc_model.getTermForRow(i);
-					//						terms.add(t);
-					//						message = message + t.getName();
-					//					}
-					//					log.debug(message);
-					//					EventManager.inst().fireTermEvent(new TermSelectEvent(table, terms));
-				}
-			}
-		}
-	}
-
 }
 
 

@@ -17,11 +17,20 @@ public class GeneSelectEvent extends EventObject {
 	protected List<Bioentity> genes;
 	protected Bioentity ancestor;
 	protected List<Bioentity> previous;
+	private boolean scroll;
 
 	public GeneSelectEvent(Object source, List<Bioentity> genes, Bioentity ancestor) {
 		super(source);
 		this.genes = genes;
 		this.ancestor = ancestor;
+		this.scroll = false;
+	}
+
+	public GeneSelectEvent(Object source, List<Bioentity> genes, Bioentity ancestor, boolean scroll) {
+		super(source);
+		this.genes = genes;
+		this.ancestor = ancestor;
+		this.scroll = scroll;
 	}
 
 	public List<Bioentity> getGenes() {
@@ -42,5 +51,9 @@ public class GeneSelectEvent extends EventObject {
 
 	public void setAncestor(Bioentity ancestor) {
 		this.ancestor = ancestor;
+	}
+	
+	public boolean doScroll() {
+		return scroll;
 	}
 }

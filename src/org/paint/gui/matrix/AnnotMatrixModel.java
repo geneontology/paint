@@ -81,7 +81,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		List<String> exp_list = possibleTerms();		
 		initTerms(exp_list, added_term_list);
 	}
-	
+
 	private List<String> possibleTerms() {
 		List<String> exp_list = new ArrayList<String> ();
 		Set<String> exclusionTerms = CustomTermList.inst().getExclusionList();
@@ -128,7 +128,7 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		fireTableDataChanged();
 	}
 
-	private void sortTerms(List<Bioentity> nodes, List<String> temp_list) {
+	private void sortTerms(List<Bioentity> nodes, List<String> cellular_list) {
 		/* 
 		 * This sort
 		 * 	Puts all cellular processes first
@@ -137,40 +137,42 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		 *  Appends singlets alphabetically
 		 * 
 		 */
-		List<String> cellular_list = new ArrayList<String> ();
+		List<String> noncellular_list = new ArrayList<String> ();
 
 		/* Hack alert - hard coded the GO id for cellular process here */
-		String cellular = "GO:0009987";
-		for (String term : temp_list) {
-			if (OWLutil.inst().moreSpecific(term, cellular)) {
-				cellular_list.add(term);
+		/* Only applies to biological process */
+		if (aspect_name.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString())) {
+			String cellular = "GO:0009987";
+			for (String term : cellular_list) {
+				if (!OWLutil.inst().moreSpecific(term, cellular)) {
+					noncellular_list.add(term);
+				}
 			}
-		}
-
-		for (String term : cellular_list) {
-			temp_list.remove(term);
+			for (String term : noncellular_list) {
+				cellular_list.remove(term);
+			}
 		}
 
 		/*
 		 * First an alphabetic sort
 		 */
-//		Collections.sort(cellular_list, new TermComparator());
-//		Collections.sort(temp_list, new TermComparator());
+		//		Collections.sort(cellular_list, new TermComparator());
+		//		Collections.sort(temp_list, new TermComparator());
 		/*
 		 * Then sort by the number of genes annotated to each term
 		 * The more genes annotated the higher in the list the term will be
 		 */
 		SortByCount(nodes, cellular_list);
-		SortByCount(nodes, temp_list);
-		
+		SortByCount(nodes, noncellular_list);
+
 		/*
 		 * But then insert the related terms immediately afterwards
 		 */
-		boolean odd_column = true;
-		odd_column = groupParentTerms(cellular_list, odd_column);
-		groupParentTerms(temp_list, odd_column);
+		boolean odd_column = false;
+		odd_column = groupParentTerms(cellular_list, odd_column, true);
+		groupParentTerms(noncellular_list, odd_column, false);
 	}
-	
+
 	private void SortByCount(List<Bioentity> nodes, List<String> terms) {
 		Map<String, List<Bioentity>> term2node = new HashMap<>();
 		for (Bioentity node : nodes) {
@@ -191,12 +193,13 @@ public class AnnotMatrixModel extends AbstractTableModel {
 		Collections.sort(terms, new TermCountComparator(term2node));
 	}
 
-	private boolean groupParentTerms(List<String> orig_termlist, boolean odd_column) {
+	private boolean groupParentTerms(List<String> orig_termlist, boolean odd_column, boolean cellular) {
 		while (orig_termlist.size() > 0) {
 			String cur_term = orig_termlist.remove(0);
 			term_list.add(cur_term);
 			ColumnTermData td = new ColumnTermData();
 			td.setOddColumn(odd_column);
+			td.setCellular(cellular);
 			term2menu.put(cur_term, td);
 			for (int i = 0; i < orig_termlist.size();) {
 				String other_term = orig_termlist.get(i);
@@ -205,12 +208,13 @@ public class AnnotMatrixModel extends AbstractTableModel {
 					term_list.add(other_term);
 					td = new ColumnTermData();
 					td.setOddColumn(odd_column);
+					td.setCellular(cellular);
 					term2menu.put(other_term, td);
 				} else {
 					i++;
-					odd_column = !odd_column;
 				}
 			}
+			odd_column = !odd_column;
 		}
 		return !odd_column;
 	}

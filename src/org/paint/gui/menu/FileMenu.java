@@ -86,7 +86,7 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 		saveFamItem = new JMenuItem(save_annots);
 		saveFamItem.addActionListener(new SaveToFileActionListener());
 		this.add(saveFamItem);
-		
+
 		exportFamItem = new JMenuItem(export_annots);
 		exportFamItem.addActionListener(new ExportToFileActionListener());
 		this.add(exportFamItem);
@@ -180,11 +180,11 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 	 */
 	private class OpenFamilyActionListener implements ActionListener{
 		private boolean use_server;
-		
+
 		public OpenFamilyActionListener(boolean use_server) {
 			this.use_server = use_server;
 		}
-		
+
 		public void actionPerformed(ActionEvent e){
 			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 				protected Void doInBackground() throws Exception {
@@ -195,10 +195,12 @@ public class FileMenu extends JMenu implements AnnotationChangeListener { // Dyn
 						proceed = DirtyIndicator.inst().runDirtyDialog("opening a family?");
 					if (proceed) {
 						String status = "";
-						if (!LoginUtil.getLoggedIn()) {
-							status = LoginUtil.login();
+						if (use_server) {
+							if (!LoginUtil.getLoggedIn()) {
+								status = LoginUtil.login();
+							}
 						}
-						if (LoginUtil.getLoggedIn()) {
+						if (!use_server || LoginUtil.getLoggedIn()) {
 							SelectFamily dlg = new SelectFamily(GUIManager.getManager().getFrame());
 							String full_file_name = dlg.getSelectedDirectory(false);
 							if (full_file_name != null) {

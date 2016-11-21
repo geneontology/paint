@@ -32,7 +32,6 @@ import org.bbop.phylo.model.GeneAnnotation;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelectorPanel;
 import org.paint.gui.DirtyIndicator;
-import org.paint.gui.table.GeneTable;
 import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 
@@ -65,16 +64,14 @@ public class EventManager {
 
 	private boolean is_adjusting = false;
 
+	// Exists only to defeat instantiation.
 	private EventManager() {
-
-		// Exists only to defeat instantiation.
-
+		selectedNodes = new ArrayList<>();
 	}
 
 	public static synchronized EventManager inst() {
 
 		if (INSTANCE == null) {
-
 			INSTANCE = new EventManager();
 		}
 
@@ -260,7 +257,7 @@ public class EventManager {
 	 */
 	public void fireGeneEvent(GeneSelectEvent e) {
 		List<Bioentity> new_genes = e.getGenes();
-		boolean selection_changed = (selectedNodes == null || (selectedNodes != null && (new_genes.size() != selectedNodes.size())));
+		boolean selection_changed = (new_genes.size() != selectedNodes.size());
 		if (!selection_changed) {
 			/*
 			 * This convoluted if statement serves simply to determine if the selection has changed
@@ -281,16 +278,6 @@ public class EventManager {
 		selectNodes(true);
 
 		if (selection_changed) {
-			// Ensure all of the selections have their nodes expanded in the tree
-			TreePanel tree = PaintManager.inst().getTree();
-			if (tree.ensureExpansion(selectedNodes)) {
-				NodeReorderEvent event = new NodeReorderEvent(this);
-				event.setNodes(tree.getTerminusNodes());
-				for (Iterator<NodeReorderListener> it = node_listeners.iterator(); it.hasNext();) {
-					NodeReorderListener listener = it.next();
-					listener.handleNodeReorderEvent(event);
-				}
-			}
 			for (Iterator<GeneSelectListener> it = gene_listeners.iterator(); it.hasNext();) {
 				GeneSelectListener listener = it.next();
 				listener.handleGeneSelectEvent(e);
@@ -299,10 +286,8 @@ public class EventManager {
 	}
 
 	private void selectNodes(boolean selected) {
-		if (selectedNodes != null) {
-			for (Bioentity node : selectedNodes) {
-				((DisplayBioentity) node).setSelected(selected);
-			}
+		for (Bioentity node : selectedNodes) {
+			((DisplayBioentity) node).setSelected(selected);
 		}
 	}
 
@@ -505,8 +490,7 @@ public class EventManager {
 		}
 		TreePanel tree = PaintManager.inst().getTree();
 		tree.scrollToTop();
-		if (selectedNodes != null)
-			selectedNodes = null;
+		selectedNodes.clear();
 		term_selection = null;
 		setCurrentSelectedNode(null);
 	}

@@ -20,6 +20,7 @@ import org.paint.gui.event.EventManager;
 import org.paint.gui.event.GeneSelectEvent;
 import org.paint.gui.event.TermSelectEvent;
 import org.paint.gui.matrix.TermCountComparator;
+import org.paint.gui.tree.TreePanel;
 import org.paint.main.PaintManager;
 
 public class FoundResultsTable extends JTable {
@@ -53,6 +54,9 @@ public class FoundResultsTable extends JTable {
 			if (gene_results2 != null && gene_results2.size() > 0) {
 				getSelectionModel().addSelectionInterval(0, 0);
 				Bioentity node = gene_results2.get(0);
+				// Ensure the selected node is visible in the tree
+				TreePanel tree = PaintManager.inst().getTree();
+				tree.ensureExpansion(node);
 				ArrayList<Bioentity> selection = new ArrayList<> ();
 				selection.add(node);
 				PaintManager.inst().getTree().getDescendentList(node, selection);
@@ -69,8 +73,6 @@ public class FoundResultsTable extends JTable {
 			model.fireTableDataChanged();
 			if (term_results != null && term_results.size() > 0) {
 				setRowSelectionInterval(0, 0);
-				String selected_term = term_results.get(0);
-				setSelectedTerm(selected_term);
 			}
 		}
 	}
@@ -102,7 +104,7 @@ public class FoundResultsTable extends JTable {
 	
 	public void setSelectedTerm(String selected_term) {
 		TermSelectEvent term_event = new TermSelectEvent (this, selected_term, true);
-		List<Bioentity> selection = EventManager.inst().fireTermEvent(term_event);	
+		List<Bioentity> selection = EventManager.inst().fireTermEvent(term_event);
 		GeneSelectEvent gene_event = new GeneSelectEvent(this, selection, EventManager.inst().getCurrentSelectedNode());
 		EventManager.inst().fireGeneEvent(gene_event);		
 	}
@@ -119,11 +121,14 @@ public class FoundResultsTable extends JTable {
 			if (row >= 0 && !e.getValueIsAdjusting() ) {
 				if (search_type == SEARCH_TYPE.GENE) {
 					Bioentity node = gene_results.get(row);
+					// Ensure the selected node is visible in the tree
+					TreePanel tree = PaintManager.inst().getTree();
+					tree.ensureExpansion(node);
 					ArrayList<Bioentity> selection = new ArrayList<> ();
 					selection.add(node);
 					PaintManager.inst().getTree().getDescendentList(node, selection);
-					GeneSelectEvent event = new GeneSelectEvent(this, selection, node);
-					EventManager.inst().fireGeneEvent(event);
+					GeneSelectEvent event = new GeneSelectEvent(this, selection, node, true);
+					EventManager.inst().fireGeneEvent(event);					
 					// zoom in on new selection (with some padding)
 				} else if (search_type == SEARCH_TYPE.TERM) {
 					String selected_term = term_results.get(row);

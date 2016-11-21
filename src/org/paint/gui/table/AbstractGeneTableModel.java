@@ -26,15 +26,13 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.TreePath;
 
-import org.paint.gui.PaintTable;
-
 
 /**
  * An abstract implementation of the TreeTableModel interface, handling
  * the list of listeners.
  *
  */
-public abstract class AbstractGeneTableModel extends AbstractTableModel implements PaintTable {
+public abstract class AbstractGeneTableModel extends AbstractTableModel {
 	/**
 	 * 
 	 */
@@ -50,7 +48,7 @@ public abstract class AbstractGeneTableModel extends AbstractTableModel implemen
 	}
 
 	//
-	// Default implmentations for methods in the TreeModel interface.
+	// Default implementations for methods in the TreeModel interface.
 	//
 	public Object getRoot(){
 		return root;

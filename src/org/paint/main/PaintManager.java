@@ -157,7 +157,7 @@ public class PaintManager {
 		family = new Family(family_name);
 		DisplayTree tree = new DisplayTree(family_name);
 		
-		PantherAdapterI adapter = new PaintPantherAdapter(family_name, existing);
+		PantherAdapterI adapter = new PaintPantherAdapter(family_name, use_server);
 
 		boolean success = family.fetch(tree, adapter);
 		if (success) {

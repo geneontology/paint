@@ -123,7 +123,7 @@ ChallengeListener
 	private static final String OUTPUT_SEQ_INFO_COLUMNS = "#Database id" + OUTPUT_SEQ_DELIM + "Sequence id";
 
 	// indicates whether or not the y values need to be recalculated on next draw
-//	private boolean need_update = true;
+	//	private boolean need_update = true;
 	private Rectangle tree_rect = new Rectangle(0, 0, 0, 0);
 
 	protected static final int LEFTMARGIN = 20;
@@ -373,7 +373,7 @@ ChallengeListener
 		int x = TreePanel.LEFTMARGIN + getNodeWidth(g, current_root);
 		setNodeRectangle(current_root, row_height, x, 0, use_distances, g);
 		tree_rect = calcTreeSize(g);
-//		need_update = false;
+		//		need_update = false;
 	}
 
 	protected void setNeedPositionUpdate() {
@@ -561,17 +561,13 @@ ChallengeListener
 					if (node.getParent() != null)
 						new_select |= node.isSelected() && ((DisplayBioentity)node.getParent()).isSelected();
 
+					ArrayList<Bioentity> selection = new ArrayList<>();
+					selection.add(node);
 					if (new_select) {
-						ArrayList<Bioentity> selection = new ArrayList<>();
-						selection.add(node);
 						tree.getDescendentList(node, selection);
-						GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
-						EventManager.inst().fireGeneEvent(ge);
-					} else {
-						ArrayList<Bioentity> selection = new ArrayList<>();
-						GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
-						EventManager.inst().fireGeneEvent(ge);						
 					}
+					GeneSelectEvent ge = new GeneSelectEvent (this, selection, node);
+					EventManager.inst().fireGeneEvent(ge);
 				}
 			}
 		}
@@ -903,7 +899,9 @@ ChallengeListener
 		List<Bioentity> selection = event.getPrevious();
 		repaintNodes(selection);
 		selection = event.getGenes();
-		scrollToNode(event.getAncestor());
+		if (event.doScroll()) {
+			scrollToNode(event.getAncestor());
+		}
 		repaintNodes(selection);
 	}
 
@@ -1156,33 +1154,15 @@ ChallengeListener
 		return node.getNodeLabel();
 	}
 
-	public boolean ensureExpansion(List<Bioentity> selectedNodes) {
-		List<DisplayBioentity> nodes_to_make_visible = new ArrayList<>();
-		for (Bioentity kid : selectedNodes) {
-			DisplayBioentity node = (DisplayBioentity) kid;
-			Rectangle node_rect = node.getScreenRectangle();
-			if (node_rect == null) {
-				// must be invisible because a parent node is collapsed
-				Bioentity parent = kid.getParent();
-				while (parent != null && ((DisplayBioentity) parent).isExpanded()) {
-					parent = parent.getParent();
-				}
-				if (parent == null) {
-					logger.info("Crap, how did this ever happen");
-					return false;
-				}
-				nodes_to_make_visible.add((DisplayBioentity) parent);
-			}
+	public void ensureExpansion(Bioentity selected_node) {
+		DisplayBioentity parent = (DisplayBioentity) selected_node.getParent();
+			// must be invisible because a parent node is collapsed
+		while (parent != null && parent.isExpanded()) {
+			parent = (DisplayBioentity) parent.getParent();
 		}
-		if (!nodes_to_make_visible.isEmpty()) {
-			tree.handleCollapseExpand(nodes_to_make_visible);
-			Graphics g = getGraphics();
-			int x = TreePanel.LEFTMARGIN + getNodeWidth(g, getCurrentRoot());
-			setNodeRectangle(getCurrentRoot(), PaintManager.inst().getRowHeight(), x, 0, PaintConfig.inst().use_distances, g);
-			tree_rect = calcTreeSize(g);
-			return true;
-		} else {
-			return false;
+		if (parent != null) {
+			tree.handleCollapseExpand(parent);
+			setNeedPositionUpdate();
 		}
 	}
 
@@ -1192,9 +1172,10 @@ ChallengeListener
 		scrollToNode(tree.getTopLeafNode(tree.getCurrentRoot()));
 	}
 
-	private void scrollToNode(Bioentity node) {
+	public int scrollToNode(Bioentity node) {
 		if (!(getParent() instanceof JViewport)) { 
-			return; 
+			logger.info("No tree panel viewport, so unable to scroll");
+			return -1; 
 		} 
 		JViewport viewport = (JViewport)getParent(); 
 		// This rectangle is relative to the table where the 
@@ -1203,15 +1184,16 @@ ChallengeListener
 		Rectangle visible = viewport.getViewRect();
 		Rectangle rect = ((DisplayBioentity) node).getScreenRectangle();
 
-		if (visible.y <= rect.y && (visible.y + visible.height) >= (rect.y + rect.height))
-			return;
+		if (rect.y >= visible.y && (rect.y + rect.height) <= (visible.y + visible.height))
+			return -1;
 
 		int focal_y = Math.max(0, rect.y - (visible.height / 2));
 		Point point_of_view = new Point(visible.x, focal_y);
 		//		log.debug("Scrolling to pixel position " + point_of_view.y);
 
 		// Scroll the area into view, upper left hand part.
-		viewport.setViewPosition(point_of_view);		
+		viewport.setViewPosition(point_of_view);
+		return focal_y;
 	}
 
 }

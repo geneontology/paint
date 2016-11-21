@@ -44,7 +44,6 @@ import org.bbop.phylo.model.Bioentity;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.FamilyViews;
-import org.paint.gui.PaintTable;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
 import org.paint.gui.event.EventManager;
@@ -206,41 +205,41 @@ AspectChangeListener {
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
-//		GeneTableModel genes = (GeneTableModel) this.getModel();
-//		int total = genes.getRowCount();
-//		int min_row = -1;
-//		int max_row = -1;
-//		if (total > 0) {
-//			is_adjusting = true;
-//			ListSelectionModel lsm = this.getSelectionModel();
-//			lsm.clearSelection();
-//			for (int i = 0; i < total; i++) {
-//				DisplayBioentity node = (DisplayBioentity) genes.getNode(i);
-//				if (node.isSelected()) {
-//					lsm.addSelectionInterval(i, i);
-//					if (min_row < 0 || i < min_row) {
-//						min_row = i;
-//					}
-//					if (max_row < 0 || i > max_row) {
-//						max_row = i;
-//					}
-//				}
-//			}
-//			Bioentity mrca = EventManager.inst().getCurrentSelectedNode();
-//			if (mrca.isLeaf()) {
-//				if (min_row >= 0)
-//					scrollToRow(min_row);
-//				else
-//					scrollToRow(0);
-//			} else {
-//				if (min_row >= 0 && max_row >= 0) {
-//					scrollToRow((min_row + max_row) / 2);
-//				} else {
-//					scrollToRow(0);
-//				}
-//			}
-//			is_adjusting = false;
-//		}		
+		//		GeneTableModel genes = (GeneTableModel) this.getModel();
+		//		int total = genes.getRowCount();
+		//		int min_row = -1;
+		//		int max_row = -1;
+		//		if (total > 0) {
+		//			is_adjusting = true;
+		//			ListSelectionModel lsm = this.getSelectionModel();
+		//			lsm.clearSelection();
+		//			for (int i = 0; i < total; i++) {
+		//				DisplayBioentity node = (DisplayBioentity) genes.getNode(i);
+		//				if (node.isSelected()) {
+		//					lsm.addSelectionInterval(i, i);
+		//					if (min_row < 0 || i < min_row) {
+		//						min_row = i;
+		//					}
+		//					if (max_row < 0 || i > max_row) {
+		//						max_row = i;
+		//					}
+		//				}
+		//			}
+		//			Bioentity mrca = EventManager.inst().getCurrentSelectedNode();
+		//			if (mrca.isLeaf()) {
+		//				if (min_row >= 0)
+		//					scrollToRow(min_row);
+		//				else
+		//					scrollToRow(0);
+		//			} else {
+		//				if (min_row >= 0 && max_row >= 0) {
+		//					scrollToRow((min_row + max_row) / 2);
+		//				} else {
+		//					scrollToRow(0);
+		//				}
+		//			}
+		//			is_adjusting = false;
+		//		}		
 	}
 
 	public void handleGeneSelectEvent (GeneSelectEvent e) {
@@ -335,12 +334,10 @@ AspectChangeListener {
 			Bioentity high_gene = tree.getBottomLeafNode(node);
 			int high_row = model.getRow(high_gene);
 			setRowSelectionInterval(low_row, high_row);
-//			scrollToVisible(((DisplayBioentity) node).getScreenRectangle());
 		} else {
 			int row = model.getRow(node);
 			if (row >= 0 && row < getRowCount()) {
 				setRowSelectionInterval(row, row);
-//				scrollToRow(row);
 			} else {
 				log.debug("Row out of bounds: " + row);
 			}
@@ -368,7 +365,7 @@ AspectChangeListener {
 		return d;
 	}
 
-	private void setColumnWidths(PaintTable grid, int col_count, FontMetrics fm, TableColumnModel colModel) {
+	private void setColumnWidths(GeneTableModel grid, int col_count, FontMetrics fm, TableColumnModel colModel) {
 		Insets insets = new DefaultTableCellRenderer().getInsets();
 		for (int i = 0; i < col_count; i++) {
 			int optimalColumnWidth = 0;
@@ -376,19 +373,13 @@ AspectChangeListener {
 			 * Fixed this so that it works generally for any column that is just an icon
 			 * e.g. other homology programs, etc.
 			 */
-			if (grid.isSquare(i)) {
-				optimalColumnWidth = fm.getHeight();
-			}
-			//			Set column width to max size required to fit text                        
-			else {
-				for (int j = 0; j < grid.getRowCount(); j++) {
-					String value = grid.getTextAt(j, i);
-					if (null == value) {
-						value = "";
-					}
-					int optimalCellWidth = fm.stringWidth(value) + insets.left + insets.right + 2;
-					optimalColumnWidth = Math.max(optimalColumnWidth, optimalCellWidth);
+			for (int j = 0; j < getRowCount(); j++) {
+				String value = grid.getTextAt(j, i);
+				if (null == value) {
+					value = "";
 				}
+				int optimalCellWidth = fm.stringWidth(value) + insets.left + insets.right + 2;
+				optimalColumnWidth = Math.max(optimalColumnWidth, optimalCellWidth);
 			}
 			TableColumn col = colModel.getColumn(i);
 			//Get the column at index columnIndex, and set its preferred width.

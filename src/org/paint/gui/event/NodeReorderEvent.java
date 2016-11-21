@@ -15,8 +15,7 @@ public class NodeReorderEvent extends EventObject {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	int action;
-	List<Bioentity> node_list;
+	private List<Bioentity> node_list;
 
 	public NodeReorderEvent(Object source) {
 		super(source);

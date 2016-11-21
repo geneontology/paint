@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -36,14 +34,12 @@ import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
-import org.paint.gui.PaintTable;
 import org.paint.gui.association.AssociationsTable.PHYLO_ACTION;
 import org.paint.gui.event.TermHyperlinkListener;
 import org.paint.main.PaintManager;
 import org.paint.util.HTMLUtil;
 
-public class AssociationsTableModel extends AbstractTableModel 
-implements PaintTable {
+public class AssociationsTableModel extends AbstractTableModel {
 
 	/**
 	 * 
@@ -57,31 +53,33 @@ implements PaintTable {
 	protected static final String TRASH_COL_NAME = "Edit";
 
 	protected static final String[] column_headings = {
-		CODE_COL_NAME, 
-		TERM_COL_NAME, 
-		REFERENCE_COL_NAME,
-		WITH_COL_NAME,
-		TRASH_COL_NAME
+			CODE_COL_NAME, 
+			TERM_COL_NAME, 
+			REFERENCE_COL_NAME,
+			WITH_COL_NAME,
+			TRASH_COL_NAME
 	};
+	
+	protected static final int WITH_COLUMN = 3;
 
 	protected Bioentity node;
 	protected ArrayList<GeneAnnotation> associations;
 	protected HashMap<GeneAnnotation, HyperlinkLabel> pub_labels;
-	protected HashMap<GeneAnnotation, Set<HyperlinkLabel>> with_labels;
+	protected HashMap<GeneAnnotation, WithCellModel> with_lists;
 
 	protected static Logger log = Logger.getLogger(AssociationsTableModel.class);
 
 	public AssociationsTableModel() {
 		associations = new ArrayList<GeneAnnotation> ();
 		pub_labels = new HashMap<GeneAnnotation, HyperlinkLabel> ();
-		with_labels = new HashMap<GeneAnnotation, Set<HyperlinkLabel>> ();
+		with_lists = new HashMap<GeneAnnotation, WithCellModel> ();
 	}
 
 	public void setNode(Bioentity gene) {
 		this.node = gene;
 		associations.clear();
 		pub_labels.clear();
-		with_labels.clear();
+		with_lists.clear();
 		if (node != null) {
 			Collection<GeneAnnotation> all_associations = node.getAnnotations();
 			if (all_associations != null) {
@@ -95,7 +93,23 @@ implements PaintTable {
 					} else if (code.equals("ND")) {
 						log.info(node.getSeqId() + " has ND to term " + assoc.getCls());
 					}
-				}
+					HyperlinkLabel field = new HyperlinkLabel();
+					field.setEnabled(true);
+					field.addHyperlinkListener(new TermHyperlinkListener());
+					List<String> xrefs = assoc.getReferenceIds();
+					if (xrefs.size() > 0) {
+						String preferred_xref = HTMLUtil.getPMID(xrefs);
+						String[] xref = preferred_xref.split(":");
+						String xref_text = HTMLUtil.getHTML(xref[0], xref[1], false);
+						field.setText(xref_text);
+						pub_labels.put(assoc, field);
+					}
+					/*
+					 * This should be the links to the binding genes or the experimental evidence
+					 */
+					WithCellModel with_list = new WithCellModel(assoc);
+					with_lists.put(assoc, with_list);
+				}	
 			}
 		}
 
@@ -103,43 +117,6 @@ implements PaintTable {
 		 * Important not to create the table until the evidence is sorted
 		 */
 		sort();
-		for (GeneAnnotation assoc : associations) {
-			/*
-			 * This should be the link to the publication record
-			 */
-			HyperlinkLabel field = new HyperlinkLabel();
-			field.setEnabled(true);
-			field.addHyperlinkListener(new TermHyperlinkListener());
-			List<String> xrefs = assoc.getReferenceIds();
-			if (xrefs.size() > 0) {
-				String preferred_xref = HTMLUtil.getPMID(xrefs);
-				String[] xref = preferred_xref.split(":");
-				String xref_text = HTMLUtil.getHTML(xref[0], xref[1], false);
-				field.setText(xref_text);
-				pub_labels.put(assoc, field);
-			}
-			Collection<String> withs = assoc.getWithInfos();
-			field = new HyperlinkLabel();
-			field.setEnabled(true);
-			field.addHyperlinkListener(new TermHyperlinkListener());
-			String with_text;
-			if (withs != null && !withs.isEmpty()) {
-				if (withs.size() == 1) {
-					String[] with = withs.iterator().next().split(":");
-					with_text = HTMLUtil.getHTML(with[0], with[1], true);
-				} 
-				else {
-					with_text = HTMLUtil.HTML_TEXT_BEGIN+withs.toString()+HTMLUtil.HTML_TEXT_END;
-				}
-			}
-			else {
-				with_text = HTMLUtil.HTML_TEXT_BEGIN+HTMLUtil.HTML_TEXT_END;
-			}
-			field.setText(with_text);
-			Set<HyperlinkLabel> with_links = new HashSet<HyperlinkLabel>();
-			with_links.add(field);					
-			with_labels.put(assoc, with_links);
-		}
 	}
 
 	public void removeAssociation(GeneAnnotation assoc) {
@@ -147,32 +124,9 @@ implements PaintTable {
 			GeneAnnotation table_evi = associations.get(i);
 			if (table_evi.equals(assoc)) {
 				pub_labels.remove(table_evi);
-				with_labels.remove(table_evi);
+				with_lists.remove(table_evi);
 				associations.remove(i);
 			}
-		}
-	}
-
-	public String getTextAt(int row, int column) {
-		if (getRowCount() == 0) {
-			return null;
-		}
-		String tag = column_headings[column];
-		GeneAnnotation association = associations.get(row);
-
-		if (tag.equals(CODE_COL_NAME)) {
-			return CODE_COL_NAME;
-		} else if (tag.equals(TERM_COL_NAME)) {
-			return OWLutil.inst().getTermLabel(association.getCls());
-		} else if (tag.equals(REFERENCE_COL_NAME)) {
-			String xref_text = association.getReferenceIds().toString();
-			return xref_text;
-		} else if (tag.equals(TRASH_COL_NAME)) {
-			return TRASH_COL_NAME;
-		} else if (tag.equals(WITH_COL_NAME)) {
-			return association.getWithInfos().toString();
-		} else {
-			return "";
 		}
 	}
 
@@ -180,7 +134,6 @@ implements PaintTable {
 		for (int row = 0; row < associations.size(); row++) {
 			GeneAnnotation evi = associations.get(row);
 			if (evi.getCls().equals(term))
-//					|| TermUtil.isDescendant(potentialAncestor, potentialDescendant))
 				return row;
 		}
 		return -1;
@@ -221,7 +174,7 @@ implements PaintTable {
 				check = AssociationsTable.PHYLO_ACTION.class;
 			} else if (tag.equals(WITH_COL_NAME)) {
 				// and what (if appropriate) the inference was based on, e.g. another sequence or an interpro domain
-				check = Set.class;
+				check = WithCellModel.class;
 			}
 		}
 		return check;
@@ -266,9 +219,7 @@ implements PaintTable {
 			}
 		} else if (tag.equals(WITH_COL_NAME)) {
 			// and what (if appropriate) the inference was based on, e.g. another sequence or an interpro domain
-			//			Set<DBXref> withs = evi.getWiths();
-			return with_labels.get(assoc);
-			//			return withs;
+			return with_lists.get(assoc);
 		} else {
 			return null;
 		}
@@ -317,13 +268,9 @@ implements PaintTable {
 	public GeneAnnotation getEvidenceForRow(int row) {
 		return associations.get(row);
 	}
-	
-	public boolean isCellEditable(int rowIndex, int colIndex) {
-		Object cell = getValueAt(rowIndex, colIndex);
-		if (cell != null && cell instanceof Boolean) {
-			return true;
-		}
-		return false;
+
+	public boolean isCellEditable(int row, int column) {
+		return column == WITH_COLUMN;
 	}
 
 	private void sort() {
@@ -337,4 +284,5 @@ implements PaintTable {
 	public boolean isSquare(int column) {
 		return getColumnName(column).equals(TRASH_COL_NAME);
 	}
+
 }

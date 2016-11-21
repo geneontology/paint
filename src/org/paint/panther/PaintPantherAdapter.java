@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.io.panther.PantherAdapter;
-import org.bbop.phylo.io.panther.PantherAdapterI;
 import org.bbop.phylo.io.panther.PantherFileAdapter;
+import org.bbop.phylo.io.panther.PantherLoadAdapterI;
 import org.bbop.phylo.io.panther.PantherParserI;
 import org.bbop.phylo.io.panther.PantherServerAdapter;
 import org.bbop.phylo.model.Bioentity;
@@ -40,7 +40,7 @@ public class PaintPantherAdapter extends PantherAdapter {
 
 	private static Logger log = Logger.getLogger(PaintPantherAdapter.class);
 
-	private static PantherAdapterI active_adapter;
+	private static PantherLoadAdapterI active_adapter;
 
 	public PaintPantherAdapter (String family_name, boolean use_server) {
 		if (active_adapter == null) {
@@ -57,18 +57,18 @@ public class PaintPantherAdapter extends PantherAdapter {
 		}
 	}
 
-	public boolean fetchFamily(Family family, Tree tree) {
+	public boolean loadFamily(Family family, Tree tree) {
 		TimerUtil timer = new TimerUtil();
-		log.info("Fetching " + family.getFamily_name() + " raw tree ");
-		boolean okay = active_adapter.fetchFamily(family, tree);
+		boolean okay = active_adapter.loadFamily(family, tree);
 		if (okay) {
 			log.info("\tFetched " + family.getFamily_name() + ": " + timer.reportElapsedTime());
 			recordOrigChildOrder(tree.getCurrentRoot());	
 			PantherParserI parser = new PaintPantherParser();
 			parser.parseFamily(family, tree);
-			log.info("\tParsed " + family.getFamily_name() + ": " + timer.reportElapsedTime());
+			log.info("Loaded " + family.getFamily_name() + ": " + timer.reportElapsedTime());
+		} else {
+			log.info("Unable to load " + family.getFamily_name() + ": " + timer.reportElapsedTime());
 		}
-		log.info("Loaded " + family.getFamily_name() + ": " + timer.reportElapsedTime());
 		return okay;
 	}
 

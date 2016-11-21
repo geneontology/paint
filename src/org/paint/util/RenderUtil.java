@@ -33,7 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPopupMenu;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
@@ -235,7 +237,7 @@ public class RenderUtil {
 		}
 		return color;
 	}
-	
+
 	public static void showPopup(JPopupMenu popup, Component comp, Point position){
 
 		// Get root frame
@@ -269,6 +271,14 @@ public class RenderUtil {
 		popup.show(comp, position.x, position.y);
 	}
 
-
-
+	public static JList<String> initWithList() {
+		JList<String> list = new JList<>();
+		list.setForeground(Color.blue);
+		list.setSelectionBackground(Color.gray);
+		list.setFont(GuiConstant.DEFAULT_FONT);
+		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		list.setLayoutOrientation(JList.VERTICAL);
+		list.setVisibleRowCount(4);
+		return list;
+	}
 }

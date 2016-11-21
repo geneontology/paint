@@ -30,6 +30,7 @@ import java.text.AttributedString;
 
 import javax.swing.Icon;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.log4j.Logger;
@@ -119,7 +120,8 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 			as.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
 		}
 		as.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		g.drawString(as.getIterator(), x, bounds.height - 3);
+		int y = (bounds.height / 2) + 6;
+		g.drawString(as.getIterator(), x, y);
 	}
 
 }

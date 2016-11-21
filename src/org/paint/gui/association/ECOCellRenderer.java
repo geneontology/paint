@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import org.bbop.phylo.annotate.AnnotationUtil;
@@ -68,6 +69,9 @@ public class ECOCellRenderer extends JLabel implements TableCellRenderer {
 		String aspect_name = AspectSelector.inst().getAspectName4Code(OWLutil.inst().getAspect(assoc.getCls()));
 		bg_color = RenderUtil.getAspectColor(aspect_name);
 		setBackground(bg_color);
+		
+		setVerticalAlignment(SwingConstants.CENTER);
+
 		return this;
 	}
 
