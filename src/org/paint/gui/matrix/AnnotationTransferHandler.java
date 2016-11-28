@@ -49,17 +49,21 @@ import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
 import org.apache.log4j.Logger;
 import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
 import org.bbop.phylo.annotate.WithEvidence;
+import org.bbop.phylo.model.Bioentity;
+import org.bbop.phylo.model.Family;
 import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.phylo.tracking.LogEntry.LOG_ENTRY_TYPE;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.phylo.util.TaxonChecker;
+import org.paint.dialog.AnnotUtil;
 import org.paint.dialog.QualifierDialog;
 import org.paint.dialog.TaxonDialog;
 import org.paint.displaymodel.DisplayBioentity;
@@ -256,22 +260,30 @@ public class AnnotationTransferHandler extends TransferHandler {
 		Point p = support.getDropLocation().getDropPoint();
 		DisplayBioentity node = tree.getClickedInNodeArea(p);
 
-		boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree.getTreeModel(), node, term, false);
-		if (!valid_for_all_descendents) {
-			List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(node, term);
-			TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
-			valid_for_all_descendents = taxon_dialog.isLost();
-		}
-		if (valid_for_all_descendents) {
-			WithEvidence withs = new WithEvidence(tree.getTreeModel(), node, term);
-			int qualifiers = withs.getWithQualifiers();
-			if (qualifiers > 0) {
-				QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
-				qualifiers = qual_dialog.getQualifiers();
-			}
-			PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers);
-			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
-		}
+		AnnotUtil.inst().propagateAssociation(node, tree.getTreeModel(), term, null);
+//		boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree.getTreeModel(), node, term, false);
+//		if (!valid_for_all_descendents) {
+//			List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(node, term);
+//			doTaxonDialog taxon_dialog_runner = new doTaxonDialog(term, invalid_taxa);
+//			Thread t1 = new Thread(taxon_dialog_runner);
+//			t1.start();
+//			try {
+//				t1.join();
+//			} catch (InterruptedException e) {
+//				log.info("Not sure what to do here if it ever happens");
+//			}
+//			valid_for_all_descendents = taxon_dialog_runner.valid();
+//		}
+//		if (valid_for_all_descendents) {
+//			WithEvidence withs = new WithEvidence(tree.getTreeModel(), node, term);
+//			int qualifiers = withs.getWithQualifiers();
+//			if (qualifiers > 0) {
+//				QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
+//				qualifiers = qual_dialog.getQualifiers();
+//			}
+//			PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), node, term, withs, null, qualifiers);
+//			EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(node));
+//		}
 		clearVisitedNodes(tree);
 		return true;
 	}
@@ -434,4 +446,28 @@ public class AnnotationTransferHandler extends TransferHandler {
 		{
 		}
 	}
+
+//	private class doTaxonDialog implements Runnable{
+//		private final String term;
+//		private final List<String> invalid_taxa;
+//		private boolean valid_for_all_descendents;
+//
+//		doTaxonDialog(String term, List<String> invalid_taxa) {
+//			this.term = term;
+//			this.invalid_taxa = invalid_taxa;
+//		}
+//
+//		public void run() {
+//			SwingUtilities.invokeLater(new Runnable() {
+//				public void run() {
+//					TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
+//					valid_for_all_descendents = taxon_dialog.isLost();
+//				}
+//			});
+//		}
+//		
+//		public boolean valid() {
+//			return valid_for_all_descendents;
+//		}
+//	}
 }

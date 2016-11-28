@@ -55,6 +55,7 @@ import org.bbop.phylo.model.Tree;
 import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.phylo.util.TaxonChecker;
+import org.paint.dialog.AnnotUtil;
 import org.paint.dialog.QualifierDialog;
 import org.paint.dialog.TaxonDialog;
 import org.paint.displaymodel.DisplayBioentity;
@@ -551,22 +552,23 @@ ChallengeListener
 
 		public void actionPerformed(ActionEvent e){
 			Tree tree = PaintManager.inst().getTree().getTreeModel();
-			boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree, ancestor, term, false);
-			if (!valid_for_all_descendents) {
-				List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(ancestor, term);
-				TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
-				valid_for_all_descendents = taxon_dialog.isLost();
-			}
-			if (valid_for_all_descendents) {
-				WithEvidence withs = new WithEvidence(tree, ancestor, term);
-				int qualifiers = withs.getWithQualifiers();
-				if (qualifiers > 0) {
-					QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
-					qualifiers = qual_dialog.getQualifiers();
-				}
-				PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), ancestor, term, withs, null, qualifiers);
-				EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(ancestor));
-			}
+			AnnotUtil.inst().propagateAssociation(ancestor, tree, term, null);
+//			boolean valid_for_all_descendents = TaxonChecker.checkTaxons(tree, ancestor, term, false);
+//			if (!valid_for_all_descendents) {
+//				List<String> invalid_taxa = TaxonChecker.getInvalidTaxa(ancestor, term);
+//				TaxonDialog taxon_dialog = new TaxonDialog(GUIManager.getManager().getFrame(), term, invalid_taxa);
+//				valid_for_all_descendents = taxon_dialog.isLost();
+//			}
+//			if (valid_for_all_descendents) {
+//				WithEvidence withs = new WithEvidence(tree, ancestor, term);
+//				int qualifiers = withs.getWithQualifiers();
+//				if (qualifiers > 0) {
+//					QualifierDialog qual_dialog = new QualifierDialog(GUIManager.getManager().getFrame(), qualifiers);
+//					qualifiers = qual_dialog.getQualifiers();
+//				}
+//				PaintAction.inst().propagateAssociation(PaintManager.inst().getFamily(), ancestor, term, withs, null, qualifiers);
+//				EventManager.inst().fireAnnotationChangeEvent(new AnnotationChangeEvent(ancestor));
+//			}
 		}
 
 	}

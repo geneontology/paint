@@ -141,17 +141,17 @@ public class AnnotMatrixModel extends AbstractTableModel {
 
 		/* Hack alert - hard coded the GO id for cellular process here */
 		/* Only applies to biological process */
-		if (aspect_name.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString())) {
-			String cellular = "GO:0009987";
-			for (String term : cellular_list) {
-				if (!OWLutil.inst().moreSpecific(term, cellular)) {
-					noncellular_list.add(term);
-				}
-			}
-			for (String term : noncellular_list) {
-				cellular_list.remove(term);
-			}
-		}
+//		if (aspect_name.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString())) {
+//			String cellular = "GO:0009987";
+//			for (String term : cellular_list) {
+//				if (!OWLutil.inst().moreSpecific(term, cellular)) {
+//					noncellular_list.add(term);
+//				}
+//			}
+//			for (String term : noncellular_list) {
+//				cellular_list.remove(term);
+//			}
+//		}
 
 		/*
 		 * First an alphabetic sort
