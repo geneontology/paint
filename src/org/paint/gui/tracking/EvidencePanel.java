@@ -190,9 +190,11 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		Color border_color = Color.black;
 		switch (aspect) {
 		case GuiConstant.HIGHLIGHT_BP:
+			border_color = GuiConstant.bp_inf_color;
 		case GuiConstant.HIGHLIGHT_CC:
+			border_color = GuiConstant.cc_inf_color;
 		case GuiConstant.HIGHLIGHT_MF:
-			border_color = PaintConfig.inst().getAspectColor(aspect).darker();
+			border_color = GuiConstant.mf_inf_color;
 			break;
 		case GuiConstant.HIGHLIGHT_PRUNE:
 			border_color = Color.GRAY;

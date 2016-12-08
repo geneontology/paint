@@ -95,18 +95,19 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 	public void paint(Graphics g) {
 		Rectangle bounds = getBounds();
 		int x = 6; //bounds.x;
+		int y = (bounds.height / 2);
 
 		RenderUtil.paintBorder(g, new Rectangle(0, 0, bounds.width, bounds.height), bg_color, selected);
 
 		if (assoc.isColocatesWith()) {
 			if (colocates_icon != null) {
-				colocates_icon.paintIcon(this, g, x, 1);
+				colocates_icon.paintIcon(this, g, x, y-3);
 				x += colocates_icon.getIconWidth();
 			}
 		}
 		if (assoc.isContributesTo()) {
 			if (contributes_icon != null) {
-				contributes_icon.paintIcon(this, g, x, 1);
+				contributes_icon.paintIcon(this, g, x, y-3);
 				x += contributes_icon.getIconWidth();
 			}
 		}
@@ -120,8 +121,7 @@ public class GOTermRenderer extends DefaultTableCellRenderer {
 			as.addAttribute(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
 		}
 		as.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-		int y = (bounds.height / 2) + 6;
-		g.drawString(as.getIterator(), x, y);
+		g.drawString(as.getIterator(), x, y+6);
 	}
 
 }

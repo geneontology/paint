@@ -34,7 +34,6 @@ import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.swing.DynamicMenu;
-import org.paint.dialog.CurationStatusColorDialog;
 import org.paint.dialog.find.FindDialog;
 import org.paint.gui.AspectSelector;
 import org.paint.gui.event.AnnotationChangeEvent;
@@ -65,7 +64,7 @@ ChallengeListener
 	private static final String undo = "Undo";
 	private static final String redo = "Redo";
 	private static final String find = "Find...";
-	private static final String curation_status_color = "Color selection...";
+//	private static final String curation_status_color = "Color selection...";
 
 	public EditMenu() {
 		super("Edit");
@@ -99,9 +98,9 @@ ChallengeListener
 		// Separator line
 		this.addSeparator();
 
-		JMenuItem curationStatusColor = new JMenuItem(curation_status_color);
-		curationStatusColor.addActionListener(new CurationStatusColorListener());
-		this.add(curationStatusColor);
+//		JMenuItem curationStatusColor = new JMenuItem(curation_status_color);
+//		curationStatusColor.addActionListener(new CurationStatusColorListener());
+//		this.add(curationStatusColor);
 
 		/* So we can hide and show this menu based on what data is available */
 		EventManager.inst().registerFamilyListener(this);
@@ -172,12 +171,12 @@ ChallengeListener
 		updateLogItems();
 	}
 
-	private class CurationStatusColorListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			new CurationStatusColorDialog(GUIManager.getManager().getFrame());
-		}
-	}
-
+//	private class CurationStatusColorListener implements ActionListener {
+//		public void actionPerformed(ActionEvent e) {
+//			new CurationStatusColorDialog(GUIManager.getManager().getFrame());
+//		}
+//	}
+//
 	private void updateLogItems() {
 		String item_label;
 		item_label = LogAction.inst().doneString();

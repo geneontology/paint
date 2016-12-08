@@ -30,14 +30,14 @@ public class CurationStatusColorDialog extends JDialog {
 		JPanel everything = new JPanel();
 		everything.setLayout(new BoxLayout(everything, BoxLayout.Y_AXIS));
 
-		final CurationStatusColorPane annot_color;
+//		final CurationStatusColorPane annot_color;
 		final AspectColorPane aspect_color;
 		final JTabbedPane tab_pane;
 
-		annot_color = new CurationStatusColorPane();
+//		annot_color = new CurationStatusColorPane();
 		aspect_color = new AspectColorPane();
 		tab_pane = new JTabbedPane();
-		tab_pane.addTab("Annotation Colors", annot_color);
+//		tab_pane.addTab("Annotation Colors", annot_color);
 		tab_pane.addTab("Aspect Colors", aspect_color);
 		tab_pane.setOpaque(true);
 
@@ -52,7 +52,7 @@ public class CurationStatusColorDialog extends JDialog {
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				annot_color.cancelColorChange();
+//				annot_color.cancelColorChange();
 				aspect_color.cancelColorChange();
 				CurationStatusColorDialog.this.dispose();
 			}
@@ -63,8 +63,8 @@ public class CurationStatusColorDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				int selIndex = tab_pane.getSelectedIndex();
 				if (selIndex == 0) 
-					annot_color.resetColorChange();
-				else
+//					annot_color.resetColorChange();
+//				else
 					aspect_color.resetColorChange();
 			}
 		});

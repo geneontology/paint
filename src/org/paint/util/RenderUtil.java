@@ -40,8 +40,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
+import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.GeneAnnotation;
-import org.paint.config.PaintConfig;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
 
@@ -54,13 +54,13 @@ public class RenderUtil {
 
 	private static HashMap<String, Color> ortho_colors;
 
-	public static void paintBorder(Graphics g, Rectangle r, Color bgColor, boolean selected) {
-		if (bgColor != null) {
-			g.setColor(bgColor);
+	public static void paintBorder(Graphics g, Rectangle r, Color bg_color, boolean selected) {
+		if (bg_color != null) {
+			g.setColor(bg_color);
 			g.fillRect(r.x, r.y, r.width, r.height);
 		}
 		if (selected) {
-			Color color = GuiConstant.FOREGROUND_COLOR;
+			Color color = GuiConstant.SELECTION_COLOR;
 			g.setColor(color);
 			// line across the top of the cell in the table
 			g.drawLine(r.x, r.y, r.x + r.width, r.y);
@@ -141,48 +141,64 @@ public class RenderUtil {
 		return getTextWidth(fm, text + insets.left + insets.right);
 	}
 
-	public static Font getNodeFont(DisplayBioentity node) {
+	public static Font getNodeFont(Bioentity node) {
 		Font f = GuiConstant.DEFAULT_FONT;
-		//if (node.hasExpEvidence())
-		String aspect_name = AspectSelector.inst().getAspectCode();
-		List<GeneAnnotation> associations = AnnotationUtil.getAspectExpAssociations(node, aspect_name);
-		if (associations != null && associations.size() > 0) {
-			if (node.isSelected()) {
-				f = new Font(f.getFontName(), Font.BOLD, f.getSize());				
-			} else {
-				f = new Font(f.getFontName(), Font.PLAIN, f.getSize());
-			}
+		if (hasAspectExpAnnotation(node)) {
+			f = new Font(f.getFontName(), Font.BOLD, f.getSize());				
 		}
 		return f;
 	}
 
-	public static Color annotationStatusColor(DisplayBioentity node, Color c) {
-		return annotationStatusColor(node, c, true);
+	public static boolean hasAspectExpAnnotation(Bioentity node) {
+		String aspect_name = AspectSelector.inst().getAspectCode();
+		List<GeneAnnotation> associations = AnnotationUtil.getAspectExpAssociations(node, aspect_name);
+		return (associations != null && associations.size() > 0);
 	}
+	
 
+	public static Color annotationFontColor(Bioentity node) {
+		Color color = GuiConstant.FOREGROUND_COLOR;
+		if (hasAspectExpAnnotation(node)) {
+			color = getExpColor();
+		}
+		return color;
+	}
+	
 	public static Color annotationStatusColor(DisplayBioentity node, Color c, boolean brighten) {
 		/*
 		 * Default is to make it the same as the background
 		 */
 		Color color = new Color(c.getRGB());
-		PaintConfig prefs = PaintConfig.inst();
 		String aspect_code = AspectSelector.inst().getAspectCode();
 		List<GeneAnnotation> associations;
-		associations = AnnotationUtil.getAspectExpAssociations(node, aspect_code);
+//		String all_aspects = AspectSelector.inst().getAspectCode(AspectSelector.Aspect.ALL_TERMS.toString());
+//		if (aspect_code.equals(all_aspects)) {
+//			associations = AnnotationUtil.getExperimentalAssociations(node);
+//		} else {
+			associations = AnnotationUtil.getAspectExpAssociations(node, aspect_code);
+//		}
 		if (associations.size() > 0) {
-			color = prefs.expPaintColor;
+			color = getExpColor();
 		} else {
-			associations = AnnotationUtil.getAspectPaintAssociations(node, aspect_code);
-			for (GeneAnnotation assoc : associations) {
-				if (assoc.isMRC() && !node.isLeaf()) {
-					color = prefs.curatedPaintColor;
+//			if (aspect_code.equals(all_aspects)) {
+//				associations = AnnotationUtil.getPaintAssociations(node);
+//			} else {
+				associations = AnnotationUtil.getAspectPaintAssociations(node, aspect_code);
+//			}
+			if (associations.size() > 0) {
+				boolean direct_annotation = false;
+				for (int i = 0; i < associations.size() && !direct_annotation; i++) {
+					GeneAnnotation assoc = associations.get(i);
+					if (assoc.isMRC() && !node.isLeaf()) {
+						color = getMRCColor();
+						direct_annotation = true;
+					}
 				}
-				else if (!color.equals(prefs.curatedPaintColor)) {
-					color = prefs.inferPaintColor;
+				if (!direct_annotation) {
+					color = getAspectColor();
 				}
 			}
 		}
-		color = selectedColor(node.isSelected(), color, c);
 		return color;
 	}
 
@@ -201,15 +217,55 @@ public class RenderUtil {
 		String cv = AspectSelector.inst().getAspectName();
 		return getAspectColor(cv);
 	}
-
+	
 	public static Color getAspectColor(String cv) {
 		if (cv != null) {
 			if (cv.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString()))
-				return PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_BP);
+				return GuiConstant.bp_inf_color;
 			if (cv.equals(AspectSelector.Aspect.CELLULAR_COMPONENT.toString()))
-				return PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_CC);
+				return GuiConstant.cc_inf_color;
 			if (cv.equals(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString()))
-				return PaintConfig.inst().getAspectColor(GuiConstant.HIGHLIGHT_MF);
+				return GuiConstant.mf_inf_color;
+//			if (cv.equals(AspectSelector.Aspect.ALL_TERMS.toString()))
+//				return GuiConstant.all_inf_color;
+		}
+		return GuiConstant.BACKGROUND_COLOR;
+	}
+
+	public static Color getExpColor() {
+		String cv = AspectSelector.inst().getAspectName();
+		return getExpColor(cv);
+	}
+	
+	public static Color getExpColor(String cv) {
+		if (cv != null) {
+			if (cv.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString()))
+				return GuiConstant.bp_exp_color;
+			if (cv.equals(AspectSelector.Aspect.CELLULAR_COMPONENT.toString()))
+				return GuiConstant.cc_exp_color;
+			if (cv.equals(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString()))
+				return GuiConstant.mf_exp_color;
+//			if (cv.equals(AspectSelector.Aspect.ALL_TERMS.toString()))
+//				return GuiConstant.all_exp_color;
+		}
+		return GuiConstant.BACKGROUND_COLOR;
+	}
+
+	public static Color getMRCColor() {
+		String cv = AspectSelector.inst().getAspectName();
+		return getMRCColor(cv);
+	}
+	
+	public static Color getMRCColor(String cv) {
+		if (cv != null) {
+			if (cv.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString()))
+				return GuiConstant.bp_mrc_color;
+			if (cv.equals(AspectSelector.Aspect.CELLULAR_COMPONENT.toString()))
+				return GuiConstant.cc_mrc_color;
+			if (cv.equals(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString()))
+				return GuiConstant.mf_mrc_color;
+//			if (cv.equals(AspectSelector.Aspect.ALL_TERMS.toString()))
+//				return GuiConstant.all_mrc_color;
 		}
 		return GuiConstant.BACKGROUND_COLOR;
 	}
@@ -281,4 +337,5 @@ public class RenderUtil {
 		list.setVisibleRowCount(4);
 		return list;
 	}
+
 }

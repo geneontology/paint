@@ -63,9 +63,10 @@ public class GeneCellRenderer extends DefaultTableCellRenderer {
 		selected = isSelected;
 		GeneTableModel genes = (GeneTableModel) table.getModel();
 		Bioentity gene = genes.getNode(row);
-		bg_color = GuiConstant.BACKGROUND_COLOR;
-		if (isSelected)
-			bg_color = RenderUtil.annotationStatusColor((DisplayBioentity) gene, bg_color); //.brighter();
+		bg_color = ((DisplayBioentity) gene).getFillColor();
+//		RenderUtil.annotationStatusColor((DisplayBioentity) gene, GuiConstant.BACKGROUND_COLOR);
+//		if (isSelected)
+//			bg_color = RenderUtil.annotationStatusColor((DisplayBioentity) gene, bg_color); //.brighter();
 		if (value != null) {
 			label = (HyperlinkLabel) value;
 			String tip = label.getToolTipText();

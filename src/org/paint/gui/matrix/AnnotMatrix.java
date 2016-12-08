@@ -46,9 +46,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
-import org.bbop.framework.GUIManager;
 import org.bbop.phylo.annotate.PaintAction;
-import org.bbop.phylo.annotate.WithEvidence;
 import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.GeneAnnotation;
 import org.bbop.phylo.model.Tree;
@@ -56,8 +54,6 @@ import org.bbop.phylo.tracking.LogEntry;
 import org.bbop.phylo.util.OWLutil;
 import org.bbop.phylo.util.TaxonChecker;
 import org.paint.dialog.AnnotUtil;
-import org.paint.dialog.QualifierDialog;
-import org.paint.dialog.TaxonDialog;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;
 import org.paint.gui.FamilyViews;
@@ -157,6 +153,8 @@ ChallengeListener
 		models.put(AspectSelector.Aspect.CELLULAR_COMPONENT.toString(), annot_model);
 		annot_model = new AnnotMatrixModel(list, AspectSelector.Aspect.MOLECULAR_FUNCTION.toString());
 		models.put(AspectSelector.Aspect.MOLECULAR_FUNCTION.toString(), annot_model);
+//		annot_model = new AnnotMatrixModel(list, AspectSelector.Aspect.ALL_TERMS.toString());
+//		models.put(AspectSelector.Aspect.ALL_TERMS.toString(), annot_model);
 
 		String go_aspect = AspectSelector.inst().getAspectName();
 		AnnotMatrixModel matrix = models.get(go_aspect);
@@ -165,10 +163,14 @@ ChallengeListener
 		revalidate();
 		System.gc();
 	}
-
+	
 	public Map<String, AnnotMatrixModel> getModels() {
 		return models;
 	}
+
+//	public AnnotMatrixModel getAll() {
+//		return models.get(AspectSelector.Aspect.ALL_TERMS.toString());
+//	}
 
 	// Set the text and icon values on the second column for the icon render
 	public void setModel(AnnotMatrixModel model) {
@@ -313,13 +315,13 @@ ChallengeListener
 
 	public void handleAspectChangeEvent(AspectChangeEvent event) {
 		AnnotMatrixModel matrix = null;
+		AspectSelector aspect_setter = AspectSelector.inst();
 		if (models != null) {
-			String go_aspect = AspectSelector.inst().getAspectName();
+			String go_aspect = aspect_setter.getAspectName();
 			matrix = models.get(go_aspect);
 			String term = EventManager.inst().getCurrentTermSelection();
 			if (term != null) {
 				String term_aspect = OWLutil.inst().getAspect(term);
-				AspectSelector aspect_setter = AspectSelector.inst();
 				String current = aspect_setter.getAspectCode();
 				if (!term_aspect.equals(current)) {
 					selectedColumn = 0;

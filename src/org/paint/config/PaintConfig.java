@@ -3,9 +3,8 @@ package org.paint.config;
 import java.awt.Color;
 import java.io.StringWriter;
 
-import org.yaml.snakeyaml.Yaml;
 import org.bbop.phylo.config.TouchupConfig;
-import org.paint.util.GuiConstant;
+import org.yaml.snakeyaml.Yaml;
 
 public class PaintConfig extends TouchupConfig {
 
@@ -17,13 +16,14 @@ public class PaintConfig extends TouchupConfig {
 	public double tree_distance_scaling; 
 	public boolean collapse_no_exp;
 
-	public Color expPaintColor;
-	public Color curatedPaintColor;
-	public Color inferPaintColor;
+//	public Color expPaintColor;
+//	public Color curatedPaintColor;
+//	public Color inferPaintColor;
 
-	public Color mfPaintColor;
-	public Color ccPaintColor;
-	public Color bpPaintColor;
+//	public Color mfPaintColor;
+//	public Color ccPaintColor;
+//	public Color bpPaintColor;
+//	public Color allPaintColor;
 
 	public float[] msa_threshold;
 	public float[]  msa_weighted_threshold;
@@ -55,13 +55,14 @@ public class PaintConfig extends TouchupConfig {
 		super();
 		use_distances = true;
 		tree_distance_scaling = 50; 
-		expPaintColor = new Color(142, 35, 35);
-		curatedPaintColor = new Color(255, 127, 0);
-		inferPaintColor = new Color(16, 64, 128);
+//		expPaintColor = new Color(142, 35, 35);
+//		curatedPaintColor = new Color(255, 127, 0);
+//		inferPaintColor = new Color(16, 64, 128);
 
-		mfPaintColor = new Color(232, 248, 232);
-		ccPaintColor = new Color(224, 248, 255);
-		bpPaintColor = new Color(255, 248, 220);
+//		mfPaintColor = new Color(232, 248, 232);
+//		ccPaintColor = new Color(224, 248, 255);
+//		bpPaintColor = new Color(255, 248, 220);
+//		allPaintColor = new Color(255, 248, 220);
 
 		msa_threshold = new float[3];
 		msa_threshold[0] = 80f;
@@ -99,40 +100,46 @@ public class PaintConfig extends TouchupConfig {
 		blah.save(PREF_FILE);
 	}
 		
-	public Color getAspectColor(int aspect) {
-		Color color = GuiConstant.BACKGROUND_COLOR;
-		if (aspect > 0) {
-			switch (aspect) {
-			case GuiConstant.HIGHLIGHT_MF:
-				color = mfPaintColor;
-				break;
-			case GuiConstant.HIGHLIGHT_CC:
-				color = ccPaintColor;
-				break;
-			case GuiConstant.HIGHLIGHT_BP:
-				color = bpPaintColor;
-				break;
-			}
-		}
-		return color;
-	}
-
-	public void setAspectColor(int aspect, Color color) {
-		if (aspect > 0) {
-			switch (aspect) {
-			case GuiConstant.HIGHLIGHT_MF:
-				mfPaintColor = color;
-				break;
-			case GuiConstant.HIGHLIGHT_CC:
-				ccPaintColor = color;
-				break;
-			case GuiConstant.HIGHLIGHT_BP:
-				bpPaintColor = color;
-				break;
-			}
-		}
-	}
-
+//	public Color getAspectColor(int aspect) {
+//		Color color = GuiConstant.BACKGROUND_COLOR;
+//		if (aspect > 0) {
+//			switch (aspect) {
+//			case GuiConstant.HIGHLIGHT_MF:
+//				color = mfPaintColor;
+//				break;
+//			case GuiConstant.HIGHLIGHT_CC:
+//				color = ccPaintColor;
+//				break;
+//			case GuiConstant.HIGHLIGHT_BP:
+//				color = bpPaintColor;
+//				break;
+//			case GuiConstant.HIGHLIGHT_ALLGO:
+//				color = allPaintColor;
+//				break;
+//			}
+//		}
+//		return color;
+//	}
+//
+//	public void setAspectColor(int aspect, Color color) {
+//		if (aspect > 0) {
+//			switch (aspect) {
+//			case GuiConstant.HIGHLIGHT_MF:
+//				mfPaintColor = color;
+//				break;
+//			case GuiConstant.HIGHLIGHT_CC:
+//				ccPaintColor = color;
+//				break;
+//			case GuiConstant.HIGHLIGHT_BP:
+//				bpPaintColor = color;
+//				break;
+//			case GuiConstant.HIGHLIGHT_ALLGO:
+//				allPaintColor = color;
+//				break;
+//			}
+//		}
+//	}
+//
 	public float[] getMSAThresholds(boolean weighted) {
 		if (weighted)
 			return msa_weighted_threshold;

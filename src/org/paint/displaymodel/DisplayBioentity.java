@@ -99,6 +99,7 @@ public class DisplayBioentity extends Bioentity {
 	private Hashtable<String, String> attrLookup = new Hashtable<String, String>();
 
 	private Color dropColor;
+	private Color fillColor;
 
 	// Methods
 	public DisplayBioentity(boolean isExpanded) {
@@ -189,12 +190,9 @@ public class DisplayBioentity extends Bioentity {
 
 		Rectangle r = new Rectangle(getScreenRectangle());
 		Point p = new Point(getScreenPosition());
-		Color       fillColor = dropColor != null ? dropColor :
+		fillColor = dropColor != null ? dropColor :
 			RenderUtil.annotationStatusColor(this, GuiConstant.BACKGROUND_COLOR, true);
-		if (isSelected()) {
-			fillColor = fillColor.brighter();
-		}
-		Color       drawColor = GuiConstant.FOREGROUND_COLOR;
+		Color lineColor = isSelected() ? GuiConstant.SELECTION_COLOR : GuiConstant.FOREGROUND_COLOR;
 
 		connectToParent(root, g);
 
@@ -212,7 +210,7 @@ public class DisplayBioentity extends Bioentity {
 			};
 			g.setColor(fillColor);
 			g.fillPolygon(xCoords, yCoords, 4);
-			g.setColor(drawColor);
+			g.setColor(lineColor);
 			g.drawPolygon(xCoords, yCoords, 4);
 		}
 		else if (!isLeaf()) {
@@ -226,7 +224,7 @@ public class DisplayBioentity extends Bioentity {
 
 				g.setColor(fillColor);
 				g.fillPolygon(xCoords, yCoords, 3);
-				g.setColor(drawColor);
+				g.setColor(lineColor);
 				g.drawPolygon(xCoords, yCoords, 3);
 			} else if (isExpanded() && !isPruned()) {
 				if (isDuplication()) {
@@ -236,7 +234,7 @@ public class DisplayBioentity extends Bioentity {
 					 */
 					g.setColor(fillColor);
 					g.fillRect(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
-					g.setColor(drawColor);
+					g.setColor(lineColor);
 					g.drawRect(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
 				}
 				else if (isHorizontalTransfer()) {
@@ -251,7 +249,7 @@ public class DisplayBioentity extends Bioentity {
 					};
 					g.setColor(fillColor);
 					g.fillPolygon(xCoords, yCoords, 4);
-					g.setColor(drawColor);
+					g.setColor(lineColor);
 					g.drawPolygon(xCoords, yCoords, 4);
 				}
 				else {
@@ -262,7 +260,7 @@ public class DisplayBioentity extends Bioentity {
 					 */
 					g.setColor(fillColor);
 					g.fillOval(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
-					g.setColor(drawColor);
+					g.setColor(lineColor);
 					g.drawOval(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
 				}
 			}
@@ -274,7 +272,7 @@ public class DisplayBioentity extends Bioentity {
 				 */
 				g.setColor(Color.gray.brighter());
 				g.fillRect(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
-				g.setColor(drawColor);
+				g.setColor(lineColor);
 				g.drawRect(p.x, p.y - GLYPH_RADIUS, GLYPH_DIAMETER, GLYPH_DIAMETER);
 				g.drawLine(p.x, p.y - GLYPH_RADIUS, p.x + GLYPH_DIAMETER, p.y + GLYPH_RADIUS);
 				g.drawLine(p.x, p.y + GLYPH_RADIUS, p.x + GLYPH_DIAMETER, p.y - GLYPH_RADIUS);
@@ -285,7 +283,7 @@ public class DisplayBioentity extends Bioentity {
 				 */
 				g.setColor(fillColor);
 				g.fillRect(p.x, p.y - GLYPH_RADIUS, GLYPH_RADIUS, GLYPH_DIAMETER);
-				g.setColor(drawColor);
+				g.setColor(lineColor);
 				g.drawRect(p.x, p.y - GLYPH_RADIUS, GLYPH_RADIUS, GLYPH_DIAMETER);
 			}
 		}
@@ -310,7 +308,11 @@ public class DisplayBioentity extends Bioentity {
 
 			AttributedString as = new AttributedString(s);
 			as.addAttribute(TextAttribute.FONT, f);
-			g.setColor(RenderUtil.annotationStatusColor(this, GuiConstant.FOREGROUND_COLOR, false));
+			if (isSelected()) {
+				as.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+			}
+			Color text_color = RenderUtil.annotationFontColor(this);
+			g.setColor(text_color);
 			if (null != s) {
 				int text_x = p.x + NODE_TO_TEXT_OFFSET;
 				int text_y = p.y + (r.height / 2);
@@ -324,7 +326,7 @@ public class DisplayBioentity extends Bioentity {
 
 			x += TEXT_TO_LINE_OFFSET;
 
-			g.setColor(drawColor);
+			g.setColor(lineColor);
 			if (!(g instanceof Graphics2D)) {
 				g.drawLine(x, p.y, viewport.width, p.y);
 			}
@@ -585,5 +587,9 @@ public class DisplayBioentity extends Bioentity {
 		}
 		originalChildrenOrder.clear();
 		originalChildrenOrder.addAll(children);
+	}
+
+	public Color getFillColor() {
+		return fillColor;
 	}
 }

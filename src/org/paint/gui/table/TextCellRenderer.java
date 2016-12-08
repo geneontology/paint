@@ -66,14 +66,14 @@ public class TextCellRenderer extends DefaultTableCellRenderer {
 		Font f = RenderUtil.getNodeFont(node);;
 		setFont(f);
 		
-		fg_color = RenderUtil.annotationStatusColor(node, GuiConstant.FOREGROUND_COLOR);
-		if (isSelected) {
-			fg_color = GuiConstant.FOREGROUND_COLOR;
-			bg_color = RenderUtil.annotationStatusColor(node, GuiConstant.BACKGROUND_COLOR, true);
-		} else {
-			fg_color = RenderUtil.annotationStatusColor(node, GuiConstant.FOREGROUND_COLOR);
-			bg_color = GuiConstant.BACKGROUND_COLOR;
-		}
+//		if (isSelected) {
+//			bg_color = RenderUtil.annotationStatusColor(node, GuiConstant.BACKGROUND_COLOR, true);
+//		} else {
+//			fg_color = RenderUtil.annotationStatusColor(node, GuiConstant.FOREGROUND_COLOR);
+//			bg_color = GuiConstant.BACKGROUND_COLOR;
+//		}
+		bg_color = node.getFillColor();
+		fg_color = GuiConstant.FOREGROUND_COLOR;
 		this.setText((String) value);
 		setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		return this;

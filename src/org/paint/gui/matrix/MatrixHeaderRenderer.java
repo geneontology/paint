@@ -39,6 +39,7 @@ import javax.swing.table.TableColumnModel;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.util.OWLutil;
 import org.paint.config.IconResource;
+import org.paint.gui.AspectSelector;
 import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
@@ -78,16 +79,20 @@ public class MatrixHeaderRenderer extends JLabel implements TableCellRenderer {
 		setIcon(icon);
 		setForeground(GuiConstant.FOREGROUND_COLOR);
 
-		Color bg_color = RenderUtil.getAspectColor();
+		Color bg_color = GuiConstant.BACKGROUND_COLOR;
 		AnnotMatrixModel matrix = (AnnotMatrixModel) table.getModel();
 		if (column >= 0 && column < matrix.getColumnCount()) {
-			String col_term = OWLutil.inst().getTermLabel(matrix.getTermForColumn(column));
-			setToolTipText(col_term);
-			if (col_term == null || (col_term != null && col_term.length() == 0))
+			String term = matrix.getTermForColumn(column);
+			String col_name = OWLutil.inst().getTermLabel(term);
+			setToolTipText(col_name);
+			if (col_name == null || (col_name != null && col_name.length() == 0))
 				log.debug("No term name for column " + column);
 			UIManager.put("ToolTip.foreground", GuiConstant.FOREGROUND_COLOR);
 			ToolTipManager.sharedInstance().setDismissDelay(999999999);
 			
+			String aspect_code = OWLutil.inst().getAspect(term);
+			String aspect_name = AspectSelector.inst().getAspectName4Code(aspect_code);
+			bg_color = RenderUtil.getAspectColor(aspect_name);
 			ColumnTermData td = matrix.getTermData(column);
 			if (td != null && td.isDeletable()) {
 				bg_color = bg_color.darker();

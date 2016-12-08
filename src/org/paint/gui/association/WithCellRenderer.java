@@ -7,6 +7,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import org.paint.util.GuiConstant;
 import org.paint.util.RenderUtil;
 
 public class WithCellRenderer extends JScrollPane implements TableCellRenderer {
@@ -26,6 +27,7 @@ public class WithCellRenderer extends JScrollPane implements TableCellRenderer {
 			WithCellModel model = (WithCellModel) value;
 			list.setModel(model);
 			list.setBackground(model.getBackground());
+			list.setSelectionBackground(model.getBackground());
 			list.setSelectedIndex(model.getSelectedIndex());
 		} 
 		return this;

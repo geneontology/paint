@@ -273,6 +273,12 @@ public class PaintManager {
 			}
 		}
 		return term_list;
+//		AnnotMatrixModel annot = annot_matrix.getAll();
+//		List<String> term_list = new ArrayList<String>();
+//		if (annot != null) {
+//			term_list = annot.searchForTerm(cue);
+//		}
+//		return term_list;
 	}
 
 	/**

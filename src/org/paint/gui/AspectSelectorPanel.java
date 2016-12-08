@@ -23,7 +23,6 @@ package org.paint.gui;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -34,9 +33,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.bbop.phylo.util.OWLutil;
-import org.paint.config.IconResource;
 import org.paint.config.PaintConfig;
-import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;
 import org.paint.gui.event.EventManager;
@@ -48,6 +45,7 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 
 	private static final long serialVersionUID = 1L;
 
+//	private JRadioButton allButton;
 	private JRadioButton bpButton;
 	private JRadioButton ccButton;
 	private JRadioButton mfButton;
@@ -59,11 +57,13 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		//		setOpaque(true);
 		//		setBackground(Preferences.inst().getBackgroundColor());
 
-		mfButton = new JRadioButton("  Molecular Function  ", true);
+//		allButton = new JRadioButton("  All annotations  ", true);
+		mfButton = new JRadioButton("  Molecular Function  ", false);
 		ccButton = new JRadioButton("  Cellular Component  ", false);
 		bpButton = new JRadioButton("  Biological Process  ", false);
 
 		AspectSelectorListener aspectSelectionListener = new AspectSelectorListener();
+//		allButton.addActionListener(aspectSelectionListener);
 		bpButton.addActionListener(aspectSelectionListener);
 		ccButton.addActionListener(aspectSelectionListener);
 		mfButton.addActionListener(aspectSelectionListener);
@@ -71,32 +71,36 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		add(mfButton);
 		add(ccButton);
 		add(bpButton);
+//		add(allButton);
 
 		ButtonGroup group = new ButtonGroup();
 		group.add(mfButton);
 		group.add(ccButton);
 		group.add(bpButton);
+//		group.add(allButton);
 
 		mfButton.setOpaque(true);
 		ccButton.setOpaque(true);
 		bpButton.setOpaque(true);
+//		allButton.setOpaque(true);
 
-		PaintConfig prefs = PaintConfig.inst();
-
-		mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-		ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-		bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
-
+		mfButton.setBackground(GuiConstant.mf_inf_color);
+		ccButton.setBackground(GuiConstant.cc_inf_color);
+		bpButton.setBackground(GuiConstant.bp_inf_color);
+//		allButton.setBackground(GuiConstant.all_inf_color);
+		
 		plainBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 		mfButton.setMargin(new Insets(2, 12, 2, 12));
 
 		mfButton.setBorderPainted(true);
 		ccButton.setBorderPainted(true);
 		bpButton.setBorderPainted(true);
+//		allButton.setBorderPainted(true);
 
 		mfButton.setBorder(plainBorder);
 		ccButton.setBorder(plainBorder);
 		bpButton.setBorder(plainBorder);
+//		allButton.setBorder(plainBorder);
 
 		EventManager.inst().registerAspectChangeListener(this);
 		EventManager.inst().registerTermListener(this);
@@ -113,22 +117,30 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 		if (event.getSource() == this)
 			return;
 
-		PaintConfig prefs = PaintConfig.inst();
 		if (mfButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
 		if (bpButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
 		else if (ccButton.isSelected()) {
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
+//		else if (allButton.isSelected()) {
+//			mfButton.setBackground(GuiConstant.mf_inf_color);
+//			ccButton.setBackground(GuiConstant.cc_inf_color);
+//			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
+//		}
 	}
 
 	public void handleTermEvent(TermSelectEvent e) {
@@ -137,9 +149,9 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 			String term_aspect = OWLutil.inst().getAspect(term);
 			AspectSelector aspect_setter = AspectSelector.inst();
 			String current = aspect_setter.getAspectCode();
+			String aspect_name = aspect_setter.getAspectName4Code(term_aspect);
 			if (!term_aspect.equals(current)) {
 				aspect_setter.setAspect(term_aspect);
-				String aspect_name = aspect_setter.getAspectName4Code(term_aspect);
 				if (aspect_name.equals(AspectSelector.Aspect.BIOLOGICAL_PROCESS.toString())) {
 					bpButton.setSelected(true);
 				}
@@ -154,24 +166,34 @@ public class AspectSelectorPanel extends JPanel implements AspectChangeListener,
 	}
 
 	private void switchAspect(JRadioButton button) {
-		PaintConfig prefs = PaintConfig.inst();
+//		PaintConfig prefs = PaintConfig.inst();
 		if (button == bpButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.BIOLOGICAL_PROCESS);
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
 		else if (button == ccButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.CELLULAR_COMPONENT);
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
 		else if (button == mfButton) {
 			AspectSelector.inst().setAspect(AspectSelector.Aspect.MOLECULAR_FUNCTION);
-			mfButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_MF));
-			ccButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_CC));
-			bpButton.setBackground(prefs.getAspectColor(GuiConstant.HIGHLIGHT_BP));
+			mfButton.setBackground(GuiConstant.mf_inf_color);
+			ccButton.setBackground(GuiConstant.cc_inf_color);
+			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
 		}
+//		else if (button == allButton) {
+//			AspectSelector.inst().setAspect(AspectSelector.Aspect.ALL_TERMS);
+//			mfButton.setBackground(GuiConstant.mf_inf_color);
+//			ccButton.setBackground(GuiConstant.cc_inf_color);
+//			bpButton.setBackground(GuiConstant.bp_inf_color);
+//			allButton.setBackground(GuiConstant.all_inf_color);
+//		}
 	}
 }

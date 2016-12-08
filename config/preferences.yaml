@@ -1,14 +1,8 @@
 !!org.paint.config.PaintConfig
 GOlrURL: http://golr.geneontology.org/solr
-bpPaintColor: !color '138, 190, 204, 255'
-ccPaintColor: !color '138, 204, 177, 255'
 collapse_no_exp: true
-curatedPaintColor: !color '255, 204, 0, 255'
-expPaintColor: !color '61, 153, 61, 255'
 full_msa: false
-gafdir: /Users/suzi/test2/PTHR10003/
-inferPaintColor: !color '61, 100, 153, 255'
-mfPaintColor: !color '177, 204, 138, 255'
+gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR10003/
 msa_colors:
 - !color '51, 102, 77, 255'
 - !color '112, 153, 92, 255'
@@ -23,7 +17,7 @@ msa_weighted_colors:
 msa_weighted_threshold:
 - 90.0
 - 75.0
-tree_distance_scaling: 25.0
+tree_distance_scaling: 50.0
 treedir: /Users/suzi/projects/go/data/trees/panther/
 use_distances: true
 weighted: true

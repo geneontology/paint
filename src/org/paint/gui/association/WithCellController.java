@@ -13,6 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.paint.util.GuiConstant;
 import org.paint.util.HTMLUtil;
 import org.paint.util.RenderUtil;
 
@@ -53,6 +54,7 @@ class WithCellController extends DefaultCellEditor {
 			model = (WithCellModel) value;
 			list.setModel(model);
 			list.setBackground(model.getBackground());
+			list.setSelectionBackground(model.getBackground());
 			list.setSelectedIndex(model.getSelectedIndex());
 		}
 		return scrollpane;

@@ -37,6 +37,7 @@ public class AspectSelector {
 		BIOLOGICAL_PROCESS,
 		CELLULAR_COMPONENT,
 		MOLECULAR_FUNCTION;
+//		ALL_TERMS;
 
 		public String toString() {
 			return super.toString().toLowerCase();
@@ -48,9 +49,10 @@ public class AspectSelector {
 		aspects.put(Aspect.BIOLOGICAL_PROCESS.toString(), "P");
 		aspects.put(Aspect.CELLULAR_COMPONENT.toString(), "C");
 		aspects.put(Aspect.MOLECULAR_FUNCTION.toString(), "F");
+//		aspects.put(Aspect.ALL_TERMS.toString(), "A");
 	}
-	
-	
+
+
 
 	private AspectSelector() {
 		aspect = Aspect.MOLECULAR_FUNCTION;
@@ -71,7 +73,7 @@ public class AspectSelector {
 				EventManager.inst().fireAspectChangeEvent(new AspectChangeEvent(this));
 		}
 	}
-	
+
 	public void setAspect(String code) {
 		Set<String> names = aspects.keySet();
 		Aspect new_aspect = null;
@@ -84,6 +86,8 @@ public class AspectSelector {
 					new_aspect = Aspect.MOLECULAR_FUNCTION;
 				} else if (name.equals(Aspect.CELLULAR_COMPONENT.toString())) {
 					new_aspect = Aspect.CELLULAR_COMPONENT;
+//				} else if (name.equals(Aspect.ALL_TERMS.toString())) {
+//					new_aspect = Aspect.ALL_TERMS;
 				}
 			}
 		}
@@ -91,19 +95,19 @@ public class AspectSelector {
 			setAspect(new_aspect);
 		}
 	}
-	
+
 	public Aspect getAspect() {
 		return aspect;
 	}
-	
+
 	public String getAspectName() {
 		return aspect.toString();
 	}
-	
+
 	public String getAspectCode() {
 		return getAspectCode(aspect.toString());
 	}
-	
+
 	public String getAspectCode(String aspect_name) {
 		return aspects.get(aspect_name);
 	}
