@@ -1,5 +1,6 @@
 package org.paint.gui.association;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JList;
@@ -26,9 +27,12 @@ public class WithCellRenderer extends JScrollPane implements TableCellRenderer {
 		if (value != null) {
 			WithCellModel model = (WithCellModel) value;
 			list.setModel(model);
+			list.setForeground(Color.blue);
+			list.setSelectionForeground(Color.blue);
 			list.setBackground(model.getBackground());
 			list.setSelectionBackground(model.getBackground());
 			list.setSelectedIndex(model.getSelectedIndex());
+		    table.setRowHeight(row, model.getRowHeight());
 		} 
 		return this;
 	}

@@ -48,8 +48,8 @@ public class HTMLUtil {
 
 	// External link identifier and URL links
 	protected static final String [][] URL_primary = {
-		{"ENSEMBL", "http://www.ensembl.org/YYY/Gene/Summary?g=XXX" },
-		{"Ensembl", "http://www.ensembl.org/YYY/Gene/Summary?g=XXX" },
+		{"ENSEMBL", "http://www.ensembl.org/Multi/Gene/Summary?g=XXX" },
+		{"Ensembl", "http://www.ensembl.org/Multi/Gene/Summary?g=XXX" },
 		{"EnsemblGenome", "http://www.uniprot.org/uniprot/?query=XXX&sort=score" },
 		{"ENTREZ", "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=protein&id=XXX" },
 		{"RefSeq", "http://www.ncbi.nlm.nih.gov/entrez/viewer.fcgi?db=protein&id=XXX" },

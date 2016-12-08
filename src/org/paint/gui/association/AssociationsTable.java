@@ -194,24 +194,24 @@ ChallengeListener
 			term_col.setPreferredWidth(remainder);
 			term_col.setWidth(remainder);
 
-			initRowHeights();
+//			initRowHeights();
 			widths_initialized = true;
 		}
 	}
 
-	private void initRowHeights() {
-		int rows = assoc_model.getRowCount();
-		int row_height = getRowHeight() + 6;
-
-		for (int row = 0; row < rows; row++) {
-			WithCellModel with_model = (WithCellModel) assoc_model.getValueAt(row, AssociationsTableModel.WITH_COLUMN);
-			int with_count = with_model.getSize();
-			if (with_count == 0)
-				with_count = 1;
-			int with_height = Math.min(row_height * 4, row_height * with_count);
-			setRowHeight(row, with_height);
-		}
-	}
+//	private void initRowHeights() {
+//		int rows = assoc_model.getRowCount();
+//		int row_height = getRowHeight() + 8;
+//
+//		for (int row = 0; row < rows; row++) {
+//			WithCellModel with_model = (WithCellModel) assoc_model.getValueAt(row, AssociationsTableModel.WITH_COLUMN);
+//			int with_count = with_model.getSize();
+//			if (with_count == 0)
+//				with_count = 1;
+//			int with_height = Math.min(row_height * 4, row_height * with_count);
+//			setRowHeight(row, with_height);
+//		}
+//	}
 
 	/* MouseListener methods */
 	public void mouseClicked(MouseEvent event) {
@@ -394,7 +394,7 @@ ChallengeListener
 	public void handleAnnotationChangeEvent(AnnotationChangeEvent event) {
 		if (node != null && event.getSource() != null) {
 			assoc_model.setNode(node);
-			initRowHeights();
+//			initRowHeights();
 			assoc_model.fireTableDataChanged();		
 		}
 	}
@@ -409,8 +409,9 @@ ChallengeListener
 		} else {
 			setAnnotations(null);
 		}
-		this.initRowHeights();
-		clearSelection();
+//		clearSelection();
+		assoc_model.fireTableDataChanged();
+//		initRowHeights();
 	}
 
 	public void handleChallengeEvent(ChallengeEvent event) {

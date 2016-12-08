@@ -55,6 +55,13 @@ public class WithCellModel implements ListModel<String> {
 		return background_color;
 	}
 	
+	protected int getRowHeight() {
+		int row_height = 22;
+		int with_count = with_list.size();
+		if (with_count == 0)
+			with_count = 1;
+		return Math.min(row_height * 4, row_height * with_count);
+	}
 	private void addWithsToList(List<String> with_strings, List<String> with_list, Color background_color) {
 		for (String with : with_strings) {
 			with_list.add(with);

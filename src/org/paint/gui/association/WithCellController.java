@@ -1,5 +1,6 @@
 package org.paint.gui.association;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -53,9 +54,12 @@ class WithCellController extends DefaultCellEditor {
 		if (value != null) {
 			model = (WithCellModel) value;
 			list.setModel(model);
+			list.setForeground(Color.blue);
+			list.setSelectionForeground(Color.blue);
 			list.setBackground(model.getBackground());
 			list.setSelectionBackground(model.getBackground());
 			list.setSelectedIndex(model.getSelectedIndex());
+		    table.setRowHeight(row, model.getRowHeight());
 		}
 		return scrollpane;
 	}
