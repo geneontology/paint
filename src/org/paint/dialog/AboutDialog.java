@@ -88,7 +88,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 			JPanel icon_panel = new JPanel();
 			icon_panel.setLayout(new BorderLayout());
 			JLabel program = new JLabel(paint_fullname, image, SwingConstants.CENTER);
-			JLabel version = new JLabel(VersionResource.inst().getVersion().toString(), image, SwingConstants.CENTER);
+			JLabel version = new JLabel(VersionResource.inst().getVersion(), image, SwingConstants.CENTER);
 			program.setFont(new Font("Arial", Font.BOLD, 14));
 			version.setFont(new Font("Arial", Font.BOLD, 12));
 			icon_panel.add(program, BorderLayout.CENTER);

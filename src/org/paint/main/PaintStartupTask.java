@@ -200,7 +200,7 @@ public class PaintStartupTask extends AbstractApplicationStartupTask {
 		//		log4j straight up, and have log4j appender for an error window
 		//		error manager used to go to term info but no longer
 		//		ErrorManager.inst().addErrorListener(new LogErrorListener());
-		LOG.info("Loading Paint version " + VersionResource.inst().getVersion().toString());
+		LOG.info("Loading Paint version " + VersionResource.inst().getVersion());
 	}
 
 	@Override

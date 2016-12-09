@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.paint.util.VersionNumber;
 
 /**
  * Used for reading previous or default user settings from property file and storing current user settings
@@ -39,7 +38,7 @@ public class VersionResource { // extends DirectoryUtil {
 
 	protected static Logger log = Logger.getLogger("org.panther.paint.config.Preferences");
 
-	private VersionNumber version;
+	private String version;
 
 	private static VersionResource resource;
 
@@ -60,7 +59,7 @@ public class VersionResource { // extends DirectoryUtil {
 		return resource;
 	}
 
-	public VersionNumber getVersion() {
+	public String getVersion() {
 		if (version == null) {
 			try {
 				InputStream inputStream = getExtensionLoader().getResourceAsStream(
@@ -68,18 +67,14 @@ public class VersionResource { // extends DirectoryUtil {
 				if (inputStream != null) {
 					List<String> lines = IOUtils.readLines(inputStream);
 					if (!lines.isEmpty()) {
-						version = new VersionNumber(lines.get(0));
+						version = lines.get(0);
 					}
 				}
 			} catch (Exception e) {
 				log.warn("Clould not load version from resource", e);
 			}
 			if (version == null) {
-				try {
-					version = new VersionNumber("2.0");
-				} catch (ParseException e) {
-					// ignore
-				}
+				version = "2.0";
 			}
 		}
 		return version;
