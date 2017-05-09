@@ -39,8 +39,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import org.bbop.phylo.owl.OWLutil;
 import org.bbop.phylo.species.TaxonFinder;
-import org.bbop.phylo.util.OWLutil;
 import org.paint.util.RenderUtil;
 
 public class TaxonDialog extends JDialog {

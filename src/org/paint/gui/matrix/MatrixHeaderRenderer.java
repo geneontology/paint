@@ -37,7 +37,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.log4j.Logger;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.config.IconResource;
 import org.paint.gui.AspectSelector;
 import org.paint.util.GuiConstant;

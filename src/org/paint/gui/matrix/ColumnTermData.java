@@ -14,7 +14,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.config.CustomTermList;
 
 public class ColumnTermData extends JPopupMenu implements ActionListener {

@@ -27,6 +27,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,6 @@ import org.bbop.phylo.model.Family;
 import org.bbop.phylo.tracking.LogAction;
 import org.bbop.phylo.tracking.LogAlert;
 import org.bbop.phylo.tracking.Logger;
-import org.paint.config.PaintConfig;
 import org.paint.gui.AbstractPaintGUIComponent;
 import org.paint.gui.AspectSelector.Aspect;
 import org.paint.gui.DirtyIndicator;
@@ -65,16 +65,17 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 	protected static EvidencePanel singleton;
 
 	private JTextArea comment_text;
-	private JTextArea warning_panel;
+	private JTextArea warning_text;
 	private LoggingPanel mf_panel;
 	private LoggingPanel cc_panel;
 	private LoggingPanel bp_panel;
 	private LoggingPanel prune_panel;
 	private LoggingPanel challenge_panel;
 
-	private boolean comment_set;
+	private boolean user_comment;
+	private CommentListener comment_listener;
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EvidencePanel.class);
+	protected static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EvidencePanel.class);
 
 	/*
 	 * Separated into sections by aspect ?
@@ -96,7 +97,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 	 */
 	public EvidencePanel() {
 		super("evidence:evidence");
-		comment_set = false;
+		user_comment = false;
 		setLayout(new BorderLayout());
 		setOpaque(true);
 		setBackground(GuiConstant.BACKGROUND_COLOR);
@@ -112,7 +113,7 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		pane.add(comment_text);
 
 		initWarningPane();
-		pane.add(warning_panel);
+		pane.add(warning_text);
 
 		mf_panel = initLogPane(GuiConstant.HIGHLIGHT_MF, Aspect.MOLECULAR_FUNCTION.toString());
 		cc_panel = initLogPane(GuiConstant.HIGHLIGHT_CC, Aspect.CELLULAR_COMPONENT.toString());
@@ -147,43 +148,23 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		comment_text.setWrapStyleWord(true);
 		Border titled = loggerBorder(GuiConstant.BACKGROUND_COLOR, "NOTES");
 		comment_text.setBorder(titled);
-		comment_text.getDocument().addDocumentListener(new DocumentListener() {
-			public void removeUpdate(DocumentEvent e) {
-				if (comment_set) {
-					DirtyIndicator.inst().dirtyGenes(comment_set);
-					String comment = comment_text.getText();
-					SwingUtilities.invokeLater(new CommentTask(comment));
-				}
-			}
+		comment_text.setText("");
 
-			public void insertUpdate(DocumentEvent e) {
-				if (comment_set) {
-					DirtyIndicator.inst().dirtyGenes(comment_set);
-					String comment = comment_text.getText();
-					SwingUtilities.invokeLater(new CommentTask(comment));
-				}
-			}
+		comment_listener = new CommentListener(comment_text);
+		comment_text.getDocument().addDocumentListener(comment_listener);
 
-			public void changedUpdate(DocumentEvent e) {
-				if (comment_set) {
-					DirtyIndicator.inst().dirtyGenes(comment_set);
-					String comment = comment_text.getText();
-					SwingUtilities.invokeLater(new CommentTask(comment));
-				}
-			}
-		});
 	}
 
 	private void initWarningPane() {
-		warning_panel = new JTextArea();
-		warning_panel.setOpaque(true);
-		warning_panel.setEditable(false);
-		warning_panel.setLineWrap(true);
-		warning_panel.setWrapStyleWord(true);
+		warning_text = new JTextArea();
+		warning_text.setOpaque(true);
+		warning_text.setEditable(false);
+		warning_text.setLineWrap(true);
+		warning_text.setWrapStyleWord(true);
 		Border titled = loggerBorder(Color.RED.darker(), "WARNINGS");
-		warning_panel.setBorder(titled);
-		warning_panel.setVisible(false);
-		warning_panel.setText(getWarnings());
+		warning_text.setBorder(titled);
+		warning_text.setVisible(false);
+		warning_text.setText("");
 	}
 
 	private LoggingPanel initLogPane(int aspect, String log_category) {
@@ -267,7 +248,6 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		{
 			return(false);
 		}
-
 	}
 
 	private String getPaintEvidenceAcc() {
@@ -286,31 +266,20 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 			return "";
 	}
 
-	private class CommentTask implements Runnable {
-		String comment;
-
-		CommentTask(String comment) {
-			this.comment = comment;
-		}
-
-		public void run() {
-			Logger.updateNotes(comment);
-		}
-	}
-
-	@Override
 	public void newFamilyData(FamilyChangeEvent e) {
-		comment_set = false;
+		user_comment = false;
 		String comment = getLoggedComment();
-		comment_text.setText(comment);
+		updateText(comment_text, comment);
+		log.info("set comment");
 		String warnings = getWarnings();
 		if (warnings != null && warnings.length() > 0) {
-			warning_panel.setVisible(true);
+			updateText(warning_text, warnings);
+			log.info("set warnings");
+			warning_text.setVisible(true);
 		} else {
-			warning_panel.setVisible(false);
+			log.info("no warnings");
+			warning_text.setVisible(false);
 		}
-		warning_panel.setText(warnings);
-		comment_set = true;
 	};
 
 	private String getLoggedComment() {
@@ -333,4 +302,88 @@ public class EvidencePanel extends AbstractPaintGUIComponent implements FamilyCh
 		return buf.toString();
 	}
 
+	public class CommentListener implements DocumentListener {
+		JTextArea textarea;
+
+		public CommentListener(JTextArea textarea) {
+			this.textarea = textarea;
+		}
+
+		public void removeUpdate(DocumentEvent e) {
+			if (user_comment) {
+				DirtyIndicator.inst().dirtyGenes(user_comment);
+				String comment = comment_text.getText();
+				SwingUtilities.invokeLater(new CommentTask(comment));
+			}
+		}
+
+		public void insertUpdate(DocumentEvent e) {
+			if (user_comment) {
+				DirtyIndicator.inst().dirtyGenes(user_comment);
+				String comment = comment_text.getText();
+				SwingUtilities.invokeLater(new CommentTask(comment));
+			}
+		}
+
+		public void changedUpdate(DocumentEvent e) {
+			if (user_comment) {
+				DirtyIndicator.inst().dirtyGenes(user_comment);
+				String comment = comment_text.getText();
+				SwingUtilities.invokeLater(new CommentTask(comment));
+			}
+		}
+	}
+
+	private class CommentTask implements Runnable {
+		String comment;
+
+		CommentTask(String comment) {
+			this.comment = comment;
+		}
+
+		public void run() {
+			Logger.updateNotes(comment);
+		}
+	}
+
+	public class TextTask {
+		public void setText(JTextArea outputArea, String messageToAppend) {
+			outputArea.setText(messageToAppend);
+			user_comment = true;
+		}
+	}
+
+	private void updateText(JTextArea textarea, String text) {
+		final JTextArea outputArea = textarea;
+		final String messageToAppend = text;
+		Thread text_thread = new Thread(new Runnable() {
+			public void run() {
+				final TextTask a = new TextTask();
+				if (SwingUtilities.isEventDispatchThread()) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							a.setText(outputArea, messageToAppend);
+						}
+					});
+				} else {
+					try {
+						SwingUtilities.invokeAndWait(new Runnable() {
+							@Override
+							public void run() {
+								a.setText(outputArea, messageToAppend);
+							}
+						});
+					} catch (InterruptedException ex) {
+						log.info(ex.getLocalizedMessage());
+					} catch (InvocationTargetException ex) {
+						log.info(ex.getMessage());
+					}
+				}
+			}
+		});
+		text_thread.start();
+	}
 }
+
+

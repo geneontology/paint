@@ -16,7 +16,7 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.bbop.swing.ScaledIcon;
 import org.paint.config.IconResource;
 import org.paint.displaymodel.DisplayBioentity;

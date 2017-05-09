@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.config.CustomTermList;
 import org.paint.displaymodel.DisplayBioentity;
 import org.paint.gui.AspectSelector;

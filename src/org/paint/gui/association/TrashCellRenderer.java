@@ -10,7 +10,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.gui.AspectSelector;
 import org.paint.util.RenderUtil;
 

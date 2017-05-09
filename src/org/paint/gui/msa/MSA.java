@@ -64,6 +64,15 @@ public class MSA {
 	private static final int START_BASE = 0;
 	private static final int END_BASE = 1;
 
+	private final int    SEGMENTS = 25;
+	private final int    SUB_SEGMENTS = 5;
+	
+	private final char [] full_ruler;
+	private char [] condense_ruler;
+	private final int seq_length;
+
+	private int hmm_length;
+
 	/**
 	 * Constructor declaration
 	 *
@@ -75,7 +84,13 @@ public class MSA {
 	 */
 	public MSA(List<String> list, List<String> list2) {
 		MSAParser parser = MSAParser.inst();
-		parser.parseSeqs(list);
+		seq_length = parser.parseSeqs(list);
+		full_ruler = setRuler(seq_length);
+		condense_ruler = setCondensedSequences(PaintManager.inst().getRows(), seq_length);
+		if (seq_length < SEGMENTS) {
+			condense_ruler = "Sequence".toCharArray();
+		}
+
 		have_weights = parser.parseWts(list2);
 		Font f = GuiConstant.DEFAULT_FONT;
 		setFont(new Font(msaFont, f.getStyle(), f.getSize()));
@@ -149,7 +164,7 @@ public class MSA {
 		List<Bioentity> nodes = PaintManager.inst().getRows();
 		if (nodes != null){
 			r.height += nodes.size() * row_height;
-			r.width += (MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa)) * colWidth;
+			r.width += (getSeqLength(PaintConfig.inst().full_msa)) * colWidth;
 		}
 		return r;
 	}
@@ -190,7 +205,7 @@ public class MSA {
 		int seq_x_position = viewport.x; // + seq_range[0] * charWidth + 1;
 
 		int column_x = seq_x_position;
-		char [] ruler = MSAParser.inst().getRuler(PaintConfig.inst().full_msa);
+		final char [] ruler = getRuler(PaintConfig.inst().full_msa);
 		for (int column = seq_range[START_BASE]; column < seq_range[END_BASE]; column++) {
 			g.drawChars(ruler, column, 1, column_x, header_y);
 			column_x += charWidth;
@@ -234,7 +249,7 @@ public class MSA {
 
 			column_x = seq_x_position;
 			int seq_y = curHeight + row_height - topInset - 1;
-			char [] seq_chars = seq.toCharArray();
+			final char [] seq_chars = seq.toCharArray();
 			for (int column = seq_range[START_BASE]; column < seq_range[END_BASE]; column++) {
 				Color color = nodeColors[column];
 				if (column == selectedCol) {
@@ -378,7 +393,7 @@ public class MSA {
 		int	charWidth = getColumnWidth(g);
 
 		// Header row
-		int length = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa) * charWidth;
+		int length = getSeqLength(PaintConfig.inst().full_msa) * charWidth;
 		if (0 <= p.x - length) {
 			selectedCol = (p.x - length)/ charWidth;
 		}
@@ -390,7 +405,7 @@ public class MSA {
 		}
 		// Header row
 		int	charWidth = getColumnWidth(g);
-		int header_width = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa) * charWidth;
+		int header_width = getSeqLength(PaintConfig.inst().full_msa) * charWidth;
 
 		int cur_y = PaintManager.inst().getTopMargin();
 		// right most x position for the header (where the click should be)
@@ -453,7 +468,7 @@ public class MSA {
 	 */
 	private double initColumnWeights(boolean weighted) {
 
-		int seq_length = MSAParser.inst().getSeqLength(PaintConfig.inst().full_msa);
+		int seq_length = getSeqLength(PaintConfig.inst().full_msa);
 		/* this keeps the overall totals for each count of an AA in a column */
 		aminoAcidStats = new AminoAcidStats[seq_length];
 
@@ -516,4 +531,167 @@ public class MSA {
 			colors_initialized = false;
 		}
 	}
+	
+	private char [] setRuler(int seqMaxLen) {
+		char [] ruler;
+		if (seqMaxLen < SEGMENTS){
+			ruler = "Sequence".toCharArray();
+		}
+		else {
+			ruler = new char [seqMaxLen];
+			for (int i = 0; i < seqMaxLen; i++){
+				if (0 == (i + 1) % SEGMENTS){
+					String  s = Integer.toString(i + 1);
+					for (int j = 0; j < s.length(); j++) {
+						ruler[i - s.length() + j] = s.charAt(j);
+					}
+					ruler[i] = '|';
+				}
+				else {
+					if (0 == (i + 1) % SUB_SEGMENTS) {
+						ruler[i] = '\'';
+					}
+					else {
+						ruler[i] = ' ';
+					}
+				}
+			}
+		}
+		return ruler;
+	}
+
+	private char [] setCondensedSequences(List<Bioentity> nodes, int seq_length) {
+		int gap_size = 0;
+		boolean column_needed;
+		StringBuffer ruler = new StringBuffer();
+
+		/* 
+		 * Working through the primary sequence one column (amino acid) at a time
+		 */
+		for (int seq_position = 0; seq_position < seq_length; seq_position++) {
+			column_needed = false;
+			/*
+			 * Find out whether there is any amino acid of significance at this column position
+			 * among all the rows 
+			 */
+			for (int i = 0; i < nodes.size() && !column_needed; i++) {
+				DisplayBioentity node = (DisplayBioentity) nodes.get(i);
+				if (node.getSequence() != null) {
+					String sequence = node.getSequence();
+					char  c = sequence.charAt(seq_position);
+					if (((c >= 'A') && (c <= 'Z')) || (c == '-')) {
+						column_needed = true;
+					}
+				}
+			}
+			if (column_needed) {
+				gap_size = 0;
+			} else {
+				gap_size++;
+			}
+
+			/*
+			 * If just reentering good stuff then need to put the starting position in the ruler
+			 */
+			if (gap_size < 6 ) {
+				if (0 == (seq_position + 1) % 10){
+					String  s = Integer.toString(seq_position + 1);
+					int pos = ruler.length() - s.length();
+					ruler.replace(pos, pos + s.length(), s);
+					ruler.append('|');
+				}
+				else if (0 == (seq_position + 1) % 5) {
+					ruler.append('\'');
+				}
+				else {
+					ruler.append(' ');
+				}
+			} else {
+				if (ruler.charAt(ruler.length() - 1) != '~') {
+					/*
+					 * If just leaving good stuff then need to put the ending position in the ruler
+					 */
+					int pos = ruler.length() - 5;
+					boolean digit = true;
+					int end_gap = ruler.lastIndexOf("~");
+					if (end_gap > 0) {
+						int start_gap = end_gap - 1;
+						while (start_gap > 0 && ruler.charAt(start_gap) == '~')
+							start_gap--;
+						if (ruler.charAt(start_gap) != '~')
+							start_gap++;
+						if (end_gap - start_gap < 4 && (pos - 5) < end_gap)
+							ruler.replace(start_gap,  start_gap+5, "~~~~~");
+					}
+					for (int i = pos - 1; i >= 0 && digit; i--) {
+						digit = Character.isDigit(ruler.charAt(i));
+						if (digit) {
+							ruler.setCharAt(i, ' ');
+						}
+					}
+					ruler.replace(pos,  pos+5, "~~~~~");
+				}
+			}
+
+			/* 
+			 * Now go through every row (gene) and see what they have at this position
+			 */
+			for (Bioentity node : nodes) {
+				DisplayBioentity protein = (DisplayBioentity) node;
+				switch (gap_size) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+					String sequence = protein.getSequence();
+					char  c = sequence.charAt(seq_position);
+					if (protein.getHMMSeq() == null) {
+						protein.setHMMSeq(String.valueOf(c));
+					} else {
+						protein.setHMMSeq(protein.getHMMSeq() + c);
+					}
+					break;
+				default:
+					// assuming the gap length never goes beyond 10K
+					String condensed = protein.getHMMSeq();
+					//					if (condensed.charAt(ruler.length() - 1) != '.') {
+					/*
+					 * If just leaving good stuff then need to put the ending position in the ruler
+					 */
+					int pos = ruler.length() - 5;
+					condensed = condensed.substring(0, pos) + ".....";
+					protein.setHMMSeq(condensed);
+					//					}
+				}
+			}
+		}
+
+		hmm_length = 0;
+		for (Bioentity node : nodes) {
+			DisplayBioentity protein = (DisplayBioentity) node;
+			if (protein.getHMMSeq().length() > hmm_length)
+				hmm_length = protein.getHMMSeq().length();
+		}
+		char [] condense_ruler = new char [ruler.length()];
+		for (int i = 0; i < ruler.length(); i++)
+			condense_ruler[i] = ruler.charAt(i);
+		return condense_ruler;
+	}
+	
+	protected int getSeqLength(boolean uncondensed) {
+		if (uncondensed)
+			return seq_length;
+		else
+			return hmm_length;
+	}
+	
+	protected char [] getRuler(boolean uncondensed) {
+		if (uncondensed)
+			return full_ruler;
+		else
+			return condense_ruler;
+	}
+
 }

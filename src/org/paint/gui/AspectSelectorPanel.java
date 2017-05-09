@@ -32,7 +32,7 @@ import javax.swing.JRadioButton;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.config.PaintConfig;
 import org.paint.gui.event.AspectChangeEvent;
 import org.paint.gui.event.AspectChangeListener;

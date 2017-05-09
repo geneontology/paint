@@ -59,6 +59,8 @@ public class EventManager {
 	protected List<Bioentity> selectedNodes;
 	protected String term_selection;
 	protected Bioentity top_node;
+	
+	private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EventManager.class);
 
 	private List<FamilyChangeListener> family_listeners = new ArrayList<FamilyChangeListener>(6);
 
@@ -482,11 +484,12 @@ public class EventManager {
 		top_node = node;
 	}
 
-	public void fireNewFamilyEvent(Object source, Family data_bag) {
-		FamilyChangeEvent e = new FamilyChangeEvent(source, data_bag);
-		if (data_bag != null) {
-			for (FamilyChangeListener l : family_listeners)
+	public void fireNewFamilyEvent(Object source, Family family) {
+		FamilyChangeEvent e = new FamilyChangeEvent(source, family);
+		if (family != null) {
+			for (FamilyChangeListener l : family_listeners) {
 				l.newFamilyData(e);
+			}
 		}
 		TreePanel tree = PaintManager.inst().getTree();
 		tree.scrollToTop();

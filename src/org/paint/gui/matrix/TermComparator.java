@@ -2,7 +2,7 @@ package org.paint.gui.matrix;
 
 import java.util.Comparator;
 
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 
 
 public class TermComparator implements Comparator<String> {

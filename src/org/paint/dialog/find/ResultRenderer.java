@@ -27,7 +27,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.log4j.Logger;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.paint.dialog.find.FindPanel.SEARCH_TYPE;
 import org.paint.gui.AspectSelector;
 import org.paint.util.GuiConstant;

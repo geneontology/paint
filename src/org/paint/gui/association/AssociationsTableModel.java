@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 import org.bbop.phylo.annotate.AnnotationUtil;
 import org.bbop.phylo.model.Bioentity;
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 import org.bbop.swing.HyperlinkLabel;
 import org.paint.gui.association.AssociationsTable.PHYLO_ACTION;
 import org.paint.gui.event.TermHyperlinkListener;

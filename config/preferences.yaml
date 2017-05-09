@@ -1,8 +1,8 @@
 !!org.paint.config.PaintConfig
 GOlrURL: http://golr.geneontology.org/solr
 collapse_no_exp: true
-full_msa: false
-gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR10003/
+full_msa: true
+gafdir: /Users/suzi/projects/go/gene-associations/submission/paint/PTHR11348/
 msa_colors:
 - !color '51, 102, 77, 255'
 - !color '112, 153, 92, 255'

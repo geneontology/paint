@@ -3,7 +3,7 @@ package org.paint.gui.association;
 import java.util.Comparator;
 
 import org.bbop.phylo.model.GeneAnnotation;
-import org.bbop.phylo.util.OWLutil;
+import org.bbop.phylo.owl.OWLutil;
 
 public class EvidenceComparator implements Comparator<GeneAnnotation> {
 

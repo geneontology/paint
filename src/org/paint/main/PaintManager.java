@@ -181,7 +181,7 @@ public class PaintManager {
 
 				log.info("Fetching experimental annotations from GOLR");
 				success = AnnotationUtil.loadExperimental(family);
-				if (success)
+				if (success) {
 					/*
 					 * Don't bother with looking for these if they don't exist yet
 					 */
@@ -200,6 +200,7 @@ public class PaintManager {
 					} else {
 						Logger.clearUserLog();
 					}
+				}
 				else {
 					family = null;
 					fireProgressChange("Unable to retrieve experimental annotations " + family_name, 100, ProgressEvent.Status.END);
